@@ -1,0 +1,107 @@
+{
+  "groups": [
+    {
+      "name": "organicity.backend",
+      "type": "fr.cea.organicity.manager.config.Environment.BackendSettings",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.frontend",
+      "type": "fr.cea.organicity.manager.config.Environment.FrontendSettings",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.FrontendSettings"
+    },
+    {
+      "name": "organicity.server",
+      "type": "fr.cea.organicity.manager.config.Environment.ServerSettings",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    }
+  ],
+  "properties": [
+    {
+      "name": "organicity.backend.certificate",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.backend.certificate",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.backend.client-id",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.backend.client-id",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.backend.client-password",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.backend.client-password",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.backend.dictionary",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
+    },
+    {
+      "name": "organicity.frontend.authentication-activated",
+      "type": "java.lang.Boolean",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.FrontendSettings"
+    },
+    {
+      "name": "organicity.frontend.authentication-activated",
+      "type": "java.lang.Boolean",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.FrontendSettings"
+    },
+    {
+      "name": "organicity.frontend.dictionary",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.FrontendSettings"
+    },
+    {
+      "name": "organicity.server.dictionary",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    },
+    {
+      "name": "organicity.server.exposedport",
+      "type": "java.lang.Integer",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    },
+    {
+      "name": "organicity.server.host",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    },
+    {
+      "name": "organicity.server.host",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    },
+    {
+      "name": "organicity.server.localport",
+      "type": "java.lang.Integer",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    },
+    {
+      "name": "organicity.server.protocol",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    },
+    {
+      "name": "organicity.server.protocol",
+      "type": "java.lang.String",
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+    }
+  ],
+  "hints": []
+}

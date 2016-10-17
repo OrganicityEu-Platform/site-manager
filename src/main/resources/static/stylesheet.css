@@ -1,0 +1,205 @@
+html {
+  font-size: 62.5%;
+  font-family: CooperHewitt-Book,Verdana,Arial,sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: #f3f4f8;
+}
+
+header, footer {
+  background-color: #ef4070;
+  padding: 1rem;
+}
+
+nav {
+  text-align: center;
+  font-size: 2rem;
+}
+
+footer {
+  text-align: center;
+  color: white;
+  font-size: 2rem;
+  padding: 4rem;
+}
+
+header img {
+  width: 12.6rem;
+}
+
+img {
+  border: 0 none;
+  margin-left: 80px;
+}
+
+a {
+  color: #ef4070;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.title {
+  background-color: white;
+  padding: 1rem;
+}
+
+.title h1 {
+  color: #ef4070;
+  font-size: 4.6rem;
+  text-align: center;
+  font-weight: 400;
+}
+
+.content {
+  background-color: white;
+  color: #5d5d5d;
+  font-family: freight-text-pro,serif;
+  font-size: 1.8rem;
+  line-height: 3rem;
+
+  margin: 8rem;
+  margin-right: 20%;
+  margin-left: 20%;
+  padding: 6rem 18rem;
+}
+
+@media screen and (max-width: 1024px) {
+  .content {
+  padding: 4rem;
+  margin: 4rem;
+  }
+}
+
+.btn {
+  -moz-user-select: none;
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.42857;
+  margin-bottom: 0;
+  padding: 6px 12px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.danger {
+	background-color: #ef4070;
+	color: #fff;
+}
+
+.validate {
+	background-color: #4BB75F;
+	color: #fff;
+}
+
+.btnbar {
+	margin-top: 20px;
+}
+
+.content h2 {
+  margin-top: 6rem;
+  margin-bottom: 6rem;
+  text-align: center;
+}
+
+.rolename {
+  display: inline-block;
+  min-width: 19rem;
+ }
+
+.rolecolumn {
+  display: inline-block;
+  min-width: 14rem;
+}
+
+th {
+  text-align: center;
+}
+
+td {
+  text-align: left;
+}
+
+th, td{
+  vertical-align: middle;
+}
+
+th {
+  font-weight: 600;
+}
+
+table {
+  -moz-border-bottom-colors: none;
+  -moz-border-image: none;
+  -border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-top-colors: none;
+  border-collapse: separate;
+  border-color: #DDDDDD #DDDDDD #DDDDDD -moz-use-text-color;
+  border-radius: 4px 4px 4px 4px;
+  border-style: solid solid solid none;
+  border-width: 1px 1px 1px 0;
+  margin-bottom: 18px;
+  width: 100%;
+  background-color: transparent;
+  border-spacing: 0;
+  max-width: 100%;
+}
+
+thead th {
+  border-left: 1px solid #DDDDDD;
+  line-height: 18px;
+  padding: 8px;
+}
+
+th, td {
+  border-left: 1px solid #DDDDDD;
+  border-top: 1px solid #DDDDDD;
+  line-height: 18px;
+  padding: 8px;
+}
+
+tbody tr:nth-child(2n+1) td, tbody tr:nth-child(2n+1) th {
+  background-color: #F9F9F9;
+}
+
+label {
+	display: inline-block;
+	min-width: 150px;
+	font-weight: bold;
+}
+
+input, select {
+	min-width: 200px;
+}
+
+form .line {
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+.message {
+	border-radius: 4px;
+	background-color: #fcf8e3;
+    border-color: #faebcc;
+    color: #8a6d3b;
+    padding: 15px;
+	text-align: center;
+}
+
+
+.editmode, .inlineeditmode {
+	display: none;
+}

@@ -1,0 +1,1251 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"description": "Connect new sites to the OrganiCity platform, as well as perform the management of its related attributes",
+		"version": "1.0.0",
+		"title": "OrganiCity Site Management API",
+		"contact": {"email": "etienne.gandrille@cea.fr"}
+	},
+	"host": "{{host}}:{{exposedport}}",
+	"basePath": "/v1",
+	"tags": [{
+		"name": "site",
+		"description": "site management"
+	}, {
+		"name": "quota",
+		"description": "experiment quota management"
+	}, {
+		"name": "dictionary",
+		"description": "assets, attributes, units and data types"
+	}],
+	"schemes": ["{{protocol}}"],
+	"paths": {
+		"/sites": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Finds all the sites",
+				"operationId": "getSites",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token (no role required)",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC site summaries",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/sitesummary"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
+		
+		
+		
+		
+		"/sites/{siteName}": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Finds site by name",
+				"operationId": "getSiteByName",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site to return",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns a single site",
+						"schema": {
+							"$ref": "#/definitions/sitedesc"
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			},
+			"put": {
+				"tags": ["site"],
+				"summary": "Updates an existing site",
+				"operationId": "updateSite",
+				"consumes": [
+					"application/json"
+				],
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site that needs to be updated",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "site",
+					"in": "body",
+					"description": "Site object that needs to be updated",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/siteupdate"
+					}
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-admin",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Site updated",
+						"schema": {
+							"$ref": "#/definitions/sitedesc"
+						}
+					},
+					"400": {
+						"description": "Malformed or invalid json content (i.e. missing fields), or invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			}
+		},
+		"/sites/{siteName}/quota/increment": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Increment the remaining quota of a site",
+				"operationId": "incrementRemainingQuota",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Site name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-admin",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Quota updated",
+						"schema": {
+							"$ref": "#/definitions/sitedesc"
+						}
+					},
+					"400": {
+						"description": "Invalid site name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"403": {
+						"description": "Remaining quota is already set to its maximum"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			}
+		},	
+		"/sites/{siteName}/quota/decrement": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Decrement the remaining quota of a site",
+				"operationId": "decrementRemainingQuota",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Site name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-admin",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Quota updated",
+						"schema": {
+							"$ref": "#/definitions/sitedesc"
+						}
+					},
+					"400": {
+						"description": "Invalid site name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"403": {
+						"description": "Remaining quota is already zero"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			}
+		},
+		"/sites/{siteName}/services": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Finds the services of a site",
+				"operationId": "getServices",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Site name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC services",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/servicedesc"
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			},
+			"post": {
+				"tags": ["site"],
+				"summary": "Add a new service in a given site",
+				"operationId": "addService",
+				"consumes": [
+					"application/json"
+				],
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Site name",
+					"required": true,
+					"type": "string"
+				}, {
+					"in": "body",
+					"name": "site",
+					"description": "Service object that needs to be added to the facility",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/service"
+					}
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-admin",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Service added",
+						"schema": {
+							"$ref": "#/definitions/servicedesc"
+						}
+					},
+					"400": {
+						"description": "Malformed or invalid json content, or entity with an already existing name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					},
+					"405": {
+						"description": "Invalid json content (i.e. missing fields) or already existing service"
+					}
+				}
+			}
+		},
+		"/sites/{siteName}/services/{serviceName}": {
+			"delete": {
+				"tags": ["site"],
+				"summary": "Deletes a service",
+				"operationId": "deleteService",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Site name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "serviceName",
+					"in": "path",
+					"description": "Service name to be deleted",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-admin",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Service removed"
+					},
+					"400": {
+						"description": "Invalid siteName or serviceName supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site or service in site not found"
+					}
+				}
+			},
+			"get": {
+				"tags": ["site"],
+				"summary": "Find service by name",
+				"operationId": "getServiceByName",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Site name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "serviceName",
+					"in": "path",
+					"description": "Name of service that needs to be fetched",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"schema": {
+							"$ref": "#/definitions/servicedesc"
+						}
+					},
+					"400": {
+						"description": "Invalid siteName or serviceName supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site or service in site not found"
+					}
+				}
+			},
+			"put": {
+				"tags": ["site"],
+				"summary": "Updates a service",
+				"operationId": "updateService",
+				"consumes": [
+					"application/json"
+				],
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Site name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "serviceName",
+					"in": "path",
+					"description": "Name of service that needs to be updated. It MUST be the same name as the one in the body",
+					"required": true,
+					"type": "string"
+				}, {
+					"in": "body",
+					"name": "site",
+					"description": "Service that needs to be updated",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/serviceupdate"
+					}
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-admin",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Service updated",
+						"schema": {
+							"$ref": "#/definitions/servicedesc"
+						}
+					},
+					"400": {
+						"description": "Malformed or invalid json content (i.e. missing fields), or invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site or service not found"
+					}
+				}
+			}
+		},
+		"/quota": {
+			"get": {
+				"tags": ["quota"],
+				"summary": "Gets the default quota for new experiments",
+				"operationId": "getQuota",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token (no role required)",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Success",
+						"schema": {
+							"$ref": "#/definitions/quotadesc"
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
+		"/dictionary/unregisteredassettype": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the unregistered asset types",
+				"operationId": "getUnregisteredAssetTypes",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC unregistered asset types",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/unregisteredassettypedesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			},
+			"post": {
+				"tags": ["dictionary"],
+				"summary": "Add a new unregistered asset type",
+				"operationId": "addUnregisteredAssetType",
+				"consumes": [
+					"application/json"
+				],
+				"produces": ["application/json"],
+				"parameters": [{
+					"in": "body",
+					"name": "unregisteredAssetType",
+					"description": "Unregistered asset type object that needs to be added",
+					"required": true,
+					"schema": {
+						"$ref": "#/definitions/unregisteredassettypeupdate"
+					}
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:site-{siteName}-admin",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Unregistered asset type added (or already added before this call)",
+						"schema": {
+							"$ref": "#/definitions/unregisteredassettypedesc"
+						}
+					},
+					"400": {
+						"description": "Malformed json"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"405": {
+						"description": "Invalid json content (i.e. missing fields)"
+					},
+					"412": {
+						"description": "Already existing data type in the data type data base. It does NOT make sense to register it as an unknown data type"
+					}
+				}
+			}
+		},
+		"/dictionary/assettypes": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the asset types",
+				"operationId": "getAssetTypes",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC asset types",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/assettypedesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
+		"/dictionary/assettypes/{name}": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Find asset type by name",
+				"operationId": "getAssetTypeByName",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "name",
+					"in": "path",
+					"description": "asset type name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"schema": {
+							"$ref": "#/definitions/assettypedesc"
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Asset Type not found"
+					}
+				}
+			}
+		},
+		"/dictionary/attributetypes": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the attribute types",
+				"operationId": "getAttributeTypes",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC attribute types",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/attributetypedesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
+		"/dictionary/attributetypes/{name}": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Find attribute type by name",
+				"operationId": "getAttributeTypeByName",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "name",
+					"in": "path",
+					"description": "attribute type name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"schema": {
+							"$ref": "#/definitions/attributetypedesc"
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Attribute Type not found"
+					}
+				}
+			}
+		},
+		"/dictionary/units": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the units",
+				"operationId": "getUnits",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC units",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/unitdesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
+		"/dictionary/units/{name}": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Find unit by name",
+				"operationId": "getUnitByName",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "name",
+					"in": "path",
+					"description": "unit name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"schema": {
+							"$ref": "#/definitions/unitdesc"
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Unit not found"
+					}
+				}
+			}
+		},
+		"/dictionary/datatypes": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the data types",
+				"operationId": "getDataTypes",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC data types",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/datatypedesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
+		"/dictionary/datatypes/{name}": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Find data type by name",
+				"operationId": "getDataTypeByName",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "name",
+					"in": "path",
+					"description": "data type name",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"schema": {
+							"$ref": "#/definitions/datatypedesc"
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Data Type not found"
+					}
+				}
+			}
+		},
+		"/dictionary/tools": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the tools",
+				"operationId": "getTools",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC tools",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/tooldesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
+		"/dictionary/applicationtypes": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the applications types",
+				"operationId": "getAppTypes",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC application types",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/apptypedesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"site": {
+			"type": "object",
+			"required": [
+				"name",
+				"email",
+				"related"
+			],
+			"properties": {
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC site"
+				},
+				"email": {
+					"type": "string",
+					"format": "email",
+					"description": "administrator's email address"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				}
+			}
+		},
+		"sitesummary": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC site"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC site"
+				}
+			}
+		},
+		"siteupdate": {
+			"type": "object",
+			"required": [
+				"email",
+				"related"
+			],
+			"properties": {
+				"email": {
+					"type": "string",
+					"format": "email",
+					"description": "administrator's email address"
+				},
+
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				}
+			}
+		},
+		"sitedesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name",
+				"email",
+				"created",
+				"updated"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC site"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC site"
+				},
+				"email": {
+					"type": "string",
+					"format": "email",
+					"description": "administrator's email address"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				},
+				"quota": {
+					"type": "integer",
+					"format": "int64",
+					"description": "Total number of assets this site can create"
+				},
+				"remQuota": {
+					"type": "integer",
+					"format": "int64",
+					"description": "Remaining number of assets this site can create"
+				},
+				"created": {
+					"type": "integer",
+					"format": "int64",
+					"description": "site registration date"
+				},
+				"updated": {
+					"type": "integer",
+					"format": "int64",
+					"description": "site last update date"
+				}
+			}
+		},
+		"service": {
+			"type": "object",
+			"required": [
+				"name"
+			],
+			"properties": {
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC service"
+				},
+				"description": {
+					"type": "string",
+					"description": "optional description"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				}
+			}
+		},
+		"serviceupdate": {
+			"type": "object",
+			"properties": {
+				"description": {
+					"type": "string",
+					"description": "optional description"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				}
+			}
+		},
+		"servicedesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name",
+				"created",
+				"updated"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC service"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC service"
+				},
+				"description": {
+					"type": "string",
+					"description": "Optional description"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				},
+				"created": {
+					"type": "integer",
+					"format": "int64",
+					"description": "service registration date"
+				},
+				"updated": {
+					"type": "integer",
+					"format": "int64",
+					"description": "service last update date"
+				}
+			}
+		},
+		"quotadesc": {
+			"type": "object",
+			"required": [
+				"quota"
+			],
+			"properties": {
+				"quota": {
+					"type": "integer",
+					"format": "int64",
+					"description": "quota value"
+				}
+			}
+		},
+		"unregisteredassettypedesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC asset type"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC asset type"
+				}
+			}
+		},
+		"unregisteredassettypeupdate": {
+			"type": "object",
+			"required": [
+				"name"
+			],
+			"properties": {
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC asset type"
+				}
+			}
+		},
+		"assettypedesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name",
+				"description",
+				"related",
+				"attributes"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC asset type"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC asset type"
+				},
+				"description": {
+					"type": "string",
+					"description": "Optional description"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				},
+				"attributes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/attributetypedesc"
+					}
+				}
+			}
+		},
+		"attributetypedesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name",
+				"description",
+				"related",
+				"units"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC asset type"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC asset type"
+				},
+				"description": {
+					"type": "string",
+					"description": "Optional description"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				},
+				"units": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/unitdesc"
+					}
+				}
+			}
+		},
+		"unitdesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name",
+				"description",
+				"related",
+				"datatype"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC unit"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC unit"
+				},
+				"description": {
+					"type": "string",
+					"description": "Optional description"
+				},
+				"related": {
+					"type": "string",
+					"description": "extension point for storing structured or unstructured information"
+				},
+				"datatype": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/datatypedesc"
+					}
+				}
+			}
+		},
+		"datatypedesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC data type"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC data type"
+				}
+			}
+		},
+		"tooldesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC tool"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC tool"
+				},
+				"url": {
+					"type": "string",
+					"description": "Optional url"
+				},
+				"description": {
+					"type": "string",
+					"description": "Optional description"
+				}
+			}
+		},
+		"apptypedesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC application type"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC application type"
+				},
+				"description": {
+					"type": "string",
+					"description": "Optional description"
+				}
+			}
+		}
+	}
+}
