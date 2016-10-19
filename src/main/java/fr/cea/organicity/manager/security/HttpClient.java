@@ -1,5 +1,7 @@
 package fr.cea.organicity.manager.security;
 
+import java.io.IOException;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
@@ -29,7 +31,7 @@ public class HttpClient {
 		return target;
 	}
 
-	public Builder buildHeaders(WebTarget target) {
+	public Builder buildHeaders(WebTarget target) throws IOException {
 		return target.request().header("Authorization", "Bearer " + tokenManager.getAuthToken());
 	}
 	

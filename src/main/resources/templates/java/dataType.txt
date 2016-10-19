@@ -1,0 +1,3 @@
+		OCDataType {{var}} = new OCDataType();
+		{{var}}.setName("{{name}}");
+		{{var}} = datatyperepository.save({{var}});

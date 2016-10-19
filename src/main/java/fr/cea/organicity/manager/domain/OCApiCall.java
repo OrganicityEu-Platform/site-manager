@@ -17,6 +17,8 @@ public class OCApiCall {
 	@Id @GeneratedValue
 	private long id;
 	
+	private boolean success;
+	
 	@NotNull
 	private Date date;
 	

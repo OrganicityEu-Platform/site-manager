@@ -1,5 +1,6 @@
 package fr.cea.organicity.manager.security;
 
+import java.io.IOException;
 import java.security.PublicKey;
 
 import javax.ws.rs.client.Client;
@@ -30,13 +31,13 @@ public class TokenManager {
 		this.invoker = invoker;
 	}
 	
-	public String getAuthToken(boolean forceRenew) {
+	public String getAuthToken(boolean forceRenew) throws IOException {
 		if (forceRenew || !isUpToDateToken())
 			authToken = renewAuthToken(client, credentials);
 		return authToken;
 	}
 	
-	public String getAuthToken() {
+	public String getAuthToken() throws IOException {
 		return getAuthToken(false);
 	}
 	
@@ -60,7 +61,7 @@ public class TokenManager {
 		return true;
 	}
 	
-	private String renewAuthToken(Client client, Credentials credentials) {
+	private String renewAuthToken(Client client, Credentials credentials) throws IOException {
 		String url = SecurityConstants.connectUrl;
 		String auth = credentials.getAuthString();		
 		Invocation invocation = client.target(url).request().header("Authorization", "Basic " + auth)

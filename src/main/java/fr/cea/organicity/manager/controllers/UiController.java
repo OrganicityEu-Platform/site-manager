@@ -364,7 +364,14 @@ public class UiController {
 	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
 	public String metricsAccessCall(HttpServletRequest request) throws IOException {
 		List<Role> roles = roleManager.getRolesForRequest(request);
-		return ApiCallMetric.generateHTML(templateService, roles, apiCallRepository, 100, 1);
+		return ApiCallMetric.generateHTML(templateService, roles, "Longest API calls", apiCallRepository, 100, 1, true);
+	}
+	
+	@RequestMapping("/metrics/access/fail")
+	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
+	public String metricsAccessFail(HttpServletRequest request) throws IOException {
+		List<Role> roles = roleManager.getRolesForRequest(request);
+		return ApiCallMetric.generateHTML(templateService, roles, "Failing API calls", apiCallRepository, 100, 1, false);
 	}
 	
 	@RequestMapping("/metrics/errors/today")

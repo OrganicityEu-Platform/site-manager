@@ -1,5 +1,6 @@
 package fr.cea.organicity.manager.otherservices;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,13 @@ public class ExperimentLister extends Lister<Experiment> {
 	protected List<Experiment> retrieveElements() {
 		
 		List<Experiment> experiments = new ArrayList<>();
-		Response res = invoker.defaultGet(client, EXP_PORTAL_ALL_EXPERIMENT_URL);
+		Response res = null;
+		try {
+			res = invoker.defaultGet(client, EXP_PORTAL_ALL_EXPERIMENT_URL);
+		} catch (Exception e) {
+			log.error("[HTTP ERROR] on " + EXP_PORTAL_ALL_EXPERIMENT_URL + " : " + e.getMessage());
+			return experiments;
+		}
 		
 		JSONArray array = HttpClient.bodyToJsonObject(res).getJSONArray("experiments");
 		
@@ -48,7 +55,8 @@ public class ExperimentLister extends Lister<Experiment> {
 				JSONObject jsonExperiment = (JSONObject) array.get(i);
 				experiments.add(new Experiment(jsonExperiment));
 			} catch (Exception e) {
-				throw new RuntimeException("malformed experiment into json object", e);
+				log.error("[HTTP ERROR] on " + EXP_PORTAL_ALL_EXPERIMENT_URL + " : malformed json object. " + e.getMessage());
+				return experiments;
 			}
 		}
 		
@@ -66,14 +74,14 @@ public class ExperimentLister extends Lister<Experiment> {
 		return experiments;
 	}
 	
-	public List<String> getDataSrcByExperiment(String experimentId) {
+	public List<String> getDataSrcByExperiment(String experimentId) throws IOException {
 		List<String> sources = new ArrayList<>();
 		sources.addAll(getDataSrcByExperimentOnExperimenterPortal(experimentId));
 		sources.addAll(getDataSrcByExperimentOnObservatory(experimentId));
 		return sources;
 	}
 	
-	public List<String> getDataSrcByExperimentOnExperimenterPortal(String experimentId) {	
+	public List<String> getDataSrcByExperimentOnExperimenterPortal(String experimentId) throws IOException {	
 		List<String> sources = new ArrayList<>();
 		
 		String url = EXP_PORTAL_EXPERIMENT_URL + "/" + experimentId + "/datasources";
@@ -96,7 +104,7 @@ public class ExperimentLister extends Lister<Experiment> {
 		return sources;
 	}
 	
-	public List<String> getDataSrcByExperimentOnObservatory(String experimentId) {
+	public List<String> getDataSrcByExperimentOnObservatory(String experimentId) throws IOException {
 		List<String> sources = new ArrayList<>();
 		
 		String url = DISCOVERY_ROOT + experimentId;

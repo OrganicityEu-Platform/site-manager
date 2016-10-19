@@ -1,0 +1,4 @@
+		OCUnit {{var}} = new OCUnit();
+		{{var}}.setName("{{name}}");
+		{{var}}.setDatatype({{dataType}});
+		{{var}} = unitrepository.save({{var}});

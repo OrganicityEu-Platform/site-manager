@@ -1,5 +1,6 @@
 package fr.cea.organicity.manager.security;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -39,7 +40,7 @@ public class RoleManager {
 	private LoadingCache<String, List<Role>> createCache(int cacheSize, int expireTimeInSeconds) {
 		return CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(expireTimeInSeconds, TimeUnit.SECONDS)
 				.build(new CacheLoader<String, List<Role>>() {
-					public List<Role> load(String userId) {
+					public List<Role> load(String userId) throws IOException {
 						return retrieveRoles(userId);
 					}
 				});
@@ -60,7 +61,7 @@ public class RoleManager {
 		}
 	}
 	
-	public void addRole(String userId, Role role) {
+	public void addRole(String userId, Role role) throws IOException {
 		WebTarget target = client.buildTarget(SecurityConstants.permWithUserUrl, "userId", userId, "roleName", role.getFullName());
 		String url = target.getUri().toString();
 		Builder builder = client.buildHeaders(target);
@@ -73,7 +74,7 @@ public class RoleManager {
 			throw new RuntimeException("Status code = " + res.getStatus());
 	}
 
-	public void removeRole(String userId, Role role) {
+	public void removeRole(String userId, Role role) throws IOException {
 		WebTarget target = client.buildTarget(SecurityConstants.permWithUserAndRoleUrl, "userId", userId, "roleName", role.getFullName());
 		Builder builder = client.buildHeaders(target);
 		Response res = builder.delete();
@@ -83,7 +84,7 @@ public class RoleManager {
 			throw new RuntimeException("Status code = " + res.getStatus());
 	}
 
-	private List<Role> retrieveRoles(String userId) {
+	private List<Role> retrieveRoles(String userId) throws IOException {
 		List<Role> roles = new ArrayList<>();
 
 		WebTarget target = client.buildTarget(SecurityConstants.permWithUserUrl, "userId", userId);
