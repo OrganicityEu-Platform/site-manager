@@ -13,7 +13,6 @@ import lombok.Data;
 public class EnvService {
 	
 	@Autowired BackendSettings backendSettings;
-	@Autowired FrontendSettings frontendSettings;
 	@Autowired ServerSettings serverSettings;
 	@Autowired ManifestSettings manifestSettings;
 	@Autowired ServicesSettings servicesSettings;
@@ -21,7 +20,6 @@ public class EnvService {
 	public Map<String, Map<String, String>> getDictionaries() {
 		Map<String, Map<String, String>> map = new HashMap<>();
 		map.put("backend", backendSettings.getDictionary());
-		map.put("frontend", frontendSettings.getDictionary());
 		map.put("server", serverSettings.getDictionary());
 		map.put("manifest", manifestSettings.getDictionary());
 		map.put("services", servicesSettings.getDictionary());

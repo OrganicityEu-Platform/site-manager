@@ -26,11 +26,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.google.common.base.Strings;
 
-import fr.cea.organicity.manager.config.Environment.EnvService;
 import fr.cea.organicity.manager.domain.OCRequest;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
-import fr.cea.organicity.manager.template.WebPageTemplate;
 import fr.cea.organicity.manager.template.TemplateEngine;
+import fr.cea.organicity.manager.template.WebPageTemplate;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -40,7 +39,6 @@ public class RoleChecker {
 
 	@Autowired private ClaimsParser claimsParser;
 	@Autowired private RoleManager roleManager;
-	@Autowired private EnvService env;
 	@Autowired private TemplateEngine templateService;
 	@Autowired private OCRequestRepository requestRepository;
 	@Autowired private SecurityConfig secuConfig;
@@ -55,16 +53,14 @@ public class RoleChecker {
 		String id_token = request.getParameter("id_token");
 		OCClaims claims = getClaims(id_token);
 		
-		if (env.getFrontendSettings().isAuthenticationActivated()) {
-			try {
-				validateRequest(point, claims, guard);
-			} catch (HtmlMessageException e) {
-				List<Role> roles = roleManager.getRolesForRequest(request);
-				logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
-				return WebPageTemplate.generateUnauthorizedHTML(templateService, roles, e.getHtml());
-			}
+		try {
+			validateRequest(point, claims, guard);
+		} catch (HtmlMessageException e) {
+			List<Role> roles = roleManager.getRolesForRequest(request);
+			logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
+			return WebPageTemplate.generateUnauthorizedHTML(templateService, roles, e.getHtml());
 		}
-
+		
 		// compute result
 		if (claims == null)
 			logAccess("AUTHORISED", point, "<anonymous>", System.currentTimeMillis() - startTime);
@@ -80,16 +76,14 @@ public class RoleChecker {
 		long startTime = System.currentTimeMillis();
 		OCClaims claims = getClaims(auth);
 		
-		if (env.getFrontendSettings().isAuthenticationActivated()) {
-			try {
-				validateRequest(point, claims, guard);
-			} catch (HtmlMessageException e) {
-				logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
-				JSONObject json = new JSONObject();
-				json.put("error", "UNAUTHORIZED");
-				json.put("message", e.getMessage());
-				return new ResponseEntity<String>(json.toString(), HttpStatus.UNAUTHORIZED);
-			}
+		try {
+			validateRequest(point, claims, guard);
+		} catch (HtmlMessageException e) {
+			logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
+			JSONObject json = new JSONObject();
+			json.put("error", "UNAUTHORIZED");
+			json.put("message", e.getMessage());
+			return new ResponseEntity<String>(json.toString(), HttpStatus.UNAUTHORIZED);
 		}
 
 		// compute result

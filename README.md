@@ -24,9 +24,6 @@ organicity.server.host=localhost
 organicity.server.localport=80
 organicity.server.exposedport=80
 
-# fontend configuration
-organicity.frontend.authentication-activated=true
-
 # OpenID client credentials, for getting roles on the OC perm server
 organicity.backend.certificate=/home/me/cert.pem
 organicity.backend.client-id=your_user_id
