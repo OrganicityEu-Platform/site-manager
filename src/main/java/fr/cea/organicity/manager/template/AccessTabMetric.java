@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import fr.cea.organicity.manager.domain.OCRequest;
+import fr.cea.organicity.manager.otherservices.User;
 import fr.cea.organicity.manager.otherservices.UserLister;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
 import fr.cea.organicity.manager.security.Role;
@@ -26,7 +27,7 @@ public class AccessTabMetric {
 		content += generateTab(accessList, "method", OCRequest::getMethod, null);
 		
 		content += "<p><strong>Per user analysis</strong></p>";
-		content += generateTab(accessList, "user", OCRequest::getSub, new UserUtil(userLister));
+		content += generateTab(accessList, "user", OCRequest::getSub, userLister);
 				
 		return templateService.generateWebPage(sectionTitle, content, roles);
 	}
@@ -46,7 +47,7 @@ public class AccessTabMetric {
 		return accessList;
 	}
 	
-	private static String generateTab(List<OCRequest> requestList, String keyName, Function<OCRequest, String> getKeyFunc, UserUtil userutil) {
+	private static String generateTab(List<OCRequest> requestList, String keyName, Function<OCRequest, String> getKeyFunc, UserLister userLister) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("<table>\n");
@@ -55,8 +56,10 @@ public class AccessTabMetric {
 		Map<String, AccessAnalysis> data = generateData(requestList, getKeyFunc);
 		for (String key : data.keySet()) {
 			AccessAnalysis value = data.get(key);
-			if (userutil != null)
-				key = userutil.getUserDisplayString(key);			
+			if (userLister != null) {
+				User user = userLister.getUser(key).getLastSuccessResult();
+				key = user == null ? key : user.getName();
+			}
 			sb.append("  <tr><td>" + key + "</td><td>" + value.getSuccess() + "</td><td>" + value.getFailure() + "</td><td>" + value.getTotal() + "</td></td>\n");
 		}
 		

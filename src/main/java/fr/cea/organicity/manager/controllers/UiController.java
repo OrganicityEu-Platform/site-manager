@@ -30,6 +30,7 @@ import fr.cea.organicity.manager.domain.OCUnit;
 import fr.cea.organicity.manager.domain.OCUnregisteredAssetType;
 import fr.cea.organicity.manager.otherservices.Experiment;
 import fr.cea.organicity.manager.otherservices.ExperimentLister;
+import fr.cea.organicity.manager.otherservices.ThirdPartyResult;
 import fr.cea.organicity.manager.otherservices.User;
 import fr.cea.organicity.manager.otherservices.UserLister;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
@@ -61,6 +62,7 @@ import fr.cea.organicity.manager.template.ErrorTemplate;
 import fr.cea.organicity.manager.template.Experiments;
 import fr.cea.organicity.manager.template.Home;
 import fr.cea.organicity.manager.template.Info;
+import fr.cea.organicity.manager.template.ServicesStatusMetric;
 import fr.cea.organicity.manager.template.Sites;
 import fr.cea.organicity.manager.template.TemplateEngine;
 import fr.cea.organicity.manager.template.Users;
@@ -122,7 +124,7 @@ public class UiController {
 	@RequestMapping("/users")
 	@RoleGuard(roleName=SecurityConstants.USER_VIEWER)
 	public String users(HttpServletRequest request) throws IOException {
-		List<User> users = userLister.getElements();
+		ThirdPartyResult<List<User>> users = userLister.getUsers();
 		List<Role> roles = roleManager.getRolesForRequest(request);
 		return Users.generateUserList(templateService, roles, users);
 	}
@@ -132,7 +134,8 @@ public class UiController {
 	public String user(HttpServletRequest request, @PathVariable("userId") String userId) throws ExecutionException, IOException {
 		List<Role> standardRoles = secuConfig.getLocalRoles_TEMPORARY();
 		List<Role> userRoles = roleManager.getRolesForSub(userId);
-		String userName = userLister.getElement(userId).getName();
+		User user = userLister.getUser(userId).getLastSuccessResult();
+		String userName = user == null ? "<name not available>" : user.getName();
 		return Users.generateUserPermissionDetails(templateService, standardRoles, userName, userId, userRoles, null);
 	}
 	
@@ -140,7 +143,8 @@ public class UiController {
 	@RoleGuard(roleName=SecurityConstants.ROLE_ADMIN)
 	public String userAddRole(HttpServletRequest request, @PathVariable("userId") String userId, @PathVariable("roleName") String roleName) throws ExecutionException, IOException {
 		List<Role> standardRoles = secuConfig.getLocalRoles_TEMPORARY();
-		String userName = userLister.getElement(userId).getName();
+		User user = userLister.getUser(userId).getLastSuccessResult();
+		String userName = user == null ? "<name not available>" : user.getName();
 		
 		String message = null;
 		try {
@@ -159,7 +163,8 @@ public class UiController {
 	public String userRemoveRole(HttpServletRequest request, @PathVariable("userId") String userId, @PathVariable("roleName") String roleName) throws ExecutionException, IOException {
 
 		List<Role> standardRoles = secuConfig.getLocalRoles_TEMPORARY();
-		String userName = userLister.getElement(userId).getName();
+		User user = userLister.getUser(userId).getLastSuccessResult();
+		String userName = user == null ? "<name not available>" : user.getName();
 		
 		String message = null;
 		try {
@@ -313,7 +318,7 @@ public class UiController {
 	@RoleGuard(roleName=SecurityConstants.EXPERIMENT_USER)
 	public String experiments(HttpServletRequest request) throws IOException {
 		List<Role> roles = roleManager.getRolesForRequest(request);
-		List<Experiment> experiments = experimentLister.getElements();
+		ThirdPartyResult<List<Experiment>> experiments = experimentLister.getExperiments();
 		return Experiments.generateHTML(templateService, roles, experiments);
 	}
 	
@@ -321,7 +326,7 @@ public class UiController {
 	@RoleGuard(roleName=SecurityConstants.EXPERIMENT_USER)
 	public ResponseEntity<String> experiment(HttpServletRequest request, @PathVariable("experimentId") String experimentId) throws IOException {
 		List<Role> roles = roleManager.getRolesForRequest(request);
-		Experiment experiment = experimentLister.getElement(experimentId);
+		ThirdPartyResult<Experiment> experiment = experimentLister.getExperiment(experimentId);
 		List<String> sources = experimentLister.getDataSrcByExperiment(experimentId);
 		String content = Experiments.generateHTML(templateService, userLister, roles, experiment, sources);
 		
@@ -330,7 +335,6 @@ public class UiController {
 		else
 			return new ResponseEntity<>(content, HttpStatus.ACCEPTED);
 	}
-	
 	
 	@RequestMapping("/metrics")
 	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
@@ -343,14 +347,14 @@ public class UiController {
 	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
 	public String metricsAccessToday(HttpServletRequest request) throws IOException {
 		List<Role> roles = roleManager.getRolesForRequest(request);
-		return AccessTabMetric.generateHTML(templateService, roles, accessRepository, userLister, "Metrics", "Today's access", 1);
+		return AccessTabMetric.generateHTML(templateService, roles, accessRepository, userLister, "Metrics", "Today's access records", 1);
 	}
 	
 	@RequestMapping("/metrics/access/week")
 	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
 	public String metricsAccessWeek(HttpServletRequest request) throws IOException {
 		List<Role> roles = roleManager.getRolesForRequest(request);
-		return AccessTabMetric.generateHTML(templateService, roles, accessRepository, userLister, "Metrics", "Week's access", 7);
+		return AccessTabMetric.generateHTML(templateService, roles, accessRepository, userLister, "Metrics", "Past week access records", 7);
 	}
 	
 	@RequestMapping("/metrics/access/log")
@@ -360,18 +364,25 @@ public class UiController {
 		return AccessLogMetric.generateHTML(templateService, roles, accessRepository, userLister, 100);
 	}
 	
-	@RequestMapping("/metrics/access/call")
+	@RequestMapping("/metrics/services/status")
+	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
+	public String metricsServicesStatus(HttpServletRequest request) throws IOException {
+		List<Role> roles = roleManager.getRolesForRequest(request);
+		return ServicesStatusMetric.generateHTML(templateService, roles, userLister.getUsers(), experimentLister.getCachedValue());
+	}
+	
+	@RequestMapping("/metrics/services/call")
 	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
 	public String metricsAccessCall(HttpServletRequest request) throws IOException {
 		List<Role> roles = roleManager.getRolesForRequest(request);
-		return ApiCallMetric.generateHTML(templateService, roles, "Longest API calls", apiCallRepository, 100, 1, true);
+		return ApiCallMetric.generateHTML(templateService, roles, "Longest third parties API calls", apiCallRepository, 100, 1, true);
 	}
 	
-	@RequestMapping("/metrics/access/fail")
+	@RequestMapping("/metrics/services/fail")
 	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
 	public String metricsAccessFail(HttpServletRequest request) throws IOException {
 		List<Role> roles = roleManager.getRolesForRequest(request);
-		return ApiCallMetric.generateHTML(templateService, roles, "Failing API calls", apiCallRepository, 100, 1, false);
+		return ApiCallMetric.generateHTML(templateService, roles, "Failed third parties API calls", apiCallRepository, 100, 1, false);
 	}
 	
 	@RequestMapping("/metrics/errors/today")

@@ -23,22 +23,7 @@
       "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
     },
     {
-      "name": "organicity.backend.certificate",
-      "type": "java.lang.String",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
-    },
-    {
       "name": "organicity.backend.client-id",
-      "type": "java.lang.String",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
-    },
-    {
-      "name": "organicity.backend.client-id",
-      "type": "java.lang.String",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
-    },
-    {
-      "name": "organicity.backend.client-password",
       "type": "java.lang.String",
       "sourceType": "fr.cea.organicity.manager.config.Environment.BackendSettings"
     },
@@ -55,12 +40,8 @@
     {
       "name": "organicity.frontend.authentication-activated",
       "type": "java.lang.Boolean",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.FrontendSettings"
-    },
-    {
-      "name": "organicity.frontend.authentication-activated",
-      "type": "java.lang.Boolean",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.FrontendSettings"
+      "sourceType": "fr.cea.organicity.manager.config.Environment.FrontendSettings",
+      "defaultValue": false
     },
     {
       "name": "organicity.frontend.dictionary",
@@ -75,12 +56,8 @@
     {
       "name": "organicity.server.exposedport",
       "type": "java.lang.Integer",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
-    },
-    {
-      "name": "organicity.server.host",
-      "type": "java.lang.String",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings",
+      "defaultValue": 0
     },
     {
       "name": "organicity.server.host",
@@ -90,12 +67,8 @@
     {
       "name": "organicity.server.localport",
       "type": "java.lang.Integer",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
-    },
-    {
-      "name": "organicity.server.protocol",
-      "type": "java.lang.String",
-      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings"
+      "sourceType": "fr.cea.organicity.manager.config.Environment.ServerSettings",
+      "defaultValue": 0
     },
     {
       "name": "organicity.server.protocol",

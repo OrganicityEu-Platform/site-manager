@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import fr.cea.organicity.manager.domain.OCRequest;
+import fr.cea.organicity.manager.otherservices.User;
 import fr.cea.organicity.manager.otherservices.UserLister;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
 import fr.cea.organicity.manager.security.Role;
@@ -16,9 +17,7 @@ public class AccessLogMetric {
 
 		String title = "Latest access records";
 		StringBuilder sb = new StringBuilder();
-				
-		UserUtil userUtil = new UserUtil(userLister);
-		
+						
 		sb.append("<h2>" + title + "</h2>\n");
 
 		sb.append("<table>\n");
@@ -32,8 +31,10 @@ public class AccessLogMetric {
 			String message = access.getMessage();
 			long duration = access.getDuration();
 			
-			sb.append("  <tr><td>" + date + "</td><td>" + status + "</td><td>" + duration + "ms" + "</td><td>" + method + "</td><td>" + userUtil.getUserDisplayString(sub)
-					+ "</td><td>" + message + "</td></tr>\n");			
+			User user = userLister.getUser(sub).getLastSuccessResult();
+			String userName = user == null ? "<name not available>" : user.getName();
+						
+			sb.append("  <tr><td>" + date + "</td><td>" + status + "</td><td>" + duration + "ms" + "</td><td>" + method + "</td><td>" + userName + "</td><td>" + message + "</td></tr>\n");			
 		}
 		
 		sb.append("</table>\n");

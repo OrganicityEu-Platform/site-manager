@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+import fr.cea.organicity.manager.otherservices.ThirdPartyResult;
 import fr.cea.organicity.manager.otherservices.User;
 import fr.cea.organicity.manager.security.Role;
 
@@ -12,18 +13,25 @@ public class Users {
 	
 	private static final String TITLE = "Permissions";
 	
-	public static String generateUserList(TemplateEngine templateService, List<Role> roles, List<User> users) throws IOException {
+	public static String generateUserList(TemplateEngine templateService, List<Role> roles, ThirdPartyResult<List<User>> users) throws IOException {
 		
 		String content = "<h2>Users list</h2>\n";
 		
-		content += "<ul>\n";
-		for (User user : users) {
-			content += "	<li>" + TemplateEngine.createNavigateLink("users/" + user.getId(), user.getName()) + "</li>\n";		
-		}		
-		content += "</ul>\n";
+		if (users.hasAlreadySucceed()) {
+			if ( ! users.isLastCallSucess()) {
+				content += "<p>WARNING : the following list may be outdated since a third party service is down</p>\n";
+			}
+			content += "<ul>\n";
+			for (User user : users.getLastSuccessResult()) {
+				content += "	<li>" + TemplateEngine.createNavigateLink("users/" + user.getId(), user.getName()) + "</li>\n";		
+			}		
+			content += "</ul>\n";
+		} else {
+			content += "<p>This informaion is not available because a third party service is down</p>\n";
+		}
 		
 		return templateService.generateWebPage(TITLE, content, roles);
-	}	
+	}
 	
 	public static String generateUserPermissionDetails(TemplateEngine templateService, List<Role> allRoles, String userName, String userId, List<Role> userRoles, String message) throws ExecutionException, IOException {
 

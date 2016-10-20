@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import fr.cea.organicity.manager.otherservices.Experiment;
 import fr.cea.organicity.manager.otherservices.ExperimentLister;
+import fr.cea.organicity.manager.otherservices.ThirdPartyResult;
 import fr.cea.organicity.manager.security.OCClaims;
 import fr.cea.organicity.manager.security.Role;
 import fr.cea.organicity.manager.security.SecurityConfig;
@@ -70,20 +71,31 @@ public class Info {
 	}
 	
 	private static String displayExperiments(String userSub, ExperimentLister experimentLister) {
-		List<Experiment> experiments = experimentLister.getExperimentsByUser(userSub);
-		String content = "<strong>User has " + experiments.size() + " expriment";
-		if (experiments.size() != 1)
-			content += "s";
-		content += "</strong>";
-		
-		if (experiments.size() != 0) {
-			content += ": ";
-			for (int i=0; i< experiments.size(); i++) {
-				if (i != 0)
-					content += ", ";
-				Experiment exp = experiments.get(i);
-				content += TemplateEngine.createNavigateLink("/experiments/" + exp.getId(), exp.getName()); 
+		ThirdPartyResult<List<Experiment>> experiments = experimentLister.getExperimentsByUser(userSub);
+				
+		String content = "";
+		if (experiments.hasAlreadySucceed()) {
+			if ( ! experiments.isLastCallSucess()) {
+				content += "WARNING : the following list may be outdated since a third party service is down<br/>\n";
 			}
+			List<Experiment> list = experiments.getLastSuccessResult();
+			
+			content += "<strong>User has " + list.size() + " expriment";
+			if (list.size() != 1)
+				content += "s";
+			content += "</strong>";
+			
+			if (list.size() != 0) {
+				content += ": ";
+				for (int i=0; i< list.size(); i++) {
+					if (i != 0)
+						content += ", ";
+					Experiment exp = list.get(i);
+					content += TemplateEngine.createNavigateLink("/experiments/" + exp.getId(), exp.getName()); 
+				}
+			}			
+		} else {
+			content += "This information is not available because a third party service is down\n";
 		}
 
 		return content;

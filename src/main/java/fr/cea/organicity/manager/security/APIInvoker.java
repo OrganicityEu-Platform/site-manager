@@ -31,7 +31,6 @@ public class APIInvoker {
 	public Response invoke(Invocation invocation, String url, boolean persist) throws IOException {
 		long start = System.currentTimeMillis(); 
 		
-		// TODO dans le log, mettre si ça a marché ou non...
 		Response res = null;
 		long duration = 0;
 		boolean success;

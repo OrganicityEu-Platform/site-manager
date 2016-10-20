@@ -18,18 +18,24 @@ public class ApiCallMetric {
 						
 		sb.append("<h2>" + title + "</h2>\n");
 
-		sb.append("<table>\n");
-		sb.append("  <tr><th>Date</th><th>url</th><th>duration</th>\n");
+		List<OCApiCall> lines = getData(apiCallRepository, nb, threshold, isSuccess);
+				
+		if (lines.isEmpty())
+			sb.append("<p>No errors found :-)</p>");
+		else {
+			sb.append("<table>\n");
+			sb.append("  <tr><th>Date</th><th>url</th><th>duration</th>\n");
 
-		for (OCApiCall call : getData(apiCallRepository, nb, threshold, isSuccess)) {
-			Date date = call.getDate();
-			String url = call.getUrl();
-			long duration = call.getDuration();
+			for (OCApiCall call : lines) {
+				Date date = call.getDate();
+				String url = call.getUrl();
+				long duration = call.getDuration();
 			
-			sb.append("  <tr><td>" + date + "</td><td>" + url + "</td><td>" + duration + "ms" + "</td></tr>\n");			
+				sb.append("  <tr><td>" + date + "</td><td>" + url + "</td><td>" + duration + "ms" + "</td></tr>\n");
+			}
+			
+			sb.append("</table>\n");
 		}
-		
-		sb.append("</table>\n");
 
 		return templateService.generateWebPage("Metrics", sb.toString(), roles);
 	}
@@ -48,7 +54,8 @@ public class ApiCallMetric {
 		}
 		
 		// reverse order : latest first remove following line for natural id order
-		list.sort((a1, a2) -> ( (int) (a2.getDuration() - a1.getDuration())));
+		if (isSuccess)
+			list.sort((a1, a2) -> ( (int) (a2.getDuration() - a1.getDuration())));
 		
 		return list;
 	}

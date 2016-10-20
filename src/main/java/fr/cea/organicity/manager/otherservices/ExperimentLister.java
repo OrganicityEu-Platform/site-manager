@@ -3,6 +3,7 @@ package fr.cea.organicity.manager.otherservices;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
@@ -14,12 +15,14 @@ import org.slf4j.LoggerFactory;
 import fr.cea.organicity.manager.security.APIInvoker;
 import fr.cea.organicity.manager.security.HttpClient;
 
-public class ExperimentLister extends Lister<Experiment> {
+public class ExperimentLister {
 
 	private final HttpClient client;
 	private final APIInvoker invoker;
 	private static final long TTL_IN_SECONDS = 10;
 	
+	private ThirdPartyResult<List<Experiment>> value = new ThirdPartyResult<List<Experiment>>(null, 0, false, 0, 0);
+		
 	// Experimenter portal API
 	private static final String EXP_PORTAL_ROOT = "http://31.200.243.76:8081"; 
 	private static final String EXP_PORTAL_ALL_EXPERIMENT_URL = EXP_PORTAL_ROOT + "/allexperiments";
@@ -31,47 +34,98 @@ public class ExperimentLister extends Lister<Experiment> {
 	private static final Logger log = LoggerFactory.getLogger(ExperimentLister.class);
 	
 	public ExperimentLister(HttpClient client, APIInvoker invoker) {
-		super(Experiment::getId, TTL_IN_SECONDS);
 		this.client = client;
 		this.invoker = invoker;
 	}
+	
+	public ThirdPartyResult<List<Experiment>> getExperiments() {
+		if (needupdate()) {
+			value = retrieveExperiments();
+		}
+		return value;
+	}
+	
+	public ThirdPartyResult<List<Experiment>> getCachedValue() {
+		return value;
+	}
 
-	@Override
-	protected List<Experiment> retrieveElements() {
+	public ThirdPartyResult<Experiment> getExperiment(String id) {
+		// by this way, no need to synchronize because ThirdPartyResult is immutable
+		ThirdPartyResult<List<Experiment>> curVal = getExperiments(); 
+				
+		// never succeed :-(
+		if ( ! curVal.hasAlreadySucceed()) {
+			return new ThirdPartyResult<Experiment>(null, 0, false, curVal.getLastCallduration(), curVal.getLastCallTimestamp());
+		} 
+				
+		// Already succeed :-)
+		Experiment experiment = curVal.getLastSuccessResult().stream().filter(e -> e.getId().equals(id)).findFirst().orElse(null);
+		return new ThirdPartyResult<Experiment>(experiment, curVal.getLastSuccessTimestamp(), curVal.isLastCallSucess(), curVal.getLastCallduration(), curVal.getLastCallTimestamp());
+	}
+	
+	public ThirdPartyResult<List<Experiment>> getExperimentsByUser(String userId) {
+		// by this way, no need to synchronize because ThirdPartyResult is immutable
+		ThirdPartyResult<List<Experiment>> curVal = getExperiments();
 		
+		// never succeed :-(
+		if ( ! curVal.hasAlreadySucceed()) {
+			return new ThirdPartyResult<List<Experiment>>(null, 0, false, curVal.getLastCallduration(), curVal.getLastCallTimestamp());
+		} 
+						
+		// Already succeed :-)
+		List<Experiment> experiments = curVal.getLastSuccessResult().stream().filter(exp -> exp.hasExperimenter(userId)).collect(Collectors.toList());
+		return new ThirdPartyResult<List<Experiment>>(experiments, curVal.getLastSuccessTimestamp(), curVal.isLastCallSucess(), curVal.getLastCallduration(), curVal.getLastCallTimestamp());
+	}
+	
+	private boolean needupdate() {
+		// by this way, no need to synchronize because ThirdPartyResult is immutable
+		ThirdPartyResult<List<Experiment>> curVal = value; 
+		
+		if (! curVal.hasAlreadySucceed())
+			return true;
+		
+		long cur = System.currentTimeMillis();
+		if (cur - curVal.getLastCallTimestamp() > TTL_IN_SECONDS * 1000)
+			return true;
+		
+		return false;
+	}
+		
+	private ThirdPartyResult<List<Experiment>> retrieveExperiments() {
+		// by this way, no need to synchronize because ThirdPartyResult is immutable
+		ThirdPartyResult<List<Experiment>> curVal = value;
+		
+		List<Experiment> result = curVal.getLastSuccessResult();
+		long result_ts = curVal.getLastSuccessTimestamp();
+		
+		long start = System.currentTimeMillis();
+		
+		// HTTP request
 		List<Experiment> experiments = new ArrayList<>();
 		Response res = null;
 		try {
 			res = invoker.defaultGet(client, EXP_PORTAL_ALL_EXPERIMENT_URL);
 		} catch (Exception e) {
 			log.error("[HTTP ERROR] on " + EXP_PORTAL_ALL_EXPERIMENT_URL + " : " + e.getMessage());
-			return experiments;
+			long duration = System.currentTimeMillis() - start;
+			return new ThirdPartyResult<List<Experiment>>(result, result_ts, false, duration, start);
 		}
 		
-		JSONArray array = HttpClient.bodyToJsonObject(res).getJSONArray("experiments");
-		
-		for (int i = 0; i < array.length(); i++) {
-			try {
+		// Json parsing
+		try {
+			JSONArray array = HttpClient.bodyToJsonObject(res).getJSONArray("experiments");
+			for (int i = 0; i < array.length(); i++) {
 				JSONObject jsonExperiment = (JSONObject) array.get(i);
 				experiments.add(new Experiment(jsonExperiment));
-			} catch (Exception e) {
-				log.error("[HTTP ERROR] on " + EXP_PORTAL_ALL_EXPERIMENT_URL + " : malformed json object. " + e.getMessage());
-				return experiments;
 			}
+		} catch (Exception e) {
+			log.error("[HTTP ERROR] on " + EXP_PORTAL_ALL_EXPERIMENT_URL + " : malformed json object. " + e.getMessage());
+			long duration = System.currentTimeMillis() - start;
+			return new ThirdPartyResult<List<Experiment>>(result, result_ts, false, duration, start);
 		}
 		
-		return experiments;
-	}
-
-	public List<Experiment> getExperimentsByUser(String userId) {
-		List<Experiment> experiments = new ArrayList<>();
-		
-		for (Experiment exp : getElements()) {
-			if (exp.hasExperimenter(userId))
-				experiments.add(exp);
-		}
-		
-		return experiments;
+		long duration = System.currentTimeMillis() - start;
+		return new ThirdPartyResult<List<Experiment>>(experiments, start, true, duration, start);
 	}
 	
 	public List<String> getDataSrcByExperiment(String experimentId) throws IOException {
