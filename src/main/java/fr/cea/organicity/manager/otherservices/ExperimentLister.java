@@ -19,23 +19,23 @@ public class ExperimentLister {
 
 	private final HttpClient client;
 	private final APIInvoker invoker;
+	
+	private final String experimenterPortalUrlAll;
+	private final String experimenterPortalUrlOne;
+	private final String discoveryServiceExperimentsUrl;
+	
 	private static final long TTL_IN_SECONDS = 10;
 	
 	private ThirdPartyResult<List<Experiment>> value = new ThirdPartyResult<List<Experiment>>(null, 0, false, 0, 0);
 		
-	// Experimenter portal API
-	private static final String EXP_PORTAL_ROOT = "http://31.200.243.76:8081"; 
-	private static final String EXP_PORTAL_ALL_EXPERIMENT_URL = EXP_PORTAL_ROOT + "/allexperiments";
-	private static final String EXP_PORTAL_EXPERIMENT_URL = EXP_PORTAL_ROOT + "/experiments";
-	
-	// Discovery API 
-	private static final String  DISCOVERY_ROOT = "http://api.discovery.organicity.eu/v0/assets/experiments/";
-	
 	private static final Logger log = LoggerFactory.getLogger(ExperimentLister.class);
 	
-	public ExperimentLister(HttpClient client, APIInvoker invoker) {
+	public ExperimentLister(HttpClient client, APIInvoker invoker, String experimenterPortalUrl, String discoveryServiceUrl) {
 		this.client = client;
 		this.invoker = invoker;
+		this.experimenterPortalUrlAll = experimenterPortalUrl + "/allexperiments";
+		this.experimenterPortalUrlOne = experimenterPortalUrl + "/experiments";
+		this.discoveryServiceExperimentsUrl = discoveryServiceUrl + "/assets/experiments/";		
 	}
 	
 	public ThirdPartyResult<List<Experiment>> getExperiments() {
@@ -104,9 +104,9 @@ public class ExperimentLister {
 		List<Experiment> experiments = new ArrayList<>();
 		Response res = null;
 		try {
-			res = invoker.defaultGet(client, EXP_PORTAL_ALL_EXPERIMENT_URL);
+			res = invoker.defaultGet(client, experimenterPortalUrlAll);
 		} catch (Exception e) {
-			log.error("[HTTP ERROR] on " + EXP_PORTAL_ALL_EXPERIMENT_URL + " : " + e.getMessage());
+			log.error("[HTTP ERROR] on " + experimenterPortalUrlAll + " : " + e.getMessage());
 			long duration = System.currentTimeMillis() - start;
 			return new ThirdPartyResult<List<Experiment>>(result, result_ts, false, duration, start);
 		}
@@ -119,7 +119,7 @@ public class ExperimentLister {
 				experiments.add(new Experiment(jsonExperiment));
 			}
 		} catch (Exception e) {
-			log.error("[HTTP ERROR] on " + EXP_PORTAL_ALL_EXPERIMENT_URL + " : malformed json object. " + e.getMessage());
+			log.error("[HTTP ERROR] on " + experimenterPortalUrlAll + " : malformed json object. " + e.getMessage());
 			long duration = System.currentTimeMillis() - start;
 			return new ThirdPartyResult<List<Experiment>>(result, result_ts, false, duration, start);
 		}
@@ -138,7 +138,7 @@ public class ExperimentLister {
 	public List<String> getDataSrcByExperimentOnExperimenterPortal(String experimentId) throws IOException {	
 		List<String> sources = new ArrayList<>();
 		
-		String url = EXP_PORTAL_EXPERIMENT_URL + "/" + experimentId + "/datasources";
+		String url = experimenterPortalUrlOne + "/" + experimentId + "/datasources";
 		Response res = invoker.defaultGet(client, url);
 		
 		String body = res.readEntity(String.class);
@@ -152,7 +152,7 @@ public class ExperimentLister {
 				sources.add(urn);
 			}
 		} catch (Exception e) {
-			log.error("Error while parsing urns in object " + body);
+			log.error("Url " + url + " doesn't return a valid json object: \"" + body + "\"");
 		}
 		
 		return sources;
@@ -161,7 +161,7 @@ public class ExperimentLister {
 	public List<String> getDataSrcByExperimentOnObservatory(String experimentId) throws IOException {
 		List<String> sources = new ArrayList<>();
 		
-		String url = DISCOVERY_ROOT + experimentId;
+		String url = discoveryServiceExperimentsUrl + experimentId;
 		Response res = invoker.defaultGet(client, url);
 		
 		String body = res.readEntity(String.class);
@@ -174,7 +174,7 @@ public class ExperimentLister {
 				sources.add(object.getString("id"));
 			}
 		} catch (Exception e) {
-			log.error("Error while parsing urns in object " + body);
+			log.error("Url " + url + " doesn't return a valid json object: \"" + body + "\"");
 		}		
 		return sources;
 	}

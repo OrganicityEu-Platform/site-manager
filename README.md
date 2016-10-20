@@ -8,7 +8,7 @@ A REST server and the associated web frontend for managing OrganiCity sites.
 ### 1 Build the project
 
 ```
-git clone git@github.com:OrganicityEu/manager.git
+git clone git@github.com:OrganicityEu-Platform/site-manager.git
 cd manager
 mvn clean install
 ```
@@ -21,7 +21,8 @@ Create an application.properties file with the following content (update it!)
 # server configuration
 organicity.server.protocol=http
 organicity.server.host=localhost 
-organicity.server.port=8080
+organicity.server.localport=80
+organicity.server.exposedport=80
 
 # fontend configuration
 organicity.frontend.authentication-activated=true
@@ -34,13 +35,13 @@ organicity.backend.client-password=your_user_password
 
 ### 3 Run your server !
 
-java -jar target/manager-0.0.1-SNAPSHOT.jar
+java -jar target/site-manager-0.0.1-SNAPSHOT.jar
 
 Browse `http://localhost:8080` (with this configuration file)
 
 
 ## Contributor start
 
-Because we are using Spring, you may need:
+Because we are using Spring, you will need:
  * [Spring Tool Suite IDE](https://spring.io/tools/sts/all)
  * [Lombok](https://projectlombok.org/download.html) just run the jar once to patch STS, and have the Lombok annotations recognized.

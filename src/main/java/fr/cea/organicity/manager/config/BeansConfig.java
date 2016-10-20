@@ -86,6 +86,8 @@ public class BeansConfig {
 	
 	@Bean
 	ExperimentLister getExperimenterLister(HttpClient httpClient, APIInvoker invoker) {
-		return new ExperimentLister(httpClient, invoker);
+		String experimenterPortalUrl = env.getServicesSettings().getExperimenterPortalUrl();
+		String discoveryServiceUrl = env.getServicesSettings().getDiscoveryServiceUrl();
+		return new ExperimentLister(httpClient, invoker, experimenterPortalUrl, discoveryServiceUrl);
 	}
 }
