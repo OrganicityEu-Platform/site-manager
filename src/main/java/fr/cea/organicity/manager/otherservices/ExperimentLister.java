@@ -137,22 +137,27 @@ public class ExperimentLister {
 	
 	public List<String> getDataSrcByExperimentOnExperimenterPortal(String experimentId) throws IOException {	
 		List<String> sources = new ArrayList<>();
-		
-		String url = experimenterPortalUrlOne + "/" + experimentId + "/datasources";
-		Response res = invoker.defaultGet(client, url);
-		
-		String body = res.readEntity(String.class);
-
-		// TODO 2016-09-16 Experimentation Manager API --> Ask Luis D. when it will be updated
-		try {
-			JSONObject json = new JSONObject(body);
-			JSONArray urns = json.getJSONArray("urns");
-			for (int i=0; i< urns.length(); i++) {
-				String urn = urns.getString(i);
-				sources.add(urn);
+				
+		ThirdPartyResult<Experiment> experiment = getExperiment(experimentId);
+		if (experiment.hasAlreadySucceed()) {
+			
+			String experimenterId = experiment.getLastSuccessResult().getMainExperimenter();			
+			String url = experimenterPortalUrlOne + "/" + experimenterId + "/" + experimentId + "/datasources";
+			Response res = invoker.defaultGet(client, url);			
+			String body = res.readEntity(String.class);
+			
+			try {
+				JSONObject json = new JSONObject(body);
+				JSONArray urns = json.getJSONArray("urns");
+				for (int i=0; i< urns.length(); i++) {
+					String urn = urns.getString(i);
+					sources.add(urn);
+				}
+			} catch (Exception e) {
+				log.error("Url " + url + " doesn't return a valid json object: \"" + body + "\"");
 			}
-		} catch (Exception e) {
-			log.error("Url " + url + " doesn't return a valid json object: \"" + body + "\"");
+		} else {
+			log.error("Can't find experiment with id " + experimentId);
 		}
 		
 		return sources;
@@ -166,16 +171,38 @@ public class ExperimentLister {
 		
 		String body = res.readEntity(String.class);
 
-		// TODO 2016-09-16 Discovery API --> Ask Silvia when it will be updated
 		try {
-			JSONArray aray = new JSONArray(body);
-			for (int i=0; i< aray.length(); i++) {
-				JSONObject object = aray.getJSONObject(i);
+			JSONObject object = getJsonObject(body);
+			JSONArray array = getJsonArray(body);
+			
+			if (object != null) {
 				sources.add(object.getString("id"));
+			} else if (array != null) {
+				for (int i=0; i< array.length(); i++) {
+					sources.add(array.getJSONObject(i).getString("id"));
+				}				
+			} else {
+				throw new Exception();
 			}
 		} catch (Exception e) {
 			log.error("Url " + url + " doesn't return a valid json object: \"" + body + "\"");
 		}		
 		return sources;
+	}
+	
+	private JSONObject getJsonObject(String json) {
+		try {
+			return new JSONObject(json);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	private JSONArray getJsonArray(String json) {
+		try {
+			return new JSONArray(json);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
