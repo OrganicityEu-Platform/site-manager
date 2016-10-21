@@ -26,14 +26,22 @@ public class ServicesStatusMetric {
 	private static String displayStats(String title, ThirdPartyResult<?> thirdParty) {
 		String content = "<p><strong>" + title + "</strong></p>\n";
 		
-		String lastSuccess = thirdParty.getLastSuccessTimestamp() == 0 ? "no success" : new Date(thirdParty.getLastSuccessTimestamp()).toString();
+		String lastSuccess;
+		if (thirdParty.getLastSuccessTimestamp() == 0) {
+			lastSuccess = "no success";
+		} else {
+			long ts = thirdParty.getLastSuccessTimestamp();
+			lastSuccess = generateAgo(ts);
+		}
+		
 		String lastCall;
 		if (thirdParty.getLastCallTimestamp() == 0) {
 			lastCall = "no calls already performed";
 		} else {
 			lastCall = thirdParty.isLastCallSucess() ? "SUCCESS" : "FAILURE";
-			lastCall += " " + thirdParty.getLastCallduration() + "ms";
-			lastCall += " " + new Date(thirdParty.getLastCallTimestamp()); 
+			long ts = thirdParty.getLastSuccessTimestamp();
+			lastCall += " - " + thirdParty.getLastCallduration() + "ms";
+			lastCall += " - " + generateAgo(ts);
 		}
 		
 		content += "<ul>\n";
@@ -43,4 +51,10 @@ public class ServicesStatusMetric {
 		
 		return content;
 	}
+	
+	private static String generateAgo(long timestamp) {
+		long cur = System.currentTimeMillis();
+		long s = (cur - timestamp) / 1000;
+		return s + "s ago (" + new Date(timestamp).toString() + ")";
+	}	
 }
