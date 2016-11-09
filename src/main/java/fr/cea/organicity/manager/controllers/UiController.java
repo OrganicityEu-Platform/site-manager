@@ -793,7 +793,8 @@ public class UiController {
 	}
 	
 	private boolean isDictionaryAdmin(HttpServletRequest request) {
-		Role role = new Role(SecurityConstants.DICTIONARY_ADMIN);
+		String roleName = SecurityConstants.DICTIONARY_ADMIN.replace(SecurityConstants.clientNameKey, secuConfig.clientName);
+		Role role = new Role(roleName);
 		return hasRole(request, role);
 	}
 	
