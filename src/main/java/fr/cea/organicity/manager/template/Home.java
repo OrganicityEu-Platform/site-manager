@@ -11,7 +11,7 @@ public class Home {
 
 	public static String generateHTML(TemplateEngine templateService, List<Role> roles, String url) throws IOException {
 
-		String TITLE = "OrganiCity Site Manager";
+		String TITLE = "Facility Management Portal";
 		
 		// renew variable
 		Map<String, String> dictionary = new HashMap<>();
