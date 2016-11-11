@@ -114,7 +114,7 @@ public class TestController {
 		// =====
 
 		OCTool tool_EventBus = new OCTool();
-		tool_EventBus.setName("EventBus_DUL-Radio");
+		tool_EventBus.setName("EventBusAndDULRadio");
 		tool_EventBus.setUrl("https://organicityeu.github.io/EventBus/");
 		tool_EventBus.setDescription("eventbus is a nice tool");
 		tool_EventBus = toolrepository.save(tool_EventBus);
