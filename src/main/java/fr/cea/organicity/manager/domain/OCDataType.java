@@ -30,7 +30,7 @@ public class OCDataType {
     }
     
     public static String computeUrn(String name) {
-    	return "urn:oc:dataType:" + name;
+    	return "urn:oc:datatype:" + name;
     }
     
     @JsonBackReference

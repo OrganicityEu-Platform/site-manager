@@ -34,7 +34,7 @@ public class OCAttributeType {
     }
     
     public static String computeUrn(String name) {
-    	return "urn:oc:attributeType:" + name;
+    	return "urn:oc:attributetype:" + name;
     }
     
 	@ManyToMany

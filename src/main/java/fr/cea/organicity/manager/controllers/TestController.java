@@ -114,7 +114,7 @@ public class TestController {
 		// =====
 
 		OCTool tool_EventBus = new OCTool();
-		tool_EventBus.setName("EventBus");
+		tool_EventBus.setName("EventBus_DUL-Radio");
 		tool_EventBus.setUrl("https://organicityeu.github.io/EventBus/");
 		tool_EventBus.setDescription("eventbus is a nice tool");
 		tool_EventBus = toolrepository.save(tool_EventBus);
@@ -122,31 +122,31 @@ public class TestController {
 		OCTool tool_SensiNact = new OCTool();
 		tool_SensiNact.setName("SensiNact");
 		tool_SensiNact.setUrl("https://organicityeu.github.io/tools/sensinact/");
-		tool_SensiNact.setDescription("sensinact is a nice tool");
+		tool_SensiNact.setDescription("");
 		tool_SensiNact = toolrepository.save(tool_SensiNact);
 
 		OCTool tool_WebSocket = new OCTool();
 		tool_WebSocket.setName("WebSocket");
 		tool_WebSocket.setUrl("https://github.com/OrganicityEu/Processing-Websocket-Library");
-		tool_WebSocket.setDescription("websocket is a nice tool");
+		tool_WebSocket.setDescription("");
 		tool_WebSocket = toolrepository.save(tool_WebSocket);
 
 		OCTool tool_SmartphoneExperiment = new OCTool();
 		tool_SmartphoneExperiment.setName("SmartphoneExperiment");
 		tool_SmartphoneExperiment.setUrl("https://organicityeu.github.io/set.html");
-		tool_SmartphoneExperiment.setDescription("smartphone experiment is a nice tool");
+		tool_SmartphoneExperiment.setDescription("");
 		tool_SmartphoneExperiment = toolrepository.save(tool_SmartphoneExperiment);
 
 		OCTool tool_TSmarT = new OCTool();
 		tool_TSmarT.setName("TSmarT");
 		tool_TSmarT.setUrl("https://organicityeu.github.io/tools/TSmarT/");
-		tool_TSmarT.setDescription("TSmarT is a nice tool");
+		tool_TSmarT.setDescription("");
 		tool_TSmarT = toolrepository.save(tool_TSmarT);
 
 		OCTool tool_TinkerSpace = new OCTool();
 		tool_TinkerSpace.setName("TinkerSpace");
 		tool_TinkerSpace.setUrl("https://organicityeu.github.io/TinkerSpace/");
-		tool_TinkerSpace.setDescription("tinkerspace is a nice tool");
+		tool_TinkerSpace.setDescription("");
 		tool_TinkerSpace = toolrepository.save(tool_TinkerSpace);
 
 
@@ -296,6 +296,10 @@ public class TestController {
 		OCAssetType assetType_trafficStatus = new OCAssetType();
 		assetType_trafficStatus.setName("trafficStatus");
 		assetType_trafficStatus = assettyperepository.save(assetType_trafficStatus);
+
+		OCAssetType assetType_iotdevice_tsmart = new OCAssetType();
+		assetType_iotdevice_tsmart.setName("iotdevice:tsmart");
+		assetType_iotdevice_tsmart = assettyperepository.save(assetType_iotdevice_tsmart);
 
 
 		// UNIT
@@ -651,6 +655,21 @@ public class TestController {
 		attrType_windSpeed.getUnits().add(u_kilometrePerHour);
 		attrType_windSpeed = attributetyperepository.save(attrType_windSpeed);
 
+		OCAttributeType attrType_temperature = new OCAttributeType();
+		attrType_temperature.setName("temperature");
+		attrType_temperature.getUnits().add(u_degreeCelsius);
+		attrType_temperature = attributetyperepository.save(attrType_temperature);
+
+		OCAttributeType attrType_humidity = new OCAttributeType();
+		attrType_humidity.setName("humidity");
+		attrType_humidity.getUnits().add(u_percent);
+		attrType_humidity = attributetyperepository.save(attrType_humidity);
+
+		OCAttributeType attrType_location = new OCAttributeType();
+		attrType_location.setName("location");
+		attrType_location = attributetyperepository.save(attrType_location);
+
 		return "{message: \"some data has been added to the database\"}";
 	}
+
 }
