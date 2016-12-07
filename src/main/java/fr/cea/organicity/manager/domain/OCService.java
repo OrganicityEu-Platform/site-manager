@@ -1,7 +1,7 @@
 package fr.cea.organicity.manager.domain;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -33,8 +33,8 @@ public class OCService {
 	@JsonBackReference
 	private OCSite site;
 	
-    private long created;
-    private long updated;
+    private String created;
+    private String updated;
     
     public String getUrn() {
     	if (site != null)
@@ -50,23 +50,15 @@ public class OCService {
     		return "<<not available>>";
     }
     
-    public Date getCreatedDate() {
-    	return new Date(created);
-    }
-    
-    public Date getUpdatedDate() {
-    	return new Date(updated);
-    }
-    
     @PrePersist
     protected void onCreate() {
     	urn = getUrn();
-    	created = updated = Calendar.getInstance().getTimeInMillis();
+    	created = updated = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
     }
 
     @PreUpdate
     protected void onUpdate() {
     	urn = getUrn();
-    	updated = Calendar.getInstance().getTimeInMillis();
+    	updated = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
     }
 }

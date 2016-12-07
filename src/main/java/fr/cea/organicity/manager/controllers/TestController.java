@@ -113,11 +113,11 @@ public class TestController {
 		// TOOLS
 		// =====
 
-		OCTool tool_EventBus = new OCTool();
-		tool_EventBus.setName("EventBusAndDULRadio");
-		tool_EventBus.setUrl("https://organicityeu.github.io/EventBus/");
-		tool_EventBus.setDescription("eventbus is a nice tool");
-		tool_EventBus = toolrepository.save(tool_EventBus);
+		OCTool tool_EventBusAndDULRadio = new OCTool();
+		tool_EventBusAndDULRadio.setName("EventBusAndDULRadio");
+		tool_EventBusAndDULRadio.setUrl("https://organicityeu.github.io/EventBus/");
+		tool_EventBusAndDULRadio.setDescription("eventbus is a nice tool");
+		tool_EventBusAndDULRadio = toolrepository.save(tool_EventBusAndDULRadio);
 
 		OCTool tool_SensiNact = new OCTool();
 		tool_SensiNact.setName("SensiNact");
@@ -300,6 +300,14 @@ public class TestController {
 		OCAssetType assetType_iotdevice_tsmart = new OCAssetType();
 		assetType_iotdevice_tsmart.setName("iotdevice:tsmart");
 		assetType_iotdevice_tsmart = assettyperepository.save(assetType_iotdevice_tsmart);
+
+		OCAssetType assetType_speed_limit = new OCAssetType();
+		assetType_speed_limit.setName("speed:limit");
+		assetType_speed_limit = assettyperepository.save(assetType_speed_limit);
+
+		OCAssetType assetType_pollutionsensor = new OCAssetType();
+		assetType_pollutionsensor.setName("pollutionsensor");
+		assetType_pollutionsensor = assettyperepository.save(assetType_pollutionsensor);
 
 
 		// UNIT
@@ -669,7 +677,11 @@ public class TestController {
 		attrType_location.setName("location");
 		attrType_location = attributetyperepository.save(attrType_location);
 
+		OCAttributeType attrType_speed_limit = new OCAttributeType();
+		attrType_speed_limit.setName("speed:limit");
+		attrType_speed_limit.getUnits().add(u_kilometrePerHour);
+		attrType_speed_limit = attributetyperepository.save(attrType_speed_limit);
+
 		return "{message: \"some data has been added to the database\"}";
 	}
-
 }

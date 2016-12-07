@@ -1,9 +1,9 @@
 package fr.cea.organicity.manager.domain;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -35,8 +35,8 @@ public class OCSite {
     private String related;
     private long quota;
     private long remQuota;
-    private long created;
-    private long updated;
+    private String created;
+    private String updated;
     
     @JsonManagedReference
     @OneToMany(mappedBy="site", cascade={CascadeType.PERSIST, CascadeType.REMOVE}, fetch=FetchType.EAGER)
@@ -56,15 +56,7 @@ public class OCSite {
     			return service;
     	return null;
     }
-    
-    public Date getCreatedDate() {
-    	return new Date(created);
-    }
-    
-    public Date getUpdatedDate() {
-    	return new Date(updated);
-    }
-    
+        
     public boolean isCity() {
     	if (name.equals("provider") || name.equals("experimenters"))
     		return false;
@@ -75,12 +67,12 @@ public class OCSite {
     @PrePersist
     protected void onCreate() {
     	urn = getUrn();
-    	created = updated = Calendar.getInstance().getTimeInMillis();
+    	created = updated = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
     }
 
     @PreUpdate
     protected void onUpdate() {
     	urn = getUrn();
-    	updated = Calendar.getInstance().getTimeInMillis();
+    	updated = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
     }
 }

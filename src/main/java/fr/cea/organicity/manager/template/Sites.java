@@ -61,8 +61,8 @@ public class Sites {
 		content += TemplateEngine.createKeyValue("Email", emailAddress);
 		content += TemplateEngine.createKeyValue("Related", site.getRelated());
 		content += "</div>\n";
-		content += TemplateEngine.createKeyValue("Created", site.getCreatedDate());
-		content += TemplateEngine.createKeyValue("Updated", site.getUpdatedDate());
+		content += TemplateEngine.createKeyValue("Created", site.getCreated());
+		content += TemplateEngine.createKeyValue("Updated", site.getUpdated());
 		content += TemplateEngine.createKeyValue("Quota", site.getRemQuota() + "/" + site.getQuota());
 		
 		if (isAdmin) {
@@ -120,8 +120,8 @@ public class Sites {
 		content += TemplateEngine.createKeyValue("Related", service.getRelated());
 		content += "</div>\n";
 		
-		content += TemplateEngine.createKeyValue("Created", service.getCreatedDate());
-		content += TemplateEngine.createKeyValue("Updated", service.getUpdatedDate());
+		content += TemplateEngine.createKeyValue("Created", service.getCreated());
+		content += TemplateEngine.createKeyValue("Updated", service.getUpdated());
 		
 		
 		if (isAdmin) {
