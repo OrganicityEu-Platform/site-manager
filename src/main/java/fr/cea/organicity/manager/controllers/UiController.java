@@ -52,6 +52,8 @@ import fr.cea.organicity.manager.security.RoleGuard;
 import fr.cea.organicity.manager.security.RoleManager;
 import fr.cea.organicity.manager.security.SecurityConfig;
 import fr.cea.organicity.manager.security.SecurityConstants;
+import fr.cea.organicity.manager.tagdomain.TagDomain;
+import fr.cea.organicity.manager.tagdomain.TagDomainService;
 import fr.cea.organicity.manager.template.AccessLogMetric;
 import fr.cea.organicity.manager.template.AccessTabMetric;
 import fr.cea.organicity.manager.template.ApiCallMetric;
@@ -89,7 +91,10 @@ public class UiController {
 	@Autowired private OCErrorRepository errorRepository;
 	@Autowired private OCApiCallRepository apiCallRepository;
 	@Autowired private OCRequestRepository accessRepository;
+	
 	@Autowired private ExperimentLister experimentLister;
+	@Autowired private TagDomainService tagdomainservice;
+	
 	
 	@RequestMapping("/")
 	public String getRoot(HttpServletRequest request) throws IOException {
@@ -773,6 +778,24 @@ public class UiController {
 		return Dictionaries.generateAppTypes(templateService, roles, getAppTypeRepository());
 	}
 	
+	@RequestMapping("/dictionaries/tagdomains")
+	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
+	public String tagdomains(HttpServletRequest request) throws IOException {
+		List<TagDomain> tagDomains = tagdomainservice.retrieveTagDomains();
+		List<Role> roles = roleManager.getRolesForRequest(request);
+		return Dictionaries.generateTagDomains(templateService, roles, tagDomains);
+	}
+	
+	@RequestMapping("/dictionaries/tagdomains/{id}")
+	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
+	public String tagdomain(HttpServletRequest request, @PathVariable("id") int id) throws IOException {
+		TagDomain tagDomain = tagdomainservice.retrieveTagDomains(id);
+		if (tagDomain == null)
+			throw new IllegalArgumentException("Unknown tagdomain with id " + id);
+		List<Role> roles = roleManager.getRolesForRequest(request);
+		return Dictionaries.generateTagDomain(templateService, roles, tagDomain, userLister);
+	}
+	
 	@RequestMapping("/links")
 	@RoleGuard(roleName=SecurityConstants.DEVELOPER)
 	public String links(HttpServletRequest request) throws IOException {
@@ -797,7 +820,7 @@ public class UiController {
 		Role role = new Role(roleName);
 		return hasRole(request, role);
 	}
-	
+		
 	private List<OCSite> getSiterepository() {
 		return getRepositoryContent(siterepository, (o1, o2) -> o1.getUrn().compareTo(o2.getUrn())); 	
 	}

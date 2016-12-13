@@ -26,6 +26,7 @@ import fr.cea.organicity.manager.security.Credentials;
 import fr.cea.organicity.manager.security.HttpClient;
 import fr.cea.organicity.manager.security.RoleManager;
 import fr.cea.organicity.manager.security.TokenManager;
+import fr.cea.organicity.manager.tagdomain.TagDomainService;
 
 @Configuration
 public class BeansConfig {
@@ -82,6 +83,11 @@ public class BeansConfig {
 	@Bean
 	UserLister getUserLister(HttpClient httpClient, APIInvoker invoker) {
 		return new UserLister(httpClient, invoker);
+	}
+	
+	@Bean
+	TagDomainService getTagDomainService(HttpClient httpClient, APIInvoker invoker) {
+		return new TagDomainService(httpClient, invoker);
 	}
 	
 	@Bean

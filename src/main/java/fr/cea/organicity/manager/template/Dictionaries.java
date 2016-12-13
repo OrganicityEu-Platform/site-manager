@@ -12,7 +12,13 @@ import fr.cea.organicity.manager.domain.OCDataType;
 import fr.cea.organicity.manager.domain.OCTool;
 import fr.cea.organicity.manager.domain.OCUnit;
 import fr.cea.organicity.manager.domain.OCUnregisteredAssetType;
+import fr.cea.organicity.manager.otherservices.ThirdPartyResult;
+import fr.cea.organicity.manager.otherservices.User;
+import fr.cea.organicity.manager.otherservices.UserLister;
 import fr.cea.organicity.manager.security.Role;
+import fr.cea.organicity.manager.tagdomain.Service;
+import fr.cea.organicity.manager.tagdomain.Tag;
+import fr.cea.organicity.manager.tagdomain.TagDomain;
 
 public class Dictionaries {
 
@@ -351,5 +357,62 @@ public class Dictionaries {
 		content += "</ul>\n";
 
 		return templateService.generateWebPage(TITLE, content, roles);
-	}	
+	}
+
+	public static String generateTagDomains(TemplateEngine templateService, List<Role> roles, List<TagDomain> tagDomains) throws IOException {
+		String content = TemplateEngine.createNavigateLink("/dictionaries", "&lt; Back to dictionaries") + "\n";
+		content += "<h2>Tag Domains</h2>\n";
+
+		content += TemplateEngine.createListSize(tagDomains, "tag domain");
+		for (TagDomain tagDomain : tagDomains) {
+			content += "	<p>\n";
+			content += "	  " + TemplateEngine.createNavigateLink("/dictionaries/tagdomains/" + tagDomain.getId(), tagDomain.getUrn()) + "<br>\n" ;
+			content += "	  " + tagDomain.getDescription() + "\n" ;
+			content += "	</p>\n";
+		}
+
+		return templateService.generateWebPage(TITLE, content, roles);
+	}
+
+	public static String generateTagDomain(TemplateEngine templateService, List<Role> roles, TagDomain tagDomain, UserLister userLister) throws IOException {
+		
+		String content = TemplateEngine.createNavigateLink("/dictionaries/tagdomains", "&lt; Back to tag domains") + "\n";
+		content += "<h2>" + tagDomain.getUrn() + "</h2>\n";
+
+		content += "	<p>" + tagDomain.getDescription() + "</p>\n"; 
+		
+		// services
+		content += TemplateEngine.createListSize(tagDomain.getServices(), "service");
+		content += "<ul>\n";
+		for (Service service : tagDomain.getServices()) {
+			content += "	<li><strong>" + service.getUrn() + "</strong><br>\n";
+			content += "	" + service.getDescription() + "<br>\n";
+			if (service.getUser() != null) {
+				ThirdPartyResult<User> user = userLister.getUser(service.getUser());
+				if (user.hasAlreadySucceed())
+					content += "	user: " + user.getLastSuccessResult().getName() + "<br></li>\n";
+				else
+					content += "	user: " + service.getUser() + "<br></li>\n";
+			}
+		}
+		content += "</ul>\n";
+		
+		// tags
+		content += TemplateEngine.createListSize(tagDomain.getTags(), "tag");
+		content += "<ul>\n";
+		for (Tag tag : tagDomain.getTags()) {
+			content += "	<li><strong>" + tag.getUrn() + "</strong><br>\n";
+			content += "	" + tag.getName() + "<br>\n";
+			if (tag.getUser() != null) {
+				ThirdPartyResult<User> user = userLister.getUser(tag.getUser());
+				if (user.hasAlreadySucceed())
+					content += "	user: " + user.getLastSuccessResult().getName() + "<br></li>\n";
+				else
+					content += "	user: " + tag.getUser() + "<br></li>\n";
+			}
+		}
+		content += "</ul>\n";
+		
+		return templateService.generateWebPage(TITLE, content, roles);
+	}
 }
