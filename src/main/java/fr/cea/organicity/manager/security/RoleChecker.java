@@ -43,16 +43,15 @@ public class RoleChecker {
 	@Autowired private OCRequestRepository requestRepository;
 	@Autowired private SecurityConfig secuConfig;
 
-	
 	private static final Logger log = LoggerFactory.getLogger(RoleChecker.class);
 
 	@Around("execution(* *(..)) && @annotation(guard) && args(request,..)")
 	public Object aroundWeb(ProceedingJoinPoint point, RoleGuard guard, HttpServletRequest request) throws Throwable {
-		
+
 		long startTime = System.currentTimeMillis();
 		String id_token = request.getParameter("id_token");
 		OCClaims claims = getClaims(id_token);
-		
+
 		try {
 			validateRequest(point, claims, guard);
 		} catch (HtmlMessageException e) {
@@ -60,13 +59,13 @@ public class RoleChecker {
 			logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
 			return WebPageTemplate.generateUnauthorizedHTML(templateService, roles, e.getHtml());
 		}
-		
+
 		// compute result
 		if (claims == null)
 			logAccess("AUTHORISED", point, "<anonymous>", System.currentTimeMillis() - startTime);
 		else
 			logAccess("AUTHORISED", point, claims.getSub(), System.currentTimeMillis() - startTime);
-				
+
 		return point.proceed();
 	}
 
@@ -75,40 +74,44 @@ public class RoleChecker {
 
 		long startTime = System.currentTimeMillis();
 		OCClaims claims = getClaims(auth);
-		
-		try {
-			validateRequest(point, claims, guard);
-		} catch (HtmlMessageException e) {
-			logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
-			JSONObject json = new JSONObject();
-			json.put("error", "UNAUTHORIZED");
-			json.put("message", e.getMessage());
-			return new ResponseEntity<String>(json.toString(), HttpStatus.UNAUTHORIZED);
+
+		if (secuConfig.isBackendSecured()) {
+			try {
+				validateRequest(point, claims, guard);
+			} catch (HtmlMessageException e) {
+				logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
+				JSONObject json = new JSONObject();
+				json.put("error", "UNAUTHORIZED");
+				json.put("message", e.getMessage());
+				return new ResponseEntity<String>(json.toString(), HttpStatus.UNAUTHORIZED);
+			}
+
+			// compute result
+			if (claims == null)
+				logAccess("AUTHORISED", point, "<anonymous>", System.currentTimeMillis() - startTime);
+			else
+				logAccess("AUTHORISED", point, claims.getSub(), System.currentTimeMillis() - startTime);
 		}
 
-		// compute result
-		if (claims == null)
-			logAccess("AUTHORISED", point, "<anonymous>", System.currentTimeMillis() - startTime);
-		else
-			logAccess("AUTHORISED", point, claims.getSub(), System.currentTimeMillis() - startTime);
 		return point.proceed();
 	}
 
-	private void validateRequest(ProceedingJoinPoint point, OCClaims claims, RoleGuard guard) throws HtmlMessageException, IOException {
+	private void validateRequest(ProceedingJoinPoint point, OCClaims claims, RoleGuard guard)
+			throws HtmlMessageException, IOException {
 
 		if (claims == null) {
 			String message = "INVALID_TOKEN";
-			
+
 			Map<String, String> dictionary = new HashMap<>();
 			HttpServletRequest request = getRequest(point.getArgs());
 			String url = secuConfig.getUrl(request);
 			dictionary.put("url", url);
-						
+
 			String html = templateService.stringFromTemplate("/templates/invalidToken.html", dictionary);
 
 			throw new HtmlMessageException(null, message, html);
 		}
-		
+
 		// check role
 		if (guard != null && !Strings.isNullOrEmpty(guard.roleName())) {
 
@@ -134,7 +137,7 @@ public class RoleChecker {
 			}
 		}
 	}
-	
+
 	private HttpServletRequest getRequest(Object[] args) {
 		for (Object arg : args)
 			if (arg instanceof HttpServletRequest)
@@ -143,12 +146,12 @@ public class RoleChecker {
 	}
 
 	private String getRoleName(ProceedingJoinPoint point, RoleGuard guard) {
-		
+
 		String name = guard.roleName();
-		
+
 		if (name.contains("{")) {
 			Method method = getMethod(point);
-			for (int i=0; i<method.getParameters().length; i++) {
+			for (int i = 0; i < method.getParameters().length; i++) {
 				Parameter param = method.getParameters()[i];
 				PathVariable annotation = param.getAnnotation(PathVariable.class);
 				if (annotation != null) {
@@ -159,7 +162,7 @@ public class RoleChecker {
 			}
 		}
 		name = name.replace(SecurityConstants.clientNameKey, secuConfig.clientName);
-		
+
 		return name;
 	}
 
@@ -174,21 +177,21 @@ public class RoleChecker {
 			throw new RuntimeException("Internal error while looking for method", e);
 		}
 	}
-	
+
 	private OCClaims getClaims(String id_token) {
 		try {
-			return claimsParser.getClaimsFromHeader(id_token);			
-		} catch(Exception e) {
+			return claimsParser.getClaimsFromHeader(id_token);
+		} catch (Exception e) {
 			return null;
 		}
 	}
-	
+
 	private void logAccess(String status, ProceedingJoinPoint point, String sub, long duration) {
 		logAccess(status, point, sub, null, duration);
 	}
-	
+
 	private void logAccess(String status, ProceedingJoinPoint point, String sub, String message, long duration) {
-		
+
 		OCRequest request = new OCRequest();
 		request.setDate(new Date());
 		request.setStatus(status);
@@ -196,24 +199,26 @@ public class RoleChecker {
 		request.setSub(sub);
 		request.setMessage(message);
 		request.setDuration(duration);
-		
+
 		if (message == null)
-			log.debug("[ACCESS " + status + "] " + duration + "ms " + point.getSignature().toShortString() + " sub=" + sub);
+			log.debug("[ACCESS " + status + "] " + duration + "ms " + point.getSignature().toShortString() + " sub="
+					+ sub);
 		else
-			log.debug("[ACCESS " + status + "] " + duration + "ms " + point.getSignature().toShortString() + " sub=" + sub + " message=" + message);
-		
+			log.debug("[ACCESS " + status + "] " + duration + "ms " + point.getSignature().toShortString() + " sub="
+					+ sub + " message=" + message);
+
 		// DB storage
 		requestRepository.save(request);
 	}
-	
+
 	@Data
-	@EqualsAndHashCode(callSuper=false)
+	@EqualsAndHashCode(callSuper = false)
 	private class HtmlMessageException extends Exception {
 		private static final long serialVersionUID = -7928067741742885882L;
 		private final String sub;
 		private final String message;
 		private final String html;
-				
+
 		public HtmlMessageException(String sub, String message, String html) {
 			this.sub = sub;
 			this.message = message;

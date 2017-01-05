@@ -54,6 +54,10 @@ public class SecurityConfig {
 		DEVELOPER_ROLE        = new Role(SecurityConstants.DEVELOPER.replace(SecurityConstants.clientNameKey, clientName));
 	}
 	
+	public boolean isBackendSecured() {
+		return env.getBackendSettings().isSecured();
+	}
+	
 	public List<Role> getLocalRoles_TEMPORARY() {
 		List<Role> roles = new ArrayList<>();
 		

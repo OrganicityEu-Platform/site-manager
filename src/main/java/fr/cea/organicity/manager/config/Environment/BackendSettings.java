@@ -28,6 +28,10 @@ public class BackendSettings {
 	@NotNull
 	private String clientPassword;
 
+	@Valid
+	private boolean secured;
+	
+	
 	public String getCertificate() {
 		return certificate.trim();
 	}
@@ -45,6 +49,7 @@ public class BackendSettings {
 		map.put("certificate", getCertificate());
 		map.put("clientId", getClientId());
 		map.put("clientPassword", getClientPassword());
+		map.put("secured", Boolean.toString(isSecured()));
 		return map;
 	}
 }
