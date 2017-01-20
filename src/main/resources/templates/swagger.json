@@ -831,6 +831,35 @@
 				}
 			}
 		},
+		"/dictionary/userinterests": {
+			"get": {
+				"tags": ["dictionary"],
+				"summary": "Finds all the user interests",
+				"operationId": "getUserInterests",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role {{clientId}}:dictionary-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "An array of OC user interrests",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/userinterestdesc"
+							}
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					}
+				}
+			}
+		},
 		"/dictionary/applicationtypes": {
 			"get": {
 				"tags": ["dictionary"],
@@ -1219,6 +1248,27 @@
 				"url": {
 					"type": "string",
 					"description": "Optional url"
+				},
+				"description": {
+					"type": "string",
+					"description": "Optional description"
+				}
+			}
+		},
+		"userinterestdesc": {
+			"type": "object",
+			"required": [
+				"urn",
+				"name"
+			],
+			"properties": {
+				"urn": {
+					"type": "string",
+					"description": "unique urn representing a specific OC user interest"
+				},
+				"name": {
+					"type": "string",
+					"description": "unique identifier representing a specific OC user interest"
 				},
 				"description": {
 					"type": "string",
