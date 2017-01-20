@@ -12,6 +12,7 @@ import fr.cea.organicity.manager.domain.OCDataType;
 import fr.cea.organicity.manager.domain.OCTool;
 import fr.cea.organicity.manager.domain.OCUnit;
 import fr.cea.organicity.manager.domain.OCUnregisteredAssetType;
+import fr.cea.organicity.manager.domain.OCUserInterest;
 import fr.cea.organicity.manager.otherservices.ThirdPartyResult;
 import fr.cea.organicity.manager.otherservices.User;
 import fr.cea.organicity.manager.otherservices.UserLister;
@@ -345,6 +346,24 @@ public class Dictionaries {
 		return templateService.generateWebPage(TITLE, content, roles);
 	}
 
+	public static String generateUserInterests(TemplateEngine templateService, List<Role> roles, List<OCUserInterest> userInterests) throws IOException {
+		String content = TemplateEngine.createNavigateLink("/dictionaries", "&lt; Back to dictionaries") + "\n";
+		content += "<h2>User interests list</h2>\n";
+
+		content += TemplateEngine.createListSize(userInterests, "user interest");
+		content += "<ul>\n";
+		for (OCUserInterest userInterest : userInterests) {
+			content += "	<li>\n";
+			content += "		<strong>" + userInterest.getUrn() + "</strong><br/>\n";
+			content += "		name: " + userInterest.getName() + "<br/>\n";
+			content += "		description: " + userInterest.getDescription() + "<br/>\n";
+			content += "	</li>\n";
+		}
+		content += "</ul>\n";
+
+		return templateService.generateWebPage(TITLE, content, roles);
+	}
+	
 	public static String generateAppTypes(TemplateEngine templateService, List<Role> roles, Iterable<OCAppType> types) throws IOException {
 
 		String content = TemplateEngine.createNavigateLink("/dictionaries", "&lt; Back to dictionaries") + "\n";

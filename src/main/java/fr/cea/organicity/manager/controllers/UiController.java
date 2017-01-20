@@ -28,6 +28,7 @@ import fr.cea.organicity.manager.domain.OCSite;
 import fr.cea.organicity.manager.domain.OCTool;
 import fr.cea.organicity.manager.domain.OCUnit;
 import fr.cea.organicity.manager.domain.OCUnregisteredAssetType;
+import fr.cea.organicity.manager.domain.OCUserInterest;
 import fr.cea.organicity.manager.otherservices.Experiment;
 import fr.cea.organicity.manager.otherservices.ExperimentLister;
 import fr.cea.organicity.manager.otherservices.ThirdPartyResult;
@@ -45,6 +46,7 @@ import fr.cea.organicity.manager.repositories.OCSiteRepository;
 import fr.cea.organicity.manager.repositories.OCToolRepository;
 import fr.cea.organicity.manager.repositories.OCUnitRepository;
 import fr.cea.organicity.manager.repositories.OCUnregisteredAssetTypeRepository;
+import fr.cea.organicity.manager.repositories.OCUserInterestRepository;
 import fr.cea.organicity.manager.security.ClaimsParser;
 import fr.cea.organicity.manager.security.OCClaims;
 import fr.cea.organicity.manager.security.Role;
@@ -88,6 +90,7 @@ public class UiController {
 	@Autowired private OCDataTypeRepository datatypeRepository;
 	@Autowired private OCToolRepository toolRepository;
 	@Autowired private OCAppTypeRepository appTypeRepository;
+	@Autowired private OCUserInterestRepository userInterestRepository;
 	@Autowired private OCErrorRepository errorRepository;
 	@Autowired private OCApiCallRepository apiCallRepository;
 	@Autowired private OCRequestRepository accessRepository;
@@ -796,6 +799,13 @@ public class UiController {
 		return Dictionaries.generateTagDomain(templateService, roles, tagDomain, userLister);
 	}
 	
+	@RequestMapping("/dictionaries/userinterests")
+	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
+	public String userinterests(HttpServletRequest request) throws IOException {
+		List<Role> roles = roleManager.getRolesForRequest(request);
+		return Dictionaries.generateUserInterests(templateService, roles, getUserInterestRepository());
+	}
+	
 	@RequestMapping("/links")
 	@RoleGuard(roleName=SecurityConstants.DEVELOPER)
 	public String links(HttpServletRequest request) throws IOException {
@@ -852,7 +862,11 @@ public class UiController {
 	private List<OCAppType> getAppTypeRepository() {
 		return getRepositoryContent(appTypeRepository, (o1, o2) -> o1.getUrn().compareTo(o2.getUrn()));
 	}
-		
+
+	private List<OCUserInterest> getUserInterestRepository() {
+		return getRepositoryContent(userInterestRepository, (o1, o2) -> o1.getUrn().compareTo(o2.getUrn()));
+	}
+	
 	private static <T extends Object> List<T> getRepositoryContent(CrudRepository<T, String> repository, Comparator<? super T> comparator) {
 		 return StreamSupport.stream(repository.findAll().spliterator(), false).sorted(comparator).collect(Collectors.toList());
 	}

@@ -1,0 +1,4 @@
+		OCUserInterest {{userInterestVar}} = new OCUserInterest();
+		{{userInterestVar}}.setName("{{name}}");
+		{{userInterestVar}}.setDescription("{{description}}");
+		{{userInterestVar}} = userInterestRepository.save({{userInterestVar}});

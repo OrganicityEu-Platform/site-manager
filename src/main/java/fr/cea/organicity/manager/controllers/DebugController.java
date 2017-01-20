@@ -21,6 +21,7 @@ import fr.cea.organicity.manager.domain.OCService;
 import fr.cea.organicity.manager.domain.OCSite;
 import fr.cea.organicity.manager.domain.OCTool;
 import fr.cea.organicity.manager.domain.OCUnit;
+import fr.cea.organicity.manager.domain.OCUserInterest;
 import fr.cea.organicity.manager.repositories.OCAppTypeRepository;
 import fr.cea.organicity.manager.repositories.OCAssetTypeRepository;
 import fr.cea.organicity.manager.repositories.OCAttributeTypeRepository;
@@ -28,6 +29,7 @@ import fr.cea.organicity.manager.repositories.OCDataTypeRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
 import fr.cea.organicity.manager.repositories.OCToolRepository;
 import fr.cea.organicity.manager.repositories.OCUnitRepository;
+import fr.cea.organicity.manager.repositories.OCUserInterestRepository;
 import fr.cea.organicity.manager.template.TemplateEngine;
 
 @CrossOrigin(origins = "*")
@@ -41,6 +43,7 @@ public class DebugController {
 	@Autowired private OCToolRepository toolrepository;
 	@Autowired private OCAppTypeRepository apptyperepository;
 	@Autowired private OCAssetTypeRepository assettyperepository;
+	@Autowired private OCUserInterestRepository userInterestRepository; 
 	
 	@Autowired private TemplateEngine templateEngine;
 	
@@ -90,8 +93,9 @@ public class DebugController {
 		content += assetTypeContent();
 		content += unitContent();
 		content += attributeContent();
+		content += userInterestContent();
 		
-		content += "		return \"{message: \\\"some data has been added to the database\\\"}\";\n";
+		content += "		return \"{message: \\\"Data added to database\\\"}\";\n";
 		content += "	}\n";
 		
 		return content;
@@ -224,5 +228,22 @@ public class DebugController {
 		}
 		
 		return content;
-	}	
+	}
+	
+	private String userInterestContent() throws IOException {
+		String content = "\n"; 
+		content += "		// USER INTEREST\n";
+		content += "		// =============\n\n";
+	
+		for (OCUserInterest userInterest : userInterestRepository.findAll()) {
+			Map<String, String> dictionnary = new HashMap<>();
+			String toolVar = "userInterest_" + userInterest.getName();
+			dictionnary.put("userInterestVar", toolVar);
+			dictionnary.put("name", userInterest.getName());
+			dictionnary.put("description", userInterest.getDescription());
+			content += templateEngine.stringFromTemplate("/templates/java/userInterest.txt", dictionnary) + "\n";
+		}
+		
+		return content;
+	}
 }

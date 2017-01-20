@@ -15,6 +15,7 @@ import fr.cea.organicity.manager.domain.OCService;
 import fr.cea.organicity.manager.domain.OCSite;
 import fr.cea.organicity.manager.domain.OCTool;
 import fr.cea.organicity.manager.domain.OCUnit;
+import fr.cea.organicity.manager.domain.OCUserInterest;
 import fr.cea.organicity.manager.repositories.OCAppTypeRepository;
 import fr.cea.organicity.manager.repositories.OCAssetTypeRepository;
 import fr.cea.organicity.manager.repositories.OCAttributeTypeRepository;
@@ -23,6 +24,7 @@ import fr.cea.organicity.manager.repositories.OCServiceRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
 import fr.cea.organicity.manager.repositories.OCToolRepository;
 import fr.cea.organicity.manager.repositories.OCUnitRepository;
+import fr.cea.organicity.manager.repositories.OCUserInterestRepository;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -37,6 +39,8 @@ public class TestController {
 	@Autowired private OCToolRepository toolrepository;
 	@Autowired private OCAppTypeRepository apptyperepository;
 	@Autowired private OCAssetTypeRepository assettyperepository;
+	@Autowired private OCUserInterestRepository userInterestRepository; 
+	
 	
 	@RequestMapping
 	public String test() {
@@ -241,10 +245,6 @@ public class TestController {
 		assetType_busLine.setName("busLine");
 		assetType_busLine = assettyperepository.save(assetType_busLine);
 
-		OCAssetType assetType_urn_oc_entityTyoe_busRoute = new OCAssetType();
-		assetType_urn_oc_entityTyoe_busRoute.setName("urn:oc:entityTyoe:busRoute");
-		assetType_urn_oc_entityTyoe_busRoute = assettyperepository.save(assetType_urn_oc_entityTyoe_busRoute);
-
 		OCAssetType assetType_taxiStation = new OCAssetType();
 		assetType_taxiStation.setName("taxiStation");
 		assetType_taxiStation = assettyperepository.save(assetType_taxiStation);
@@ -308,6 +308,10 @@ public class TestController {
 		OCAssetType assetType_pollutionsensor = new OCAssetType();
 		assetType_pollutionsensor.setName("pollutionsensor");
 		assetType_pollutionsensor = assettyperepository.save(assetType_pollutionsensor);
+
+		OCAssetType assetType_busRoute = new OCAssetType();
+		assetType_busRoute.setName("busRoute");
+		assetType_busRoute = assettyperepository.save(assetType_busRoute);
 
 
 		// UNIT
@@ -682,6 +686,110 @@ public class TestController {
 		attrType_speed_limit.getUnits().add(u_kilometrePerHour);
 		attrType_speed_limit = attributetyperepository.save(attrType_speed_limit);
 
-		return "{message: \"some data has been added to the database\"}";
+
+		// USER INTEREST
+		// =============
+
+		OCUserInterest userInterest_traffic = new OCUserInterest();
+		userInterest_traffic.setName("traffic");
+		userInterest_traffic.setDescription("");
+		userInterest_traffic = userInterestRepository.save(userInterest_traffic);
+
+		OCUserInterest userInterest_mobility = new OCUserInterest();
+		userInterest_mobility.setName("mobility");
+		userInterest_mobility.setDescription("");
+		userInterest_mobility = userInterestRepository.save(userInterest_mobility);
+
+		OCUserInterest userInterest_environmental = new OCUserInterest();
+		userInterest_environmental.setName("environmental");
+		userInterest_environmental.setDescription("");
+		userInterest_environmental = userInterestRepository.save(userInterest_environmental);
+
+		OCUserInterest userInterest_parking = new OCUserInterest();
+		userInterest_parking.setName("parking");
+		userInterest_parking.setDescription("");
+		userInterest_parking = userInterestRepository.save(userInterest_parking);
+
+		OCUserInterest userInterest_park = new OCUserInterest();
+		userInterest_park.setName("park");
+		userInterest_park.setDescription("");
+		userInterest_park = userInterestRepository.save(userInterest_park);
+
+		OCUserInterest userInterest_garden = new OCUserInterest();
+		userInterest_garden.setName("garden");
+		userInterest_garden.setDescription("");
+		userInterest_garden = userInterestRepository.save(userInterest_garden);
+
+		OCUserInterest userInterest_beach = new OCUserInterest();
+		userInterest_beach.setName("beach");
+		userInterest_beach.setDescription("");
+		userInterest_beach = userInterestRepository.save(userInterest_beach);
+
+		OCUserInterest userInterest_airquality = new OCUserInterest();
+		userInterest_airquality.setName("airquality");
+		userInterest_airquality.setDescription("");
+		userInterest_airquality = userInterestRepository.save(userInterest_airquality);
+
+		OCUserInterest userInterest_tubestations = new OCUserInterest();
+		userInterest_tubestations.setName("tubestations");
+		userInterest_tubestations.setDescription("");
+		userInterest_tubestations = userInterestRepository.save(userInterest_tubestations);
+
+		OCUserInterest userInterest_busstations = new OCUserInterest();
+		userInterest_busstations.setName("busstations");
+		userInterest_busstations.setDescription("");
+		userInterest_busstations = userInterestRepository.save(userInterest_busstations);
+
+		OCUserInterest userInterest_bikestations = new OCUserInterest();
+		userInterest_bikestations.setName("bikestations");
+		userInterest_bikestations.setDescription("");
+		userInterest_bikestations = userInterestRepository.save(userInterest_bikestations);
+
+		OCUserInterest userInterest_tubelines = new OCUserInterest();
+		userInterest_tubelines.setName("tubelines");
+		userInterest_tubelines.setDescription("");
+		userInterest_tubelines = userInterestRepository.save(userInterest_tubelines);
+
+		OCUserInterest userInterest_buslines = new OCUserInterest();
+		userInterest_buslines.setName("buslines");
+		userInterest_buslines.setDescription("");
+		userInterest_buslines = userInterestRepository.save(userInterest_buslines);
+
+		OCUserInterest userInterest_neighbourhood = new OCUserInterest();
+		userInterest_neighbourhood.setName("neighbourhood");
+		userInterest_neighbourhood.setDescription("");
+		userInterest_neighbourhood = userInterestRepository.save(userInterest_neighbourhood);
+
+		OCUserInterest userInterest_cultural = new OCUserInterest();
+		userInterest_cultural.setName("cultural");
+		userInterest_cultural.setDescription("");
+		userInterest_cultural = userInterestRepository.save(userInterest_cultural);
+
+		OCUserInterest userInterest_cityevent = new OCUserInterest();
+		userInterest_cityevent.setName("cityevent");
+		userInterest_cityevent.setDescription("");
+		userInterest_cityevent = userInterestRepository.save(userInterest_cityevent);
+
+		OCUserInterest userInterest_shopping = new OCUserInterest();
+		userInterest_shopping.setName("shopping");
+		userInterest_shopping.setDescription("");
+		userInterest_shopping = userInterestRepository.save(userInterest_shopping);
+
+		OCUserInterest userInterest_bikelane = new OCUserInterest();
+		userInterest_bikelane.setName("bikelane");
+		userInterest_bikelane.setDescription("");
+		userInterest_bikelane = userInterestRepository.save(userInterest_bikelane);
+
+		OCUserInterest userInterest_bikestop = new OCUserInterest();
+		userInterest_bikestop.setName("bikestop");
+		userInterest_bikestop.setDescription("");
+		userInterest_bikestop = userInterestRepository.save(userInterest_bikestop);
+
+		OCUserInterest userInterest_taxistop = new OCUserInterest();
+		userInterest_taxistop.setName("taxistop");
+		userInterest_taxistop.setDescription("");
+		userInterest_taxistop = userInterestRepository.save(userInterest_taxistop);
+
+		return "{message: \"Data added to database\"}";
 	}
 }
