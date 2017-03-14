@@ -22,7 +22,6 @@ public class SecurityConstants {
 	
 	public final static String clientNameKey = "{clientName}";
 	
-	public final static String USER_VIEWER         = clientNameKey + ":user-viewer";
 	public final static String ROLE_ADMIN          = clientNameKey + ":role-admin";
 	public final static String EXPERIMENT_USER     = clientNameKey + ":experiment-user";
 	public final static String METRICS_USER        = clientNameKey + ":metrics";

@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/metrics');">&lt; Back to metrics</a>
+		
+		<h2>[[${subtitle}]]</h2>
+
+		<table>
+			<tr><th>id</th><th>date</th><th>status</th><th>path</th><th>message</th></tr>
+			<tr th:each="error : ${errors}">
+				<td>[[${error.id}]]</td>
+				<td>[[${error.date}]]</td>
+				<td>[[${error.status}]]</td>
+				<td>[[${error.path}]]</td>
+				<td>[[${error.message}]]</td>
+			</tr>
+		</table>
+
+	</div>
+</body>
+</html>

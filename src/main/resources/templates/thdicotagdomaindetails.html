@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries/tagdomains');">&lt; Back to tag domains</a>
+		
+		<h2>[[${element.urn}]]</h2>
+
+		<p>[[${element.description}]]</p>
+
+		<p>[[${element.services.size()}]] service[[((${element.services.size()} != 1)? 's')]]</p>
+		<ul th:if="${element.services.size()}">
+			<li th:each="e : ${elements.services}">
+				<strong>[[${e.urn}]]</strong><br>
+				description: [[${e.description}]]<br>
+				user: [[${e.user}]]
+			</li>
+		</ul>
+		
+		<p>[[${element.tags.size()}]] tag[[((${element.tags.size()} != 1)? 's')]]</p>
+		<ul th:if="${element.tags.size()}">
+			<li th:each="e : ${elements.tags}">
+				<strong>[[${e.urn}]]</strong><br>
+				description: [[${e.name}]]<br>
+				user: [[${e.user}]]
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

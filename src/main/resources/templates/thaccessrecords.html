@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/metrics');">&lt; Back to metrics</a>
+		<h2>[[${subtitle}]]</h2>
+		
+		<p><strong>Per method analysis</strong></p><table>
+		  <tr><th>method</th><th>success</th><th>failure</th><th>total</th></tr>
+		  <tr th:each="key : ${perMethod.keySet()}" th:object="${perMethod.get(key)}"><td>[[${key}]]</td><td>[[*{success}]]</td><td>[[*{failure}]]</td><td>[[*{total}]]</td>
+		</table>
+		
+		<p><strong>Per user analysis</strong></p><table>
+		  <tr><th>user</th><th>success</th><th>failure</th><th>total</th></tr>
+		  <tr th:each="key : ${perUser.keySet()}" th:object="${perUser.get(key)}"><td>[[${key}]]</td><td>[[*{success}]]</td><td>[[*{failure}]]</td><td>[[*{total}]]</td>
+		</table>
+
+	</div>
+</body>
+</html>

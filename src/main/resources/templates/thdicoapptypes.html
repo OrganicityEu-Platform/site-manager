@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries');">&lt; Back to dictionaries</a>
+		
+		<h2>Application types list</h2>
+
+		<p>[[${elements.size()}]] application type[[((${elements.size()} != 1)? 's')]]</p>
+		<ul th:if="${elements.size()}">
+			<li th:each="e : ${elements}"><strong>[[${e.name}]]</strong>: [[${e.description}]]</li>
+		</ul>
+	</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries');">&lt; Back to dictionaries</a>
+		
+		<h2>AssetTypes list</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+
+		<p>[[${elements.size()}]] asset type[[((${elements.size()} != 1)? 's')]]</p>
+		<ul th:if="${elements.size()}">
+			<li th:each="e : ${elements}"><span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${e.name},text=${e.name})"></span></li>
+		</ul>
+
+		<div th:if="${isDicoAdmin}">
+		<h2>New Asset Type</h2>
+		<p>To add a new entity, please fill the following form</p>
+
+		<div th:if="${unregistered.size()}">
+			<p><strong>[[${unregistered.size()}]] asset type[[((${unregistered.size()} != 1)? 's')]] suggested for creation </strong></p>
+			<ul>
+				<li th:each="e : ${unregistered}">[[${e.getUrn}]]
+					<!-- <a href=\"#name\" onclick=\"suggest('" + assetType.getName() + "');\">" + assetType.getUrn() + "</a> -->
+					<span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${e.name},text=${e.name})"></span>
+				</li>
+			</ul>
+		</div>
+		
+		<form>
+			<div class="line">
+				<label for="name">Name</label>
+		  		<input id="name" value="">
+			</div>
+		  	<div class="line">
+		    	<label for="description">Description</label>
+		    	<input id="description" value="">
+		  	</div>
+		  	<div class="line">
+		    	<label for="related">Related</label>
+		    	<input id="related" value="">
+		  	</div>
+			<div class="btnbar">
+				<a href="#" class="btn validate" onclick="newAssetType(document.getElementById('name').value,document.getElementById('description').value,document.getElementById('related').value);">CREATE Asset Type</a>
+			</div>
+		</form>
+		</div>
+	</div>
+</body>
+</html>

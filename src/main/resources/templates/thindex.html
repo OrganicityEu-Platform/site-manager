@@ -1,0 +1,12 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<h2>Welcome</h2>
+		<p>This website is dedicated to site management.</p>
+		<div style="text-align: center;" th:if="not ${roles.size()}">
+			<a th:href="${renewTokenUrl}" class="btn validate">LOGIN</a>
+		</div>
+	</div>
+</body>
+</html>

@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
 
-import fr.cea.organicity.manager.config.Environment.EnvService;
+import fr.cea.organicity.manager.config.environment.EnvService;
+import fr.cea.organicity.manager.services.rolemanager.Role;
 
 @Component
 public class SecurityConfig {
@@ -25,7 +26,6 @@ public class SecurityConfig {
 	public final String clientName;
 	
 	// Local roles
-	public final Role USER_VIEWER_ROLE;
 	public final Role ROLE_ADMIN_ROLE;
 	public final Role EXPERIMENT_USER_ROLE;
 	public final Role METRICS_USER_ROLE;
@@ -35,9 +35,12 @@ public class SecurityConfig {
 	
 	// Global roles
 	public final Role ADMINISTRATOR_ROLE = new Role("administrator");
-	public final Role PARTICIPANT_ROLE = new Role("participant");
+	public final Role SITEMANAGER_ROLE = new Role("site-manager");
+	public final Role SERVICEPROVIDER_ROLE = new Role("service-provider");
+	public final Role PROVIDER_ROLE = new Role("provider");
 	public final Role EXPERIMENTER_ROLE = new Role("experimenter");
-	public final Role OFFLINE_ROLE = new Role("offline_access");	
+	public final Role PARTICIPANT_ROLE = new Role("participant");
+	public final Role OFFLINE_ROLE = new Role("offline_access");
 	
 	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 	
@@ -45,7 +48,6 @@ public class SecurityConfig {
 	public SecurityConfig(EnvService env) {
 		this.env = env;
 		clientName = env.getBackendSettings().getClientId();
-		USER_VIEWER_ROLE      = new Role(SecurityConstants.USER_VIEWER.replace(SecurityConstants.clientNameKey, clientName));
 		ROLE_ADMIN_ROLE       = new Role(SecurityConstants.ROLE_ADMIN.replace(SecurityConstants.clientNameKey, clientName));
 		EXPERIMENT_USER_ROLE  = new Role(SecurityConstants.EXPERIMENT_USER.replace(SecurityConstants.clientNameKey, clientName));
 		METRICS_USER_ROLE     = new Role(SecurityConstants.METRICS_USER.replace(SecurityConstants.clientNameKey, clientName));
@@ -58,24 +60,19 @@ public class SecurityConfig {
 		return env.getBackendSettings().isSecured();
 	}
 	
+	public String getClientName() {
+		return clientName;
+	}
+	
 	public List<Role> getLocalRoles_TEMPORARY() {
 		List<Role> roles = new ArrayList<>();
-		
 		roles.add(ADMINISTRATOR_ROLE);
-		roles.add(PARTICIPANT_ROLE);
+		roles.add(SITEMANAGER_ROLE);
+		roles.add(SERVICEPROVIDER_ROLE);
+		roles.add(PROVIDER_ROLE);
 		roles.add(EXPERIMENTER_ROLE);
+		roles.add(PARTICIPANT_ROLE);
 		roles.add(OFFLINE_ROLE);
-
-		roles.add(new Role(clientName, "site-santander-user"));
-		roles.add(new Role(clientName, "site-santander-admin"));
-		roles.add(new Role(clientName, "site-london-user"));
-		roles.add(new Role(clientName, "site-london-admin"));
-		roles.add(new Role(clientName, "site-aarhus-user"));
-		roles.add(new Role(clientName, "site-aarhus-admin"));
-		roles.add(new Role(clientName, "site-experimenters-user"));
-		roles.add(new Role(clientName, "site-experimenters-admin"));
-		roles.add(new Role(clientName, "site-provider-user"));
-		roles.add(new Role(clientName, "site-provider-admin"));
 		
 		return roles;
 	}

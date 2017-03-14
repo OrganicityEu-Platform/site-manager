@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/metrics');">&lt; Back to metrics</a>
+				
+		<h2>Latest access records</h2>
+
+		<table>
+		  	<tr><th>Date</th><th>status</th><th>duration</th><th>method</th><th>user</th><th>message</th></tr>
+		  	<tr th:each="log : ${logs}">
+		  		<td>[[${log.date}]]</td>
+		  		<td>[[${log.status}]]</td>
+		  		<td>[[${log.duration}]]ms</td>
+		  		<td>[[${log.method}]]</td>
+		  		<td>[[${log.sub}]]</td>
+		  		<td>[[${log.message}]]</td>
+			</tr>
+		</table>
+
+	</div>
+</body>
+</html>

@@ -1,13 +1,9 @@
 package fr.cea.organicity.manager.security;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,23 +11,24 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.google.common.base.Strings;
 
 import fr.cea.organicity.manager.domain.OCRequest;
+import fr.cea.organicity.manager.exceptions.token.InvalidTokenException;
+import fr.cea.organicity.manager.exceptions.token.RoleComputationTokenException;
+import fr.cea.organicity.manager.exceptions.token.TokenException;
+import fr.cea.organicity.manager.exceptions.token.UserNotAuthorizedTokenException;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
-import fr.cea.organicity.manager.template.TemplateEngine;
-import fr.cea.organicity.manager.template.WebPageTemplate;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import fr.cea.organicity.manager.services.rolemanager.ClaimsParser;
+import fr.cea.organicity.manager.services.rolemanager.OCClaims;
+import fr.cea.organicity.manager.services.rolemanager.Role;
+import fr.cea.organicity.manager.services.rolemanager.RoleManager;
 
 @Aspect
 @Component
@@ -39,7 +36,6 @@ public class RoleChecker {
 
 	@Autowired private ClaimsParser claimsParser;
 	@Autowired private RoleManager roleManager;
-	@Autowired private TemplateEngine templateService;
 	@Autowired private OCRequestRepository requestRepository;
 	@Autowired private SecurityConfig secuConfig;
 
@@ -53,13 +49,15 @@ public class RoleChecker {
 		OCClaims claims = getClaims(id_token);
 
 		try {
-			validateRequest(point, claims, guard);
-		} catch (HtmlMessageException e) {
-			List<Role> roles = roleManager.getRolesForRequest(request);
+			checkAuthorization(point, claims, guard);
+		} catch (InvalidTokenException e) {
 			logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
-			return WebPageTemplate.generateUnauthorizedHTML(templateService, roles, e.getHtml());
+			return "thinvalidtoken";
+		} catch (RoleComputationTokenException e) {
+			logAccess("INTERNAL", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
+			return "thinternalerror";
 		}
-
+		
 		// compute result
 		if (claims == null)
 			logAccess("AUTHORISED", point, "<anonymous>", System.currentTimeMillis() - startTime);
@@ -74,75 +72,48 @@ public class RoleChecker {
 
 		long startTime = System.currentTimeMillis();
 		OCClaims claims = getClaims(auth);
-
-		if (secuConfig.isBackendSecured()) {
-			try {
-				validateRequest(point, claims, guard);
-			} catch (HtmlMessageException e) {
-				logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
-				JSONObject json = new JSONObject();
-				json.put("error", "UNAUTHORIZED");
-				json.put("message", e.getMessage());
-				return new ResponseEntity<String>(json.toString(), HttpStatus.UNAUTHORIZED);
+		
+		try {
+			if (secuConfig.isBackendSecured()) {
+				checkAuthorization(point, claims, guard);
 			}
-
-			// compute result
-			if (claims == null)
-				logAccess("AUTHORISED", point, "<anonymous>", System.currentTimeMillis() - startTime);
-			else
-				logAccess("AUTHORISED", point, claims.getSub(), System.currentTimeMillis() - startTime);
-		}
-
+		} catch (TokenException e) {
+			logAccess("DENIED", point, e.getSub(), e.getMessage(), System.currentTimeMillis() - startTime);
+			throw e;
+		} 
+		
+		logAccess("AUTHORISED", point, claims != null ? claims.getSub() : null, null, System.currentTimeMillis() - startTime);
+		
 		return point.proceed();
 	}
 
-	private void validateRequest(ProceedingJoinPoint point, OCClaims claims, RoleGuard guard)
-			throws HtmlMessageException, IOException {
+	private void checkAuthorization(ProceedingJoinPoint point, OCClaims claims, RoleGuard guard) throws TokenException {
 
-		if (claims == null) {
-			String message = "INVALID_TOKEN";
+		String sub = checkClaimsAndGetSub(claims);
 
-			Map<String, String> dictionary = new HashMap<>();
-			HttpServletRequest request = getRequest(point.getArgs());
-			String url = secuConfig.getUrl(request);
-			dictionary.put("url", url);
-
-			String html = templateService.stringFromTemplate("/templates/invalidToken.html", dictionary);
-
-			throw new HtmlMessageException(null, message, html);
-		}
-
-		// check role
 		if (guard != null && !Strings.isNullOrEmpty(guard.roleName())) {
-
-			Role requiredRole;
-			try {
-				requiredRole = new Role(getRoleName(point, guard));
-			} catch (Exception e) {
-				String message = "Can't compute role to be checked";
-				throw new HtmlMessageException(claims.getSub(), message, message);
-			}
-
-			// check if user has role
-			List<Role> roles;
-			try {
-				roles = roleManager.getRolesForSub(claims.getSub());
-			} catch (ExecutionException e) {
-				String message = "Can't get user roles";
-				throw new HtmlMessageException(claims.getSub(), message, message);
-			}
+			Role requiredRole = computeRequiredRole(sub, point, guard);
+			List<Role> roles = roleManager.getRolesForSub(claims.getSub());
 			if (!roles.contains(requiredRole)) {
-				String message = "User doesn't have role " + requiredRole.getFullName();
-				throw new HtmlMessageException(claims.getSub(), message, message);
+				new UserNotAuthorizedTokenException(claims.getSub(), "User does not have role " + requiredRole);
 			}
 		}
 	}
 
-	private HttpServletRequest getRequest(Object[] args) {
-		for (Object arg : args)
-			if (arg instanceof HttpServletRequest)
-				return (HttpServletRequest) arg;
-		return null;
+	private Role computeRequiredRole(String sub, ProceedingJoinPoint point, RoleGuard guard) throws RoleComputationTokenException {
+		try {
+			return new Role(getRoleName(point, guard));
+		} catch (Exception e) {
+			throw new RoleComputationTokenException(sub);
+		}
+	}
+
+	private String checkClaimsAndGetSub(OCClaims claims) throws InvalidTokenException {
+		if (claims == null) {
+			throw new InvalidTokenException(null, "claims is null");
+		} else {
+			return claims.getSub();
+		}
 	}
 
 	private String getRoleName(ProceedingJoinPoint point, RoleGuard guard) {
@@ -201,28 +172,13 @@ public class RoleChecker {
 		request.setDuration(duration);
 
 		if (message == null)
-			log.debug("[ACCESS " + status + "] " + duration + "ms " + point.getSignature().toShortString() + " sub="
+			log.debug("[ACCESS " + status + "] " + duration + "ms for access check " + point.getSignature().toShortString() + " sub="
 					+ sub);
 		else
-			log.debug("[ACCESS " + status + "] " + duration + "ms " + point.getSignature().toShortString() + " sub="
+			log.debug("[ACCESS " + status + "] " + duration + "ms for access check " + point.getSignature().toShortString() + " sub="
 					+ sub + " message=" + message);
 
 		// DB storage
 		requestRepository.save(request);
-	}
-
-	@Data
-	@EqualsAndHashCode(callSuper = false)
-	private class HtmlMessageException extends Exception {
-		private static final long serialVersionUID = -7928067741742885882L;
-		private final String sub;
-		private final String message;
-		private final String html;
-
-		public HtmlMessageException(String sub, String message, String html) {
-			this.sub = sub;
-			this.message = message;
-			this.html = html;
-		}
 	}
 }

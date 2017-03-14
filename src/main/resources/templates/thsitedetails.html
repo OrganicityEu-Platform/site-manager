@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/sites');">&lt; Back to site list</a>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+		
+		<h2><span id="elementname">[[${element.name}]]</span> site</h2>
+		<strong>Urn</strong>: [[${element.urn}]]<br/>
+			
+		<form class="editmode" th:if="${isAdmin}">
+		  <div class="line">
+		    <label for="email">Email</label>
+		    <input id="email" th:value="${element.email}">
+		  </div>
+		  <div class="line">
+		    <label for="related">Related</label>
+		    <input id="related" th:value="${element.related}">
+		  </div>
+		</form>
+		
+		<div class="displaymode">
+			<strong>Email</strong>: [[${element.email}]]<br/>
+			<strong>Related</strong>: [[${element.related}]]<br/>
+		</div>
+		
+		<strong>Created</strong>: [[${element.created}]]<br/>
+		<strong>Updated</strong>: [[${element.updated}]]<br/>
+		<strong>Quota</strong>: [[${element.remQuota}]]/[[${element.quota}]]<br/>
+		
+		<div class="btnbar editmode" th:if="${isAdmin}">
+			<a href="#" class="btn validate" onclick="updateSite(document.getElementById('elementname').innerHTML,document.getElementById('email').value,document.getElementById('related').value);">UPDATE [[${element.name}]] site</a>						
+		</div>	
+		<p class="displaymode" th:if="${isAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		
+		<h2>[[${element.name}]] services</h2>
+		
+		<p>[[${services.size()}]] service[[((${services.size()} != 1)? 's')]]</p>
+		<ul th:if="${services.size()}">
+			<li th:each="e : ${services}"><span th:replace="fragments/link::link (dest='/sites/' + ${element.name} + '/' + ${e.name},text=${e.name})"></span></li>
+		</ul>
+
+		<div th:if="${isAdmin}">
+		<h2>New Service</h2>
+		<p>To add a new entity, please fill the following form</p>
+		<form>
+		  <div class="line">
+		    <label for="srvname">Name</label>
+		    <input id="srvname" value="">
+		  </div>
+		  <div class="line">
+		    <label for="srvdescription">Description</label>
+		    <input id="srvdescription" value="">
+		  </div>
+		  <div class="line">
+		    <label for="srvrelated">Related</label>
+		    <input id="srvrelated" value="">
+		  </div>
+		<div class="btnbar">
+		  <a href="#" class="btn validate" onclick="newService(document.getElementById('elementname').innerHTML, document.getElementById('srvname').value,document.getElementById('srvdescription').value,document.getElementById('srvrelated').value);">CREATE service</a>
+		</div>
+		</form>
+		</div>
+	</div>
+</body>
+</html>
+
+
+		

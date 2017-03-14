@@ -1,7 +1,0 @@
-		OCSite {{siteVar}} = new OCSite();
-		{{siteVar}}.setName("{{name}}");
-		{{siteVar}}.setEmail("{{email}}");
-		{{siteVar}}.setRelated("{{related}}");
-		{{siteVar}}.setQuota({{quota}});
-		{{siteVar}}.setRemQuota({{remQuota}});
-		{{siteVar}} = siterepository.save({{siteVar}});

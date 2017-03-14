@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries');">&lt; Back to dictionaries</a>
+		
+		<h2>AttributeTypes list</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+
+		<p>[[${elements.size()}]] attribute type[[((${elements.size()} != 1)? 's')]]</p>
+		<ul th:if="${elements.size()}">
+			<li th:each="e : ${elements}"><span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${e.name},text=${e.name})"></span></li>
+		</ul>
+
+		<div th:if="${isDicoAdmin}">
+		<h2>New Attribute Type</h2>
+		<p>To add a new entity, please fill the following form</p>
+		<form>
+		  <div class="line">
+		    <label for="name">Name</label>
+		    <input id="name" value="">
+		  </div>
+		  <div class="line">
+		    <label for="description">Description</label>
+		    <input id="description" value="">
+		  </div>
+		  <div class="line">
+		    <label for="related">Related</label>
+		    <input id="related" value="">
+		  </div>
+		<div class="btnbar">
+		  <a href="#" class="btn validate" onclick="newAttributeType(document.getElementById('name').value,document.getElementById('description').value,document.getElementById('related').value);">CREATE Attribute Type</a>
+		</div>
+		</form>
+		</div>
+	</div>
+</body>
+</html>

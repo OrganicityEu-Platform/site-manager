@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries');">&lt; Back to dictionaries</a>
+		
+		<h2>User interests list</h2>
+
+		<p>[[${elements.size()}]] tool[[((${elements.size()} != 1)? 's')]]</p>
+		<ul th:if="${elements.size()}">
+			<li th:each="e : ${elements}">
+				<strong>[[${e.urn}]]</strong><br/>
+				name: [[${e.name}]]<br/>
+				description: [[${e.description}]]
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

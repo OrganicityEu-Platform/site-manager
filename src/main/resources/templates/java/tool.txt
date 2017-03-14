@@ -1,5 +1,0 @@
-		OCTool {{toolVar}} = new OCTool();
-		{{toolVar}}.setName("{{name}}");
-		{{toolVar}}.setUrl("{{url}}");
-		{{toolVar}}.setDescription("{{description}}");
-		{{toolVar}} = toolrepository.save({{toolVar}});

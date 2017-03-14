@@ -1,3 +1,0 @@
-		OCAssetType {{var}} = new OCAssetType();
-		{{var}}.setName("{{name}}");
-		{{var}} = assettyperepository.save({{var}});

@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries');">&lt; Back to dictionaries</a>
+		
+		<h2>Data types list</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+
+		<p>[[${elements.size()}]] data type[[((${elements.size()} != 1)? 's')]]</p>
+		<ul th:if="${elements.size()}">
+			<li th:each="e : ${elements}"><span th:replace="fragments/link::link (dest='/dictionaries/datatypes/' + ${e.name},text=${e.name})"></span></li>
+		</ul>
+
+		<div th:if="${isDicoAdmin}">
+		<h2>New Data Type</h2>
+		<p>To add a new entity, please fill the following form</p>
+		<form>
+		  <div class="line">
+		    <label for="name">Name</label>
+		    <input id="name" value="">
+		  </div>
+		<div class="btnbar">
+		  <a href="#" class="btn validate" onclick="newDataType(document.getElementById('name').value);">CREATE Data Type</a>
+		</div>
+		</form>
+		</div>
+	</div>
+</body>
+</html>

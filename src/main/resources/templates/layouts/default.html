@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title th:text="${title}">title</title>
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+	<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+	<link rel="stylesheet" type="text/css" media="all" th:href="@{/stylesheet.css}" />
+</head>
+<body>
+	<!-- Manifest timestamp [[${buildtimestamp}]] -->
+    <div th:replace="fragments/header :: header">Header</div>
+	<div class="title">
+		<h1 th:text="${title}">title</h1>
+		<nav th:replace="fragments/nav :: nav">Navigation</nav>
+	</div>
+    <div th:replace="${view} :: content">Content</div>
+	<div th:replace="fragments/footer :: footer">Footer Fragment</div>
+	<div th:include="fragments/scripts :: scripts">Script Fragment</div>
+</body>
+</html>
+

@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries/assettypes');">&lt; Back to assettypes list</a>
+		
+		<h2>[[${element.name}]] assettype</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+		
+		<strong>Urn</strong>: [[${element.urn}]]<br/>
+		<strong>Name</strong>: <span id='elementname'>[[${element.name}]]</span><br/>
+		
+		<form class="editmode" th:if="${isDicoAdmin}">
+		  <div class="line">
+		    <label for="description">Description</label>
+		    <input id="description" th:value="${element.description}">
+		  </div>
+		  <div class="line">
+		    <label for="related">Related</label>
+		    <input id="related" th:value="${element.related}">
+		  </div>
+		</form>
+		
+		<div class="displaymode">
+		<strong>Description</strong>: [[${element.description}]]<br/>
+		<strong>Related</strong>: [[${element.related}]]<br/>
+		</div>
+		
+		<div class="btnbar editmode"  th:if="${isDicoAdmin}">
+			<a href="#" class="btn validate" onclick="updateAssetType(document.getElementById('elementname').innerHTML,document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] Asset Type basic info</a>
+		</div>
+
+		<p>[[${attributes.size()}]] attribute[[((${attributes.size()} != 1)? 's')]] available</p>
+		<ul th:if="${attributes.size()}">
+			<li th:each="e : ${attributes}">
+				<span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${e.name},text=${e.name})"></span>&nbsp;&nbsp;
+				<span class="inlineeditmode" style="font-size:small;" th:if="${isDicoAdmin}">
+					<span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${element.name} + '/removeattribute/' + ${e.name},text='[REMOVE]')"></span>
+				</span>
+			</li>
+		</ul>
+		
+		<div class="editmode"  th:if="${isDicoAdmin}">
+		  <div class="line">
+		    <label for="newattribute">add attribute type</label>
+		    <select id="newattribute">
+		      <option th:each="e : ${attributeTypes}" th:value="${e.urn}">[[${e.urn}]]</option>
+		    </select>
+		    <a href="#" class="btn validate" onclick="addAttributeToAssetType(document.getElementById('elementname').innerHTML,document.getElementById('newattribute').value);">ADD Attribute Type</a>
+		  </div>
+		</div>
+		
+		<div class="btnbar editmode" th:if="${isDicoAdmin}">
+			<span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' assettype',class='btn danger')"></span>			
+		</div>	
+		<p class="displaymode"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+	</div>
+</body>
+</html>

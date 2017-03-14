@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<span th:replace="fragments/link::link (dest='/sites/' + ${site.name},text='&lt;Back to ' + ${site.name} + ' site')"></span>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+
+		<h2><span id="elementname">[[${element.name}]]</span> service</h2>
+		<strong>Site name</strong>: <span id="sitename">[[${site.name}]]</span><br/>
+		<strong>Urn</strong>: [[${element.urn}]]<br/>
+			
+		<form class="editmode" th:if="${isAdmin}">
+		  <div class="line">
+		    <label for="description">Description</label>
+		    <input id="description" th:value="${element.description}">
+		  </div>
+		  <div class="line">
+		    <label for="related">Related</label>
+		    <input id="related" th:value="${element.related}">
+		  </div>
+		</form>
+		
+		<div class="displaymode">
+			<strong>Description</strong>: [[${element.description}]]<br/>
+			<strong>Related</strong>: [[${element.related}]]<br/>
+		</div>
+		
+		<strong>Created</strong>: [[${element.created}]]<br/>
+		<strong>Updated</strong>: [[${element.updated}]]<br/>
+		
+		<div class="btnbar editmode" th:if="${isAdmin}">
+			<a href="#" class="btn validate" onclick="updateService(document.getElementById('sitename').innerHTML, document.getElementById('elementname').innerHTML,document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] service</a>
+			<span th:replace="fragments/link::link (dest='/sites/' + ${site.name} + '/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' service',class='btn danger')"></span>			
+		</div>
+		<p class="displaymode" th:if="${isAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+	</div>
+</body>
+</html>

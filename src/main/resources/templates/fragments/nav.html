@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="title">
+		<nav th:fragment="nav">
+			<a href="#" onclick="navigateTo('/');">Home</a>
+			<span th:remove="tag" th:if="${roles.contains(secuConfig.ROLE_ADMIN_ROLE)}">| <a href="#" onclick="navigateTo('/roles');">Roles</a></span>
+			<span th:remove="tag" th:if="${roles.size()}">| <a href="#" onclick="navigateTo('/sites');">Sites</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConfig.EXPERIMENT_USER_ROLE)}">| <a href="#" onclick="navigateTo('/experiments');">Experiments</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConfig.METRICS_USER_ROLE)}">| <a href="#" onclick="navigateTo('/metrics');">Metrics</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConfig.DICTIONARY_USER_ROLE)}">| <a href="#" onclick="navigateTo('/dictionaries');">Dictionaries</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConfig.DEVELOPER_ROLE)}">|| <a href="#" onclick="navigateTo('/links');"><strong>DEV LINKS</strong></a></span>
+		</nav>
+	</div>
+</body>
+</html>

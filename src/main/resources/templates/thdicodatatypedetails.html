@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries/datatypes');">&lt; Back to datatypes list</a>
+		
+		<h2>[[${element.name}]] datatype</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+		
+		<strong>Urn</strong>: [[${element.urn}]]<br/>
+		<strong>Name</strong>: [[${element.name}]]<br/>
+		
+		<p>Used by [[${usedBy.size()}]] unit[[((${usedBy.size()} != 1)? 's')]]</p>
+		<ul th:if="${usedBy.size()}">
+			<li th:each="e : ${usedBy}"><span th:replace="fragments/link::link (dest='/dictionaries/units/' + ${e.name},text=${e.name})"></span></li>
+		</ul>
+		
+		<div class="btnbar" th:if="${isDicoAdmin}">
+			<span th:replace="fragments/link::link (dest='/dictionaries/datatypes/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' datatype',class='btn danger')"></span>			
+		</div>
+	</div>
+</body>
+</html>

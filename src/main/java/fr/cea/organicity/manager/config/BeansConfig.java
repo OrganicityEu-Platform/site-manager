@@ -8,31 +8,29 @@ import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.web.client.RestTemplate;
 
-import fr.cea.organicity.manager.config.Environment.EnvService;
-import fr.cea.organicity.manager.otherservices.ExperimentLister;
-import fr.cea.organicity.manager.otherservices.UserLister;
+import fr.cea.organicity.manager.config.environment.EnvService;
 import fr.cea.organicity.manager.repositories.OCApiCallRepository;
-import fr.cea.organicity.manager.security.APIInvoker;
-import fr.cea.organicity.manager.security.ClaimsParser;
-import fr.cea.organicity.manager.security.Credentials;
-import fr.cea.organicity.manager.security.HttpClient;
-import fr.cea.organicity.manager.security.RoleManager;
-import fr.cea.organicity.manager.security.TokenManager;
-import fr.cea.organicity.manager.tagdomain.TagDomainService;
+import fr.cea.organicity.manager.services.experimentlister.ExperimentLister;
+import fr.cea.organicity.manager.services.rolemanager.ClaimsParser;
+import fr.cea.organicity.manager.services.rolemanager.RoleManager;
+import fr.cea.organicity.manager.services.tagdomain.TagDomainService;
+import fr.cea.organicity.manager.services.tokenmanager.Credentials;
+import fr.cea.organicity.manager.services.tokenmanager.TokenManager;
+import fr.cea.organicity.manager.services.userlister.UserLister;
 
 @Configuration
 public class BeansConfig {
 
 	@Autowired EnvService env;
-	@Autowired OCApiCallRepository apiCallRepository;
+	@Autowired OCApiCallRepository callRepository;
 	
 	@Bean
 	PublicKey getPublicKey() throws FileNotFoundException, CertificateException {
@@ -47,7 +45,7 @@ public class BeansConfig {
 	ClaimsParser claimsParser(PublicKey pk) throws FileNotFoundException, CertificateException {
 		return new ClaimsParser(pk);
 	}
-	
+
 	@Bean
 	Credentials getCredentials() {
 		String id = env.getBackendSettings().getClientId();
@@ -56,44 +54,41 @@ public class BeansConfig {
 	}
 	
 	@Bean
-	Client getClient() {
-		return ClientBuilder.newClient();
-	}
-
-	@Bean
-	APIInvoker getApiInvoker() {
-		return new APIInvoker(apiCallRepository);
+	TokenManager getTokenManager(PublicKey pk, Credentials credentials) {
+		return new TokenManager(pk, credentials);	
 	}
 	
 	@Bean
-	TokenManager getTokenManager(PublicKey pk, Credentials credentials, Client client, APIInvoker invoker) {
-		return new TokenManager(pk, credentials, client, invoker);	
+	RestTemplateInterceptor getRestTemplateInterceptor(TokenManager tokenManager) {
+		return new RestTemplateInterceptor(tokenManager, callRepository);
 	}
-		
-	@Bean
-	HttpClient getHttpClient(Client client, TokenManager tokenManager) {
-		return new HttpClient(client, tokenManager);
-	}	
-		
-	@Bean
-	RoleManager getRoleManager(HttpClient httpClient, ClaimsParser claimsParser, APIInvoker invoker) {
-		return new RoleManager(httpClient, claimsParser, invoker);
+	
+	@Bean({"auth"})
+	RestTemplate getRestTemplate(List<ClientHttpRequestInterceptor> interceptors) {
+		RestTemplate template = new RestTemplate();
+		template.setInterceptors(interceptors);
+		return template;
 	}
 	
 	@Bean
-	UserLister getUserLister(HttpClient httpClient, APIInvoker invoker) {
-		return new UserLister(httpClient, invoker);
+	RoleManager getRoleManager(ClaimsParser claimsParser, RestTemplate restTemplate) {
+		return new RoleManager(claimsParser, restTemplate);
 	}
 	
 	@Bean
-	TagDomainService getTagDomainService(HttpClient httpClient, APIInvoker invoker) {
-		return new TagDomainService(httpClient, invoker);
+	UserLister getUserLister(RestTemplate restTemplate) {
+		return new UserLister(restTemplate);
 	}
 	
 	@Bean
-	ExperimentLister getExperimenterLister(HttpClient httpClient, APIInvoker invoker) {
+	TagDomainService getTagDomainService(RestTemplate restTemplate) {
+		return new TagDomainService(restTemplate);
+	}
+	
+	@Bean
+	ExperimentLister getExperimenterLister(RestTemplate restTemplate) {
 		String experimenterPortalUrl = env.getServicesSettings().getExperimenterPortalUrl();
 		String discoveryServiceUrl = env.getServicesSettings().getDiscoveryServiceUrl();
-		return new ExperimentLister(httpClient, invoker, experimenterPortalUrl, discoveryServiceUrl);
+		return new ExperimentLister(restTemplate, experimenterPortalUrl, discoveryServiceUrl);
 	}
 }

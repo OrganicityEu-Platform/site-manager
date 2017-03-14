@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/metrics');">&lt; Back to metrics</a>
+		
+		<h2>Longest third parties API calls</h2>
+		<table>
+			<tr><th>Date</th><th>url</th><th>duration</th><th>result</th></tr>
+			<tr th:each="record : ${records}">
+				<td>[[${record.date}]]</td>
+				<td>[[${record.url}]]</td>
+				<td>[[${record.duration}]]ms</td>
+				<td>[[${record.success} == true ? 'SUCCESS' : 'FAILURE']]</td>
+			</tr>
+		</table>
+
+	</div>
+</body>
+</html>

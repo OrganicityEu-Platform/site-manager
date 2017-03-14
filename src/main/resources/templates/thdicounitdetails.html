@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries/units');">&lt; Back to unit list</a>
+		
+		<h2>[[${element.name}]] unit</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+		
+		<strong>Urn</strong>: [[${element.urn}]]<br/>
+		<strong>Name</strong>: [[${element.name}]]<br/>
+		<strong>Datatype</strong>: <span th:replace="fragments/link::link (dest='/dictionaries/datatypes/' + ${element.datatype.name},text=${element.datatype.name})"></span>
+
+		<form class="editmode" th:if="${isDicoAdmin}">
+		  <div class="line">
+		    <label for="description">Description</label>
+		    <input id="description" th:value="${element.description}">
+		  </div>
+		  <div class="line">
+		    <label for="related">Related</label>
+		    <input id="related" th:value="${element.related}">
+		  </div>
+		</form>
+		<div class="displaymode">
+		<strong>Description</strong>: [[${element.description}]]<br/>
+		<strong>Related</strong>: [[${element.related}]]<br/>
+		</div>
+		
+		<p>Used by [[${usedBy.size()}]] attribute[[((${usedBy.size()} != 1)? 's')]]</p>
+		<ul th:if="${usedBy.size()}">
+			<li th:each="e : ${usedBy}"><span th:replace="fragments/link::link (dest='/dictionaries/attributes/' + ${e.name},text=${e.name})"></span></li>
+		</ul>
+		
+		<div class="btnbar editmode"  th:if="${isDicoAdmin}">
+			<a href="#" class="btn validate" onclick="updateUnit('bar',document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] unit</a>
+			<span th:replace="fragments/link::link (dest='/dictionaries/units/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' datatype',class='btn danger')"></span>
+		</div>
+		<p class="displaymode"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+	</div>
+</body>
+</html>

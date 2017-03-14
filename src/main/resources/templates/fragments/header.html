@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<header th:fragment="header">
+		<div id="profile">
+			<p><span th:remove="tag" th:if="not ${roles.size()}"><a th:href="${renewTokenUrl}">LOGIN</a></span></p>
+			<p><span th:remove="tag" th:if="${roles.size()}"><a href="#" onclick="navigateTo('/info');">[[${userName}]]</a></span></p>
+			<p><span th:remove="tag" th:if="${roles.size()}"><a href="/">logout</a></span></p>		
+		</div>
+		<a href="#" onclick="navigateTo('/');">
+			<img src="/organicity_logo.png" alt="OrganiCity" />
+		</a>
+	</header>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<h2 th:if="${subtitle}" th:text="${subtitle}">Subtitle</h2>
+		<p th:if="${message}" th:text="${message}">Message.</p>
+	</div>
+</body>
+</html>

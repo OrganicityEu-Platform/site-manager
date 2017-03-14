@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/metrics');">&lt; Back to metrics</a>
+		
+		<h2>External services status</h2>
+		
+		<p><strong>Users API</strong></p>
+		<ul>
+			<strong>Last success</strong>: [[${userLastSuccess}]]<br/>
+			<strong>Last call</strong>: [[${userLastCall}]]
+		</ul>
+		
+		<p><strong>Experiments API</strong></p>
+		<ul>
+			<strong>Last success</strong>: [[${expLastSuccess}]]<br/>
+			<strong>Last call</strong>: [[${expLastCall}]]
+		</ul>
+
+	</div>
+</body>
+</html>

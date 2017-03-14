@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<h2>Invalid token</h2>
+		<p>You're authentication token is invalid or outdated. You need to renew it.</p>
+
+		<div style="text-align: center;">
+			<a th:href="${renewTokenUrl}" class="btn validate">Renew your token</a>
+		</div>
+	</div>
+</body>
+</html>

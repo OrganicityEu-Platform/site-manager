@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries');">&lt; Back to dictionaries</a>
+		
+		<h2>Tag Domains</h2>
+
+		<p>[[${elements.size()}]] application type[[((${elements.size()} != 1)? 's')]]</p>
+		<ul th:if="${elements.size()}">
+			<li th:each="e : ${elements}">
+				<span th:replace="fragments/link::link (dest='/dictionaries/tagdomains/' + ${e.id},text=${e.urn})"></span>
+				<br>
+				[[${e.description}]]
+			</li>
+		</ul>
+	</div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		<a href="#" onclick="navigateTo('/dictionaries/attributetypes');">&lt; Back to attributetypes list</a>
+		
+		<h2>[[${element.name}]] attributetype</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
+		
+		<strong>Urn</strong>: [[${element.urn}]]<br/>
+		<strong>Name</strong>: <span id='elementname'>[[${element.name}]]</span><br/>
+		
+		<form class="editmode" th:if="${isDicoAdmin}">
+		  <div class="line">
+		    <label for="description">Description</label>
+		    <input id="description" th:value="${element.description}">
+		  </div>
+		  <div class="line">
+		    <label for="related">Related</label>
+		    <input id="related" th:value="${element.related}">
+		  </div>
+		</form>
+		
+		<div class="displaymode">
+		<strong>Description</strong>: [[${element.description}]]<br/>
+		<strong>Related</strong>: [[${element.related}]]<br/>
+		</div>
+		<div class="btnbar editmode" th:if="${isDicoAdmin}">
+		  <a href="#" class="btn validate" onclick="updateAttributeType(document.getElementById('elementname').innerHTML,document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] Attribute Type basic info</a>
+		</div>
+
+		<p>[[${units.size()}]] unit[[((${units.size()} != 1)? 's')]] available</p>
+		<ul th:if="${units.size()}">
+			<li th:each="e : ${units}">
+				<span th:replace="fragments/link::link (dest='/dictionaries/units/' + ${e.name},text=${e.urn})"></span>&nbsp;&nbsp;
+				<span class="inlineeditmode" style="font-size:small;" th:if="${isDicoAdmin}">
+					<span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${element.name} + '/removeunit/' + ${e.name},text='[REMOVE]')"></span>
+				</span>
+			</li>
+		</ul>
+		
+		<div class="editmode" th:if="${isDicoAdmin}">
+		  <div class="line">
+		    <label for="newunit">add unit</label>
+		    <select id="newunit">
+		      <option th:each="e : ${allunits}" th:value="${e.urn}">[[${e.name}]]</option>
+		    </select>
+		  <a href="#" class="btn validate" onclick="addUnitToAttributeType(document.getElementById('elementname').innerHTML,document.getElementById('newunit').value);">ADD Unit</a>
+		  </div>
+		</div>
+		
+		<p>Used by [[${usedBy.size()}]] Asset Type[[((${usedBy.size()} != 1)? 's')]]</p>
+		<ul th:if="${usedBy.size()}">
+			<li th:each="e : ${usedBy}"><span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${e.name},text=${e.urn})"></span></li>
+		</ul>
+		
+		<div class="btnbar editmode" th:if="${isDicoAdmin}">
+			<span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' attributetype',class='btn danger')"></span>			
+		</div>	
+		<p class="displaymode"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+	</div>
+</body>
+</html>

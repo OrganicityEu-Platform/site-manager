@@ -1,4 +1,0 @@
-		OCService {{serviceVar}} = new OCService();
-		{{serviceVar}}.setName("{{name}}");
-		{{serviceVar}}.setSite({{siteVar}});
-		{{serviceVar}} = servicerepository.save({{serviceVar}});

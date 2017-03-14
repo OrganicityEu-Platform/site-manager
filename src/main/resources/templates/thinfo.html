@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div class="content" th:fragment="content">
+		
+		<h2>User information</h2>
+		<p>
+			<strong>name</strong>: [[${claims.name}]]<br/>
+			<strong>preferred_username</strong>: [[${claims.preferred_username}]]<br/>
+			<strong>given_name</strong>: [[${claims.given_name}]]<br/>
+			<strong>family_name</strong>: [[${claims.family_name}]]<br/>
+			<strong>email</strong>: [[${claims.email}]]<br/>
+			<a href="https://accounts.organicity.eu/realms/organicity/account/">Update your personal info</a>
+		</p>
+	
+		
+		<h2>Roles</h2>
+		<p th:utext="${roles_global}"></p>
+		<p th:utext="${roles_local}"></p>
+		<p th:if="${roles.contains(secuConfig.ROLE_ADMIN_ROLE)}"><span th:replace="fragments/link::link (dest='/roles/' + ${claims.sub},text='Update your local roles')"></span></p>
+	
+	
+		<h2>Experiments</h2>
+		<p>User has [[${experiments.size()}]] experiment[[((${experiments.size()} != 1)? 's')]]</p>
+		<ul th:if="${experiments.size()}">
+			<li th:each="exp : ${experiments}"><span th:replace="fragments/link::link (dest='/experiments/' + ${exp.experimentId},text=${exp.name})"></span></li>
+		</ul>
+		
+		
+		<h2>Token information</h2>
+		<p>
+			<strong>issued at</strong>: [[${claims.issuedAt}]]<br/>
+			<strong>expires at</strong>: [[${claims.expiresAt}]]<br/>
+			<strong>sub</strong>: [[${claims.sub}]]<br/>
+			<strong>id</strong>: [[${id_token}]]<br/>
+			<strong>access</strong>: [[${access_token}]]<br/>
+		</p>
+	</div>
+</body>
+</html>

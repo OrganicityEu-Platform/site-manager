@@ -1,4 +1,0 @@
-		OCAppType {{var}} = new OCAppType();
-		{{var}}.setName("{{name}}");
-		{{var}}.setDescription("{{description}}");
-		{{var}} = apptyperepository.save({{var}});
