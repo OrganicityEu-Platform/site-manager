@@ -7,12 +7,12 @@
 		
 		<p>Federated city sites</p>
 		<ul>
-			<li th:each="e : ${elements}"  th:if="${e.isCity()}"><span th:replace="fragments/link::link (dest='/sites/' + ${e.name},text=${e.name})"></span></li>
+			<li th:each="e : ${elements}"  th:if="${e.isCity()}"><a th:href="'/sites/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
 
 		<p>Experimentation sites</p>
 		<ul>
-			<li th:each="e : ${elements}"  th:if="not ${e.isCity()}"><span th:replace="fragments/link::link (dest='/sites/' + ${e.name},text=${e.name})"></span></li>
+			<li th:each="e : ${elements}"  th:if="not ${e.isCity()}"><a th:href="'/sites/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
 
 	</div>

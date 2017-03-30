@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import fr.cea.organicity.manager.security.CookieTokenExtractor;
 import fr.cea.organicity.manager.services.experimentlister.ExperimentLister;
 import fr.cea.organicity.manager.services.rolemanager.ClaimsParser;
 import fr.cea.organicity.manager.services.rolemanager.OCClaims;
@@ -28,8 +29,9 @@ public class AccountControllerUI {
 	@GetMapping("/info")
 	public String info(HttpServletRequest request, Model model) {
 		
-		String id_token = request.getParameter("id_token");
-		String access_token = request.getParameter("access_token");
+		String id_token = CookieTokenExtractor.getCookieID(request); 
+		String access_token = CookieTokenExtractor.getCookieAccess(request);
+		
 		OCClaims claims;
 		try {
 			claims = claimsParser.getClaimsFromHeader(id_token);

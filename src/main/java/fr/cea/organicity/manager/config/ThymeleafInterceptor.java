@@ -59,13 +59,10 @@ class ThymeleafInterceptor extends HandlerInterceptorAdapter {
             return;
         }
         
-        // TODO will be removed later, when only Thymeleaf templates will be used
+        // filter txt templates and API calls 
         if (!originalViewName.equals("error") && !originalViewName.startsWith("th"))
         	return;
         
-        if (originalViewName.equals("thswagger"))
-        	return;
-
         // managing error
         if (originalViewName.equals("error")) {
         	try {
@@ -76,7 +73,7 @@ class ThymeleafInterceptor extends HandlerInterceptorAdapter {
         	} catch (Exception e) {
         		log.error("ERROR WHILE SAVING ERROR", e);
 			}
-        }        
+        } 
         
         // Variables injection
         modelAndView.addObject("roles", roleManager.getRolesForRequest(request));

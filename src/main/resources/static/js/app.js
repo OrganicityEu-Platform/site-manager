@@ -1,25 +1,10 @@
 
-function navigateTo(path) {
-	var param = getParams();
-	document.location.href = path + '?' + param;
-}
-
-function getParams() {
-    var url = window.location.href;
-	if (url.indexOf('#') != -1) {
-      var infos = url.substring(url.indexOf('#')+1, url.length);
-      if (infos.length > 20) {
-    	  return infos;
-      }
-    }
-	if (url.indexOf('?') != -1) {
-		var infos = url.substring(url.indexOf('?')+1, url.length);
-		if (infos.length > 20) {
-			return infos;
-		}
-	}
-	return "";
-}
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+} 
 
 function getRedirrectPath() {
     var url = window.location.href;
@@ -30,17 +15,23 @@ function getRedirrectPath() {
     if (callIdx != -1 && pathIdx != -1 && tokenIdx != -1) {       
         var root = url.substring(0, callIdx);     
         var path = url.substring(pathIdx+6, tokenIdx);
-        var token = url.substring(tokenIdx+1);        
-        return root + path + "?" + token;
+        var token = url.substring(tokenIdx+1);
+        setCookie('octoken', token, 1)
+        return root + path;
     }
 
     return "";
 }
 
+function logout() {
+	setCookie('octoken', '', 0);
+	window.location=window.location.href;
+}
+
 function updateSite(sitename, email, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/sites/' + sitename + '?' + getParams());
+    form.setAttribute("action", '/sites/' + sitename);
       
     form.appendChild(createHiddenFiled('email', email));
     form.appendChild(createHiddenFiled('related', related));
@@ -52,7 +43,7 @@ function updateSite(sitename, email, related) {
 function newService(sitename, servicename, description, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/sites/' + sitename + '?' + getParams());
+    form.setAttribute("action", '/sites/' + sitename);
       
     form.appendChild(createHiddenFiled('name', servicename));
     form.appendChild(createHiddenFiled('description', description));
@@ -65,7 +56,7 @@ function newService(sitename, servicename, description, related) {
 function updateService(sitename, servicename, description, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/sites/' + sitename + '/' + servicename + '?' + getParams());
+    form.setAttribute("action", '/sites/' + sitename + '/' + servicename);
       
     form.appendChild(createHiddenFiled('description', description));
     form.appendChild(createHiddenFiled('related', related));
@@ -77,7 +68,7 @@ function updateService(sitename, servicename, description, related) {
 function newDataType(name) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/datatypes' + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/datatypes');
   
     form.appendChild(createHiddenFiled('name', name));
     
@@ -88,7 +79,7 @@ function newDataType(name) {
 function newUnit(name, datatype, description, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/units' + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/units');
       
     form.appendChild(createHiddenFiled('name', name));
     form.appendChild(createHiddenFiled('datatype', datatype));
@@ -102,7 +93,7 @@ function newUnit(name, datatype, description, related) {
 function updateUnit(name, description, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/units/' + name + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/units/' + name);
       
     form.appendChild(createHiddenFiled('description', description));
     form.appendChild(createHiddenFiled('related', related));
@@ -114,7 +105,7 @@ function updateUnit(name, description, related) {
 function newAttributeType(name, description, related) {
     var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/attributetypes' + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/attributetypes');
       
     form.appendChild(createHiddenFiled('name', name));
     form.appendChild(createHiddenFiled('description', description));
@@ -127,7 +118,7 @@ function newAttributeType(name, description, related) {
 function updateAttributeType(name, description, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/attributetypes/' + name + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/attributetypes/' + name);
       
     form.appendChild(createHiddenFiled('name', name));
     form.appendChild(createHiddenFiled('description', description));
@@ -140,7 +131,7 @@ function updateAttributeType(name, description, related) {
 function addUnitToAttributeType(name, unit) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/attributetypes/' + name + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/attributetypes/' + name);
       
     form.appendChild(createHiddenFiled('unit', unit));
     
@@ -151,7 +142,7 @@ function addUnitToAttributeType(name, unit) {
 function newAssetType(name, description, related) {
     var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/assettypes' + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/assettypes');
       
     form.appendChild(createHiddenFiled('name', name));
     form.appendChild(createHiddenFiled('description', description));
@@ -164,7 +155,7 @@ function newAssetType(name, description, related) {
 function updateAssetType(name, description, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/assettypes/' + name + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/assettypes/' + name);
       
     form.appendChild(createHiddenFiled('name', name));
     form.appendChild(createHiddenFiled('description', description));
@@ -177,7 +168,7 @@ function updateAssetType(name, description, related) {
 function addAttributeToAssetType(name, attribute) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
-    form.setAttribute("action", '/dictionaries/assettypes/' + name + '?' + getParams());
+    form.setAttribute("action", '/dictionaries/assettypes/' + name);
       
     form.appendChild(createHiddenFiled('attribute', attribute));
     
@@ -211,8 +202,8 @@ function activateEditMode() {
 	}
 }
 
-function suggest(name) {
-	document.getElementById('name').value = name;
+function suggest(idx) {	
+	document.getElementById('name').value = document.getElementById('suggestions').children[idx].children[0].innerHTML;
 	document.getElementById('description').value = "";
 	document.getElementById('related').value = "";
 }

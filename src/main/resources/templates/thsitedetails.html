@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 	<div class="content" th:fragment="content">
-		<a href="#" onclick="navigateTo('/sites');">&lt; Back to site list</a>
+		<a href="/sites">&lt; Back to site list</a>
 		<div th:if="${message}" class="message">[[${message}]]</div>
 		
 		<h2><span id="elementname">[[${element.name}]]</span> site</h2>
@@ -23,6 +23,14 @@
 			<strong>Email</strong>: [[${element.email}]]<br/>
 			<strong>Related</strong>: [[${element.related}]]<br/>
 		</div>
+
+		<strong>latitude</strong>: [[${element.latitude}]]<br/>
+		<strong>longitude</strong>: [[${element.longitude}]]<br/>
+		<strong>city</strong>: [[${element.city}]]<br/>
+		<strong>region</strong>: [[${element.region}]]<br/>
+		<strong>countryCode</strong>: [[${element.countryCode}]]<br/>
+		<strong>country</strong>: [[${element.country}]]<br/>
+		<strong>wiki</strong>: [[${element.wiki}]]<br/>
 		
 		<strong>Created</strong>: [[${element.created}]]<br/>
 		<strong>Updated</strong>: [[${element.updated}]]<br/>
@@ -37,7 +45,7 @@
 		
 		<p>[[${services.size()}]] service[[((${services.size()} != 1)? 's')]]</p>
 		<ul th:if="${services.size()}">
-			<li th:each="e : ${services}"><span th:replace="fragments/link::link (dest='/sites/' + ${element.name} + '/' + ${e.name},text=${e.name})"></span></li>
+			<li th:each="e : ${services}"><a th:href="'/sites/' + ${element.name} + '/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
 
 		<div th:if="${isAdmin}">

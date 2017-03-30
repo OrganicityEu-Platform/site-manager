@@ -5,7 +5,7 @@
 		
 		<h2>Users list</h2>
 		<ul>
-			<li th:each="user : ${users}"><span th:replace="fragments/link::link (dest='/roles/' + ${user.id},text=${user.name})"></span></li>
+			<li th:each="user : ${users}"><a th:href="'/roles/' + ${user.id}">[[${user.name}]]</a></li>
 		</ul>	
 		
 	</div>

@@ -45,7 +45,7 @@ public class RoleChecker {
 	public Object aroundWeb(ProceedingJoinPoint point, RoleGuard guard, HttpServletRequest request) throws Throwable {
 
 		long startTime = System.currentTimeMillis();
-		String id_token = request.getParameter("id_token");
+		String id_token = CookieTokenExtractor.getCookieID(request);
 		OCClaims claims = getClaims(id_token);
 
 		try {

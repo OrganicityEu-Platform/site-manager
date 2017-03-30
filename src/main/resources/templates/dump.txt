@@ -1,0 +1,59 @@
+INSERT INTO PUBLIC.OCUSER_INTEREST(URN, DESCRIPTION, NAME) VALUES
+[# th:each="item,iterStat : ${interests}"]
+('[(${item.urn})]', '[(${item.description})]', '[(${item.name})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCUNREGISTERED_ASSET_TYPE(URN, NAME) VALUES
+[# th:each="item,iterStat : ${unregistered}"]
+('[(${item.urn})]', '[(${item.name})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCDATA_TYPE(URN, NAME) VALUES
+[# th:each="item,iterStat : ${datatypes}"]
+('[(${item.urn})]', '[(${item.name})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCUNIT(URN, DESCRIPTION, NAME, RELATED, DATATYPE_URN) VALUES
+[# th:each="item,iterStat : ${units}"]
+('[(${item.urn})]', '[(${item.description})]', '[(${item.name})]', '[(${item.related})]', '[(${item.datatype.urn})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCTOOL(URN, DESCRIPTION, NAME, URL) VALUES
+[# th:each="item,iterStat : ${tools}"]
+('[(${item.urn})]', '[(${item.description})]', '[(${item.name})]', '[(${item.url})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCSITE(URN, NAME, EMAIL, RELATED, LATITUDE, LONGITUDE, CITY, REGION, COUNTRY_CODE, COUNTRY, WIKI, QUOTA, REM_QUOTA, CREATED, UPDATED) VALUES
+[# th:each="item,iterStat : ${sites}"]
+('[(${item.urn})]', '[(${item.name})]', '[(${item.email})]', '[(${item.related})]', '[(${item.latitude})]', '[(${item.longitude})]', '[(${item.city})]', '[(${item.region})]', '[(${item.countryCode})]', '[(${item.country})]', '[(${item.wiki})]', [(${item.quota})], [(${item.remQuota})], '[(${item.created})]', '[(${item.updated})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCSERVICE(URN, CREATED, DESCRIPTION, NAME, RELATED, UPDATED, SITE_URN) VALUES
+[# th:each="item,iterStat : ${services}"]
+('[(${item.urn})]', '[(${item.created})]', '[(${item.description})]', '[(${item.name})]', '[(${item.related})]', '[(${item.updated})]', '[(${item.site.urn})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCATTRIBUTE_TYPE(URN, DESCRIPTION, NAME, RELATED) VALUES
+[# th:each="item,iterStat : ${attrtypes}"]
+('[(${item.urn})]', '[(${item.description})]', '[(${item.name})]', '[(${item.related})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCATTRIBUTE_TYPE_UNITS(ATTRIBUTES_URN, UNITS_URN) VALUES
+[# th:each="item,iterStat : ${attrtypesunits}"]
+('[(${item.value0})]', '[(${item.value1})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCASSET_TYPE(URN, DESCRIPTION, NAME, RELATED) VALUES
+[# th:each="item,iterStat : ${assettypes}"]
+('[(${item.urn})]', '[(${item.description})]', '[(${item.name})]', '[(${item.related})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCASSET_TYPE_ATTRIBUTES(ASSETS_URN, ATTRIBUTES_URN) VALUES
+[# th:each="item,iterStat : ${assetattributes}"]
+('[(${item.value0})]', '[(${item.value1})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+INSERT INTO PUBLIC.OCAPP_TYPE(URN, DESCRIPTION, NAME) VALUES
+[# th:each="item,iterStat : ${apps}"]
+('[(${item.urn})]', '[(${item.description})]', '[(${item.name})]')[(${iterStat.last} ? ';' : ',')]
+[/]

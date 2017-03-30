@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 	<div class="content" th:fragment="content">
-		<a href="#" onclick="navigateTo('/dictionaries');">&lt; Back to dictionaries</a>
+		<a href="/dictionaries">&lt; Back to dictionaries</a>
 		
 		<h2>AttributeTypes list</h2>
 		<div th:if="${message}" class="message">[[${message}]]</div>
 
 		<p>[[${elements.size()}]] attribute type[[((${elements.size()} != 1)? 's')]]</p>
 		<ul th:if="${elements.size()}">
-			<li th:each="e : ${elements}"><span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${e.name},text=${e.name})"></span></li>
+			<li th:each="e : ${elements}"><a th:href="'/dictionaries/attributetypes/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
 
 		<div th:if="${isDicoAdmin}">

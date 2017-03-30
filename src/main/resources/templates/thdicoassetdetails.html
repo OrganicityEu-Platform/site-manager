@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 	<div class="content" th:fragment="content">
-		<a href="#" onclick="navigateTo('/dictionaries/assettypes');">&lt; Back to assettypes list</a>
+		<a href="/dictionaries/assettypes">&lt; Back to assettypes list</a>
 		
 		<h2>[[${element.name}]] assettype</h2>
 		<div th:if="${message}" class="message">[[${message}]]</div>
@@ -33,9 +33,9 @@
 		<p>[[${attributes.size()}]] attribute[[((${attributes.size()} != 1)? 's')]] available</p>
 		<ul th:if="${attributes.size()}">
 			<li th:each="e : ${attributes}">
-				<span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${e.name},text=${e.name})"></span>&nbsp;&nbsp;
+				<a th:href="'/dictionaries/attributetypes/' + ${e.name}">[[${e.name}]]</a>&nbsp;&nbsp;
 				<span class="inlineeditmode" style="font-size:small;" th:if="${isDicoAdmin}">
-					<span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${element.name} + '/removeattribute/' + ${e.name},text='[REMOVE]')"></span>
+					<a th:href="'/dictionaries/assettypes/' + ${element.name} + '/removeattribute/' + ${e.name}">[REMOVE]</a>
 				</span>
 			</li>
 		</ul>
@@ -51,7 +51,7 @@
 		</div>
 		
 		<div class="btnbar editmode" th:if="${isDicoAdmin}">
-			<span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' assettype',class='btn danger')"></span>			
+			<a th:href="'/dictionaries/assettypes/' + ${element.name} + '/delete'" class='btn danger'>DELETE [[${element.name}]] assettype</a>			
 		</div>	
 		<p class="displaymode"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
 	</div>

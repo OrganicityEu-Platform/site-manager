@@ -47,14 +47,14 @@ public class ThymeleafConfig extends WebMvcConfigurerAdapter {
 	@PostConstruct
     public void init() {
 		//Set<ITemplateResolver> resolvers = templateEngine.getTemplateResolvers();
-        templateEngine.addTemplateResolver(getJsonTemplateResolver(applicationContext));
+		templateEngine.addTemplateResolver(getTextTemplateResolver(applicationContext, "txt"));
     }
 	
-	private static ITemplateResolver getJsonTemplateResolver(ApplicationContext applicationContext) {
+	private ITemplateResolver getTextTemplateResolver(ApplicationContext applicationContext, String extension) {
 		SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
         resolver.setCacheable(true); // true = NO LIVE RELOAD (but quicker)
 		resolver.setPrefix("classpath:/templates/");
-        resolver.setSuffix(".json");
+        resolver.setSuffix("." + extension);
         resolver.setTemplateMode(TemplateMode.TEXT);
         resolver.setApplicationContext(applicationContext);
         //resolver.setOrder(templateEngine.getTemplateResolvers().size());        

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 	<div class="content" th:fragment="content">
-		<a href="#" onclick="navigateTo('/dictionaries/attributetypes');">&lt; Back to attributetypes list</a>
+		<a href="/dictionaries/attributetypes">&lt; Back to attributetypes list</a>
 		
 		<h2>[[${element.name}]] attributetype</h2>
 		<div th:if="${message}" class="message">[[${message}]]</div>
@@ -32,9 +32,9 @@
 		<p>[[${units.size()}]] unit[[((${units.size()} != 1)? 's')]] available</p>
 		<ul th:if="${units.size()}">
 			<li th:each="e : ${units}">
-				<span th:replace="fragments/link::link (dest='/dictionaries/units/' + ${e.name},text=${e.urn})"></span>&nbsp;&nbsp;
+				<a th:href="'/dictionaries/units/' + ${e.name}">[[${e.urn}]]</a>&nbsp;&nbsp;
 				<span class="inlineeditmode" style="font-size:small;" th:if="${isDicoAdmin}">
-					<span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${element.name} + '/removeunit/' + ${e.name},text='[REMOVE]')"></span>
+					<a th:href="'/dictionaries/attributetypes/' + ${element.name} + '/removeunit/' + ${e.name}">[REMOVE]</a>
 				</span>
 			</li>
 		</ul>
@@ -51,11 +51,11 @@
 		
 		<p>Used by [[${usedBy.size()}]] Asset Type[[((${usedBy.size()} != 1)? 's')]]</p>
 		<ul th:if="${usedBy.size()}">
-			<li th:each="e : ${usedBy}"><span th:replace="fragments/link::link (dest='/dictionaries/assettypes/' + ${e.name},text=${e.urn})"></span></li>
+			<li th:each="e : ${usedBy}"><a th:href="'/dictionaries/assettypes/' + ${e.name}">[[${e.urn}]]</a></li>
 		</ul>
 		
 		<div class="btnbar editmode" th:if="${isDicoAdmin}">
-			<span th:replace="fragments/link::link (dest='/dictionaries/attributetypes/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' attributetype',class='btn danger')"></span>			
+			<a th:href="'/dictionaries/attributetypes/' + ${element.name} + '/delete'" class='btn danger'>DELETE [[${element.name}]] attributetype</a>
 		</div>	
 		<p class="displaymode"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
 	</div>

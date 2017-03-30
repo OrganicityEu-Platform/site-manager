@@ -4,10 +4,10 @@
 	<header th:fragment="header">
 		<div id="profile">
 			<p><span th:remove="tag" th:if="not ${roles.size()}"><a th:href="${renewTokenUrl}">LOGIN</a></span></p>
-			<p><span th:remove="tag" th:if="${roles.size()}"><a href="#" onclick="navigateTo('/info');">[[${userName}]]</a></span></p>
-			<p><span th:remove="tag" th:if="${roles.size()}"><a href="/">logout</a></span></p>		
+			<p><span th:remove="tag" th:if="${roles.size()}"><a href="/info">[[${userName}]]</a></span></p>
+			<p><span th:remove="tag" th:if="${roles.size()}"><a href="#" onclick="logout();">logout</a></span></p>		
 		</div>
-		<a href="#" onclick="navigateTo('/');">
+		<a href="/">
 			<img src="/organicity_logo.png" alt="OrganiCity" />
 		</a>
 	</header>

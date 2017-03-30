@@ -1,6 +1,0 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<body>
-	<span th:fragment="link" th:remove="tag" th:utext="'<a href=' + ${dq} + '#' + ${dq} + ' onclick=' + ${dq} + 'navigateTo(' + ${sq} + ${dest} + ${sq} + ');' + ${dq} + (${class}? ' class=' + ${sq} + ${class} + ${sq} : '') + '>' + ${text} + '</a>'"></span>
-</body>
-</html>

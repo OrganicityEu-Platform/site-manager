@@ -17,13 +17,13 @@
 		<h2>Roles</h2>
 		<p th:utext="${roles_global}"></p>
 		<p th:utext="${roles_local}"></p>
-		<p th:if="${roles.contains(secuConfig.ROLE_ADMIN_ROLE)}"><span th:replace="fragments/link::link (dest='/roles/' + ${claims.sub},text='Update your local roles')"></span></p>
+		<p th:if="${roles.contains(secuConfig.ROLE_ADMIN_ROLE)}"><a th:href="'/roles/' + ${claims.sub}">Update your local roles</a></p>
 	
 	
 		<h2>Experiments</h2>
 		<p>User has [[${experiments.size()}]] experiment[[((${experiments.size()} != 1)? 's')]]</p>
 		<ul th:if="${experiments.size()}">
-			<li th:each="exp : ${experiments}"><span th:replace="fragments/link::link (dest='/experiments/' + ${exp.experimentId},text=${exp.name})"></span></li>
+			<li th:each="exp : ${experiments}"><a th:href="'/experiments/' + ${exp.experimentId}">[[${exp.name}]]</a></li>
 		</ul>
 		
 		

@@ -10,14 +10,14 @@
 			<div th:if="${#lists.contains(displayedUserRoles, role)}" th:remove="tag">
 				<span  class="rolename" style="color:green">[[${role.role}]]</span>
 				<span  class="rolecolumn">
-					<span th:replace="fragments/link::link (dest='/roles/' + ${user.id} + '/removerole/' + ${role.role},text='revoke permission')"></span>
+					<a th:href="'/roles/' + ${user.id} + '/removerole/' + ${role.role}">revoke permission</a>
 				</span>
 				<br/>
 			</div>
 			<div th:if="not ${#lists.contains(displayedUserRoles, role)}" th:remove="tag">
 				<span  class="rolename" style="color:red">[[${role.role}]]</span>
 				<span  class="rolecolumn">
-					<span th:replace="fragments/link::link (dest='/roles/' + ${user.id} + '/addrole/' + ${role.role},text='add permission')"></span>
+					<a th:href="'/roles/' + ${user.id} + '/addrole/' + ${role.role}">add permission</a>
 				</span>
 				<br/>
 			</div>

@@ -24,6 +24,6 @@ public class SwaggerControllerAPI {
 		model.addAttribute("protocol", envService.getServerSettings().getProtocol());
 		model.addAttribute("clientId", envService.getBackendSettings().getClientId());
 
-		return "thswagger";
+		return "swagger";
 	}
 }

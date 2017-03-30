@@ -32,7 +32,17 @@ public class OCSite {
 	
     @Email @NotNull
     private String email;
-    private String related;    
+    private String related;
+    
+    private String latitude;
+    private String longitude;
+    private String city;
+    private String region;
+    private String countryCode;
+    private String country;
+
+    private String wiki;
+    
     private long quota;
     private long remQuota;
     private String created;

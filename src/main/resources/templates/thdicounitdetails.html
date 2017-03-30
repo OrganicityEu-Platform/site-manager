@@ -2,14 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 	<div class="content" th:fragment="content">
-		<a href="#" onclick="navigateTo('/dictionaries/units');">&lt; Back to unit list</a>
+		<a href="/dictionaries/units">&lt; Back to unit list</a>
 		
 		<h2>[[${element.name}]] unit</h2>
 		<div th:if="${message}" class="message">[[${message}]]</div>
 		
 		<strong>Urn</strong>: [[${element.urn}]]<br/>
-		<strong>Name</strong>: [[${element.name}]]<br/>
-		<strong>Datatype</strong>: <span th:replace="fragments/link::link (dest='/dictionaries/datatypes/' + ${element.datatype.name},text=${element.datatype.name})"></span>
+		<strong>Name</strong>: <span id='elementname'>[[${element.name}]]</span><br/>
+		<strong>Datatype</strong>: <a th:href="'/dictionaries/datatypes/' + ${element.datatype.name}">[[${element.datatype.name}]]</a>
 
 		<form class="editmode" th:if="${isDicoAdmin}">
 		  <div class="line">
@@ -28,12 +28,12 @@
 		
 		<p>Used by [[${usedBy.size()}]] attribute[[((${usedBy.size()} != 1)? 's')]]</p>
 		<ul th:if="${usedBy.size()}">
-			<li th:each="e : ${usedBy}"><span th:replace="fragments/link::link (dest='/dictionaries/attributes/' + ${e.name},text=${e.name})"></span></li>
+			<li th:each="e : ${usedBy}"><a th:href="'/dictionaries/attributetypes/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
 		
 		<div class="btnbar editmode"  th:if="${isDicoAdmin}">
-			<a href="#" class="btn validate" onclick="updateUnit('bar',document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] unit</a>
-			<span th:replace="fragments/link::link (dest='/dictionaries/units/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' datatype',class='btn danger')"></span>
+			<a href="#" class="btn validate" onclick="updateUnit(document.getElementById('elementname').innerHTML,document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] unit</a>
+			<a th:href="'/dictionaries/units/' + ${element.name} + '/delete'" class='btn danger'>DELETE [[${element.name}]] unit</a>
 		</div>
 		<p class="displaymode"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
 	</div>

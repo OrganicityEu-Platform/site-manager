@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 	<div class="content" th:fragment="content">
-		<a href="#" onclick="navigateTo('/dictionaries/datatypes');">&lt; Back to datatypes list</a>
+		<a href="/dictionaries/datatypes">&lt; Back to datatypes list</a>
 		
 		<h2>[[${element.name}]] datatype</h2>
 		<div th:if="${message}" class="message">[[${message}]]</div>
@@ -12,11 +12,11 @@
 		
 		<p>Used by [[${usedBy.size()}]] unit[[((${usedBy.size()} != 1)? 's')]]</p>
 		<ul th:if="${usedBy.size()}">
-			<li th:each="e : ${usedBy}"><span th:replace="fragments/link::link (dest='/dictionaries/units/' + ${e.name},text=${e.name})"></span></li>
+			<li th:each="e : ${usedBy}"><a th:href="'/dictionaries/units/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
 		
 		<div class="btnbar" th:if="${isDicoAdmin}">
-			<span th:replace="fragments/link::link (dest='/dictionaries/datatypes/' + ${element.name} + '/delete',text='DELETE ' + ${element.name} + ' datatype',class='btn danger')"></span>			
+			<a th:href="'/dictionaries/datatypes/' + ${element.name} + '/delete'" class='btn danger'>DELETE [[${element.name}]] datatype</a>			
 		</div>
 	</div>
 </body>

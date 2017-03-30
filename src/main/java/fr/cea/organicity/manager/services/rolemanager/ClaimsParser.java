@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Strings;
 
+import fr.cea.organicity.manager.security.CookieTokenExtractor;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -36,16 +37,16 @@ public class ClaimsParser {
 		}
 	}
 	
-	public OCClaims getClaimsFromRequest(HttpServletRequest request) {
-		String id_token = request.getParameter("id_token");
+	public OCClaims getClaimsFromRequest(HttpServletRequest request) {		
+		String id_token = CookieTokenExtractor.getCookieID(request);
 		return getClaimsFromHeader(id_token);
 	}
 	
 	public OCClaims getClaimsFromHeader(String authHeader) {
 		if (Strings.isNullOrEmpty(authHeader))
-			throw new IllegalArgumentException("Authorization header is null or empty.");
-		authHeader = authHeader.trim();
+			throw new IllegalArgumentException("idtoken value is null or empty.");
 		
+		authHeader = authHeader.trim();
 		if (authHeader.startsWith("Bearer") || authHeader.startsWith("bearer"))
 			authHeader = authHeader.substring("Bearer".length());
 		authHeader = authHeader.trim();
