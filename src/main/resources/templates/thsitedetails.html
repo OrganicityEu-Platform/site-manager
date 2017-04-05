@@ -4,11 +4,12 @@
 	<div class="content" th:fragment="content">
 		<a href="/sites">&lt; Back to site list</a>
 		<div th:if="${message}" class="message">[[${message}]]</div>
+
 		
 		<h2><span id="elementname">[[${element.name}]]</span> site</h2>
 		<strong>Urn</strong>: [[${element.urn}]]<br/>
 			
-		<form class="editmode" th:if="${isAdmin}">
+		<form class="editmode" th:if="${isManagerOrAdmin}">
 		  <div class="line">
 		    <label for="email">Email</label>
 		    <input id="email" th:value="${element.email}">
@@ -36,19 +37,31 @@
 		<strong>Updated</strong>: [[${element.updated}]]<br/>
 		<strong>Quota</strong>: [[${element.remQuota}]]/[[${element.quota}]]<br/>
 		
-		<div class="btnbar editmode" th:if="${isAdmin}">
+		<div class="btnbar editmode" th:if="${isManagerOrAdmin}">
 			<a href="#" class="btn validate" onclick="updateSite(document.getElementById('elementname').innerHTML,document.getElementById('email').value,document.getElementById('related').value);">UPDATE [[${element.name}]] site</a>						
 		</div>	
-		<p class="displaymode" th:if="${isAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
 		
-		<h2>[[${element.name}]] services</h2>
 		
+		<div th:if="${isManagerOrAdmin}">
+		<h2>[[${element.name}]] managers</h2>
+		<p>[[${managers.size()}]] manager[[((${managers.size()} != 1)? 's')]]</p>
+		<ul th:if="${managers.size()}">
+			<li th:if="${isAdmin}" th:each="manager : ${managers}"><a th:href="'/roles/' + ${manager.value0}">[[${manager.value1}]]</a></li>
+			<li th:if="not ${isAdmin}" th:each="manager : ${managers}">[[${manager.value1}]]</li>
+		</ul>
+		</div>
+		<p th:if="${isAdmin}"><a href="/roles">Add managers</a></p>
+
+		
+		<h2>[[${element.name}]] services</h2>		
 		<p>[[${services.size()}]] service[[((${services.size()} != 1)? 's')]]</p>
 		<ul th:if="${services.size()}">
 			<li th:each="e : ${services}"><a th:href="'/sites/' + ${element.name} + '/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
 
-		<div th:if="${isAdmin}">
+
+		<div th:if="${isManagerOrAdmin}">
 		<h2>New Service</h2>
 		<p>To add a new entity, please fill the following form</p>
 		<form>
@@ -72,6 +85,3 @@
 	</div>
 </body>
 </html>
-
-
-		

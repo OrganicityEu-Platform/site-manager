@@ -1,10 +1,7 @@
 package fr.cea.organicity.manager.controllers.ui;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,11 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import fr.cea.organicity.manager.exceptions.token.RoleComputationTokenException;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConfig;
-import fr.cea.organicity.manager.security.SecurityConstants;
 import fr.cea.organicity.manager.services.rolemanager.Role;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
+import fr.cea.organicity.manager.services.rolemanager.SiteRoleManager;
 import fr.cea.organicity.manager.services.userlister.UserLister;
 
 @Controller
@@ -26,12 +21,12 @@ public class RolesControllerUI {
 	private final String title = "Roles";
 	
 	@Autowired private UserLister userLister;
-	@Autowired private SecurityConfig secuConfig;
 	@Autowired private RoleManager roleManager;
+	@Autowired private SiteRoleManager siteRoleManager;
 
 	@GetMapping
-	@RoleGuard(roleName=SecurityConstants.ROLE_ADMIN)
-	public String users(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:role-admin')")
+	public String users(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("users", userLister.getUsers().getLastSuccessResult());
 
@@ -39,21 +34,21 @@ public class RolesControllerUI {
 	}
 		
 	@GetMapping("{userId}")
-	@RoleGuard(roleName=SecurityConstants.ROLE_ADMIN)
-	public String user(HttpServletRequest request, @PathVariable("userId") String userId, Model model) throws RoleComputationTokenException {
+	@PreAuthorize("hasRole('APP:role-admin')")
+	public String user(@PathVariable("userId") String userId, Model model) throws RoleComputationTokenException {
 		addAttributes(model, userId, null);
 		return "thuserdetails";
 	}
 	
 	@RequestMapping("{userId}/addrole/{roleName}")
-	@RoleGuard(roleName=SecurityConstants.ROLE_ADMIN)
-	public String userAddRole(HttpServletRequest request, @PathVariable("userId") String userId, @PathVariable("roleName") String roleName, Model model) throws RoleComputationTokenException {
+	@PreAuthorize("hasRole('APP:role-admin')")
+	public String userAddRole(@PathVariable("userId") String userId, @PathVariable("roleName") String roleName, Model model) throws RoleComputationTokenException {
 		
 		String message = null;
 		try {
 			Role role = new Role(roleName);
 			roleManager.addRole(userId, role);
-			message = "SUCCESS: role " + role.getRoleName() + " added";
+			message = "SUCCESS: role " + role.getQualifiedName() + " added";
 		} catch (Exception e) {
 			message = "ERROR: " + e.getMessage();
 		}
@@ -63,14 +58,14 @@ public class RolesControllerUI {
 	}
 
 	@RequestMapping("{userId}/removerole/{roleName}")
-	@RoleGuard(roleName=SecurityConstants.ROLE_ADMIN)
-	public String userRemoveRole(HttpServletRequest request, @PathVariable("userId") String userId, @PathVariable("roleName") String roleName, Model model) throws RoleComputationTokenException {
+	@PreAuthorize("hasRole('APP:role-admin')")
+	public String userRemoveRole(@PathVariable("userId") String userId, @PathVariable("roleName") String roleName, Model model) throws RoleComputationTokenException {
 		
 		String message = null;
 		try {
 			Role role = new Role(roleName);
 			roleManager.removeRole(userId, role);
-			message = "SUCCESS: role " + role.getRoleName() + " removed";
+			message = "SUCCESS: role " + role.getQualifiedName() + " removed";
 		} catch (Exception e) {
 			message = "ERROR: " + e.getMessage();
 		}
@@ -80,12 +75,11 @@ public class RolesControllerUI {
 	}
 	
 	private void addAttributes(Model model, String userId, String message) throws RoleComputationTokenException {
-		List<Role> allRoles = secuConfig.getLocalRoles_TEMPORARY();
-		
 		model.addAttribute("title", title);
 		model.addAttribute("user", userLister.getUser(userId).getLastSuccessResult());
 		model.addAttribute("message", message);
-		model.addAttribute("allRoles", allRoles);
-		model.addAttribute("displayedUserRoles", roleManager.getRolesForSub(userId));
+		model.addAttribute("allGlobalRoles", roleManager.getGlobalRoles());
+		model.addAttribute("allSiteManagerRoles", siteRoleManager.getSiteManagerRoles());
+		model.addAttribute("userRoles", roleManager.getRolesForSub(userId));
 	}
 }

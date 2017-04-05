@@ -5,6 +5,7 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,8 +17,6 @@ import fr.cea.organicity.manager.domain.OCAttributeType;
 import fr.cea.organicity.manager.domain.OCUnit;
 import fr.cea.organicity.manager.repositories.OCAttributeTypeRepository;
 import fr.cea.organicity.manager.repositories.OCUnitRepository;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConstants;
 
 @Controller
 @RequestMapping("/dictionaries/attributetypes")
@@ -29,18 +28,17 @@ public class DicoAttributeTypeControllerUI implements Dico {
 
 	
 	@RequestMapping
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public String attributeTypesGET(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public String attributeTypesGET(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("message", null);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getAttributeTypeRepository());
 		
 		return "thdicoattributes";
 	}	
 	
 	@PostMapping
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
 	public String attributeTypesPOST(HttpServletRequest request, Model model) {	
 
 		OCAttributeType attrType = new OCAttributeType();
@@ -58,15 +56,14 @@ public class DicoAttributeTypeControllerUI implements Dico {
 		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getAttributeTypeRepository());
 		
 		return "thdicoattributes";
 	}
 	
 	@RequestMapping("{attributetypeName}/delete")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
-	public String attributeTypeDELETE(HttpServletRequest request, @PathVariable("attributetypeName") String attributetypeName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
+	public String attributeTypeDELETE(@PathVariable("attributetypeName") String attributetypeName, Model model) {
 		OCAttributeType attributeType = attributeTypeRepository.findOne(OCAttributeType.computeUrn(attributetypeName));
 
 		Collection<OCAssetType> assets = attributeType.getAssets();
@@ -81,19 +78,17 @@ public class DicoAttributeTypeControllerUI implements Dico {
 
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getAttributeTypeRepository());
 		
 		return "thdicoattributes";
 	}
 	
 	@RequestMapping("{attributetypeName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public String attributeTypeDetailsGET(HttpServletRequest request, @PathVariable("attributetypeName") String attributetypeName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public String attributeTypeDetailsGET(@PathVariable("attributetypeName") String attributetypeName, Model model) {
 		OCAttributeType attributeType = attributeTypeRepository.findOne(OCAttributeType.computeUrn(attributetypeName));
 	
 		model.addAttribute("title", title);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", attributeType);
 		model.addAttribute("units", attributeType.getUnits());
 		model.addAttribute("allunits", unitRepository.findAll());
@@ -103,7 +98,7 @@ public class DicoAttributeTypeControllerUI implements Dico {
 	}
 
 	@PostMapping("{attributetypeName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
 	public String attributeTypeDetailsPOST(HttpServletRequest request, @PathVariable("attributetypeName") String attributetypeName, Model model) {
 		OCAttributeType attributeType = attributeTypeRepository.findOne(OCAttributeType.computeUrn(attributetypeName));
 
@@ -134,7 +129,6 @@ public class DicoAttributeTypeControllerUI implements Dico {
 		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", attributeType);
 		model.addAttribute("units", attributeType.getUnits());
 		model.addAttribute("allunits", unitRepository.findAll());
@@ -144,8 +138,8 @@ public class DicoAttributeTypeControllerUI implements Dico {
 	}
 
 	@RequestMapping("{attributetypeName}/removeunit/{unitName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
-	public String attributeTypeUnitREMOVE(HttpServletRequest request, @PathVariable("attributetypeName") String attributetypeName, @PathVariable("unitName") String unitName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
+	public String attributeTypeUnitREMOVE(@PathVariable("attributetypeName") String attributetypeName, @PathVariable("unitName") String unitName, Model model) {
 		OCAttributeType attributeType = attributeTypeRepository.findOne(OCAttributeType.computeUrn(attributetypeName));
 		
 		String message;
@@ -164,7 +158,6 @@ public class DicoAttributeTypeControllerUI implements Dico {
 		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", attributeType);
 		model.addAttribute("units", attributeType.getUnits());
 		model.addAttribute("allunits", unitRepository.findAll());

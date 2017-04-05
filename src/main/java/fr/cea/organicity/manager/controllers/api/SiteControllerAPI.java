@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,8 +19,6 @@ import fr.cea.organicity.manager.exceptions.local.LocalException;
 import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
 import fr.cea.organicity.manager.exceptions.local.ServerErrorLocalException;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConstants;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -34,8 +31,7 @@ public class SiteControllerAPI {
 	private OCSiteRepository siterepository;
 
 	@GetMapping
-	@RoleGuard
-	public String getSites(@RequestHeader(value = "Authorization", required = false) String auth) {
+	public String getSites() {
 		
 		JSONArray json = new JSONArray();
 		for (OCSite site : siterepository.findAll()) {
@@ -50,8 +46,7 @@ public class SiteControllerAPI {
 
 	/* NOT AVAILABLE FOR NOW
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	@RoleGuard
-	public ResponseEntity<OCSite> addSite(@RequestHeader(value = "Authorization", required = false) String auth, @RequestBody OCSite site) {
+	public ResponseEntity<OCSite> addSite(@RequestBody OCSite site) {
 		try {
 			site = siterepository.save(site);
 			return new ResponseEntity<OCSite>(site, HttpStatus.OK);
@@ -66,8 +61,7 @@ public class SiteControllerAPI {
 
 	/* NOT AVAILABLE FOR NOW
 	@RequestMapping(value = "{siteName}", method = RequestMethod.DELETE)
-	@RoleGuard(roleName=SecurityConstants.CLIENT + ":site-{siteName}-admin")
-	public ResponseEntity<String> deleteSite(@RequestHeader(value = "Authorization", required = false) String auth, @PathVariable("siteName") String siteName) {
+	public ResponseEntity<String> deleteSite(@PathVariable("siteName") String siteName) {
 		try {
 			siterepository.delete(OCSite.computeUrn(siteName));
 			return new ResponseEntity<>(HttpStatus.OK);
@@ -82,8 +76,8 @@ public class SiteControllerAPI {
 	*/
 
 	@GetMapping("{siteName}")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-user")
-	public OCSite getSiteByName(@RequestHeader(value = "Authorization", required = false) String auth, @PathVariable("siteName") String siteName) throws LocalException {
+	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-user")
+	public OCSite getSiteByName(@PathVariable("siteName") String siteName) throws LocalException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite site = siterepository.findOne(urn);
 		if (site == null)
@@ -91,43 +85,9 @@ public class SiteControllerAPI {
 		return site;
 	}
 
-	/* INCREMENT QUOTA
-	@GetMapping("{siteName}/quota/increment")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
-	public OCSite incrementRemainingQuota(@RequestHeader(value = "Authorization", required = false) String auth, @PathVariable("siteName") String siteName) throws MethodNotAllowedException, NotFoundEntityException {
-		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
-		if (site == null)
-			throw new NotFoundEntityException(siteName, OCSite.class);
-		
-		long remaining = site.getRemQuota();
-		if (remaining >= site.getQuota())
-			throw new MethodNotAllowedException();
-		
-		site.setRemQuota(remaining + 1);
-		return siterepository.save(site);
-	}
-	*/
-	
-	/* DECREMENT QUOTA
-	@GetMapping("{siteName}/quota/decrement")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
-	public OCSite decrementRemainingQuota(@RequestHeader(value = "Authorization", required = false) String auth, @PathVariable("siteName") String siteName) throws NotFoundEntityException, MethodNotAllowedException {
-		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
-		if (site == null)
-			throw new NotFoundEntityException(siteName, OCSite.class);
-		
-		long remaining = site.getRemQuota();
-		if (remaining <= 0)
-			throw new MethodNotAllowedException();
-		
-		site.setRemQuota(remaining - 1);
-		return siterepository.save(site);
-	}
-	*/
-	
 	@PutMapping(value = "{siteName}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
-	public OCSite updateSite(@RequestHeader(value = "Authorization", required = false) String auth, @PathVariable("siteName") String siteName, @RequestBody OCSite site) throws LocalException {
+	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
+	public OCSite updateSite(@PathVariable("siteName") String siteName, @RequestBody OCSite site) throws LocalException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite repoSite = siterepository.findOne(urn);
 		if (repoSite == null)

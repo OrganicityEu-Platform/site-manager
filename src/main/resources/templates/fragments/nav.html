@@ -4,12 +4,12 @@
 	<div class="title">
 		<nav th:fragment="nav">
 			<a href="/">Home</a>
-			<span th:remove="tag" th:if="${roles.contains(secuConfig.ROLE_ADMIN_ROLE)}">| <a href="/roles">Roles</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConstants.ADMINISTRATOR_ROLE)}">| <a href="/roles">Roles</a></span>
 			<span th:remove="tag" th:if="${roles.size()}">| <a href="/sites">Sites</a></span>
-			<span th:remove="tag" th:if="${roles.contains(secuConfig.EXPERIMENT_USER_ROLE)}">| <a href="/experiments">Experiments</a></span>
-			<span th:remove="tag" th:if="${roles.contains(secuConfig.METRICS_USER_ROLE)}">| <a href="/metrics">Metrics</a></span>
-			<span th:remove="tag" th:if="${roles.contains(secuConfig.DICTIONARY_USER_ROLE)}">| <a href="/dictionaries">Dictionaries</a></span>
-			<span th:remove="tag" th:if="${roles.contains(secuConfig.DEVELOPER_ROLE)}">|| <a href="/links"><strong>DEV LINKS</strong></a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConstants.EXPERIMENT_USER_ROLE)}">| <a href="/experiments">Experiments</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConstants.METRICS_USER_ROLE)}">| <a href="/metrics">Metrics</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConstants.DICTIONARY_USER_ROLE)}">| <a href="/dictionaries">Dictionaries</a></span>
+			<span th:remove="tag" th:if="${roles.contains(secuConstants.DEVELOPER_ROLE)}">|| <a href="/links"><strong>DEV LINKS</strong></a></span>
 		</nav>
 	</div>
 </body>

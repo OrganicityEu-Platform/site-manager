@@ -5,6 +5,7 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +19,6 @@ import fr.cea.organicity.manager.domain.OCUnregisteredAssetType;
 import fr.cea.organicity.manager.repositories.OCAssetTypeRepository;
 import fr.cea.organicity.manager.repositories.OCAttributeTypeRepository;
 import fr.cea.organicity.manager.repositories.OCUnregisteredAssetTypeRepository;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConstants;
 
 @Controller
 @RequestMapping("/dictionaries/assettypes")
@@ -31,10 +30,9 @@ public class DicoAssetTypeControllerUI implements Dico {
 	@Autowired private OCAttributeTypeRepository attributeTypeRepository;
 	
 	@GetMapping
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public String assettypesGET(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public String assettypesGET(Model model) {
 		model.addAttribute("title", title);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getAssetTypeRepository());
 		model.addAttribute("unregistered", dicoHelper.getUnregisteredAssetTypeRepository());
 		
@@ -42,7 +40,7 @@ public class DicoAssetTypeControllerUI implements Dico {
 	}
 	
 	@PostMapping
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
 	public String assettypesPOST(HttpServletRequest request, Model model) {	
 		OCAssetType assetType = new OCAssetType();
 		assetType.setName(request.getParameter("name"));
@@ -64,7 +62,6 @@ public class DicoAssetTypeControllerUI implements Dico {
 		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getAssetTypeRepository());
 		model.addAttribute("unregistered", dicoHelper.getUnregisteredAssetTypeRepository());
 		
@@ -72,8 +69,8 @@ public class DicoAssetTypeControllerUI implements Dico {
 	}	
 	
 	@RequestMapping("{assettypeName}/delete")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
-	public String assettypeDELETE(HttpServletRequest request, @PathVariable("assettypeName") String assettypeName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
+	public String assettypeDELETE(@PathVariable("assettypeName") String assettypeName, Model model) {
 		OCAssetType assetType = assetTypeRepository.findOne(OCAssetType.computeUrn(assettypeName));
 		
 		String message = null;
@@ -86,7 +83,6 @@ public class DicoAssetTypeControllerUI implements Dico {
 
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getAssetTypeRepository());
 		model.addAttribute("unregistered", dicoHelper.getUnregisteredAssetTypeRepository());
 		
@@ -94,12 +90,11 @@ public class DicoAssetTypeControllerUI implements Dico {
 	}
 	
 	@RequestMapping("{assettypeName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public String assetTypeDetailsGET(HttpServletRequest request, @PathVariable("assettypeName") String assettypeName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public String assetTypeDetailsGET(@PathVariable("assettypeName") String assettypeName, Model model) {
 		OCAssetType assetType = assetTypeRepository.findOne(OCAssetType.computeUrn(assettypeName));
 		
 		model.addAttribute("title", title);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", assetType);
 		model.addAttribute("attributeTypes", dicoHelper.getAttributeTypeRepository());
 		model.addAttribute("attributes", assetType.getAttributes());
@@ -108,7 +103,7 @@ public class DicoAssetTypeControllerUI implements Dico {
 	}
 	
 	@PostMapping(value="{assettypeName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
 	public String assetTypeDetailsPOST(HttpServletRequest request, @PathVariable("assettypeName") String assettypeName, Model model) {
 		OCAssetType assetType = assetTypeRepository.findOne(OCAssetType.computeUrn(assettypeName));
 		
@@ -140,7 +135,6 @@ public class DicoAssetTypeControllerUI implements Dico {
 
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", assetType);
 		model.addAttribute("attributeTypes", dicoHelper.getAttributeTypeRepository());
 		model.addAttribute("attributes", assetType.getAttributes());
@@ -149,8 +143,8 @@ public class DicoAssetTypeControllerUI implements Dico {
 	}
 	
 	@RequestMapping("{assettypeName}/removeattribute/{attributeName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
-	public String assetTypeAttributeREMOVE(HttpServletRequest request, @PathVariable("assettypeName") String assettypeName, @PathVariable("attributeName") String attributeName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
+	public String assetTypeAttributeREMOVE(@PathVariable("assettypeName") String assettypeName, @PathVariable("attributeName") String attributeName, Model model) {
 		OCAssetType assetType = assetTypeRepository.findOne(OCAssetType.computeUrn(assettypeName));
 
 		OCAttributeType attribute = attributeTypeRepository.findOne(OCAttributeType.computeUrn(attributeName));
@@ -163,7 +157,6 @@ public class DicoAssetTypeControllerUI implements Dico {
 
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", assetType);
 		model.addAttribute("attributeTypes", dicoHelper.getAttributeTypeRepository());
 		model.addAttribute("attributes", assetType.getAttributes());

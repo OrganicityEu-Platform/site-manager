@@ -6,22 +6,45 @@
 		<h2>Roles details for [[${user.name}]]</h2>		
 		<p th:if="${message}" class="message"><strong>[[${message}]]</strong></p>
 		
-		<div th:each="role : ${allRoles}">		
-			<div th:if="${#lists.contains(displayedUserRoles, role)}" th:remove="tag">
-				<span  class="rolename" style="color:green">[[${role.role}]]</span>
+		<h3>Global roles</h3>
+		
+		<div th:each="role : ${allGlobalRoles}">		
+			<div th:if="${#lists.contains(userRoles, role)}" th:remove="tag">
+				<span  class="rolename" style="color:green">[[${role.name}]]</span>
 				<span  class="rolecolumn">
-					<a th:href="'/roles/' + ${user.id} + '/removerole/' + ${role.role}">revoke permission</a>
+					<a th:href="'/roles/' + ${user.id} + '/removerole/' + ${role.qualifiedName}">revoke permission</a>
 				</span>
 				<br/>
 			</div>
-			<div th:if="not ${#lists.contains(displayedUserRoles, role)}" th:remove="tag">
-				<span  class="rolename" style="color:red">[[${role.role}]]</span>
+			<div th:if="not ${#lists.contains(userRoles, role)}" th:remove="tag">
+				<span  class="rolename" style="color:red">[[${role.name}]]</span>
 				<span  class="rolecolumn">
-					<a th:href="'/roles/' + ${user.id} + '/addrole/' + ${role.role}">add permission</a>
+					<a th:href="'/roles/' + ${user.id} + '/addrole/' + ${role.qualifiedName}">add permission</a>
 				</span>
 				<br/>
 			</div>
 		</div>
+		
+		
+		<h3>Sites managers</h3>
+		
+		<div th:each="role : ${allSiteManagerRoles}">		
+			<div th:if="${#lists.contains(userRoles, role)}" th:remove="tag">
+				<span  class="rolename" style="color:green">[[${role.name.substring(5)}]]</span>
+				<span  class="rolecolumn">
+					<a th:href="'/roles/' + ${user.id} + '/removerole/' + ${role.qualifiedName}">revoke manager</a>
+				</span>
+				<br/>
+			</div>
+			<div th:if="not ${#lists.contains(userRoles, role)}" th:remove="tag">
+				<span  class="rolename" style="color:red">[[${role.name.substring(5)}]]</span>
+				<span  class="rolecolumn">
+					<a th:href="'/roles/' + ${user.id} + '/addrole/' + ${role.qualifiedName}">add manager</a>
+				</span>
+				<br/>
+			</div>
+		</div>
+		
 	</div>
 </body>
 </html>

@@ -18,9 +18,12 @@ import org.springframework.web.client.RestTemplate;
 
 import fr.cea.organicity.manager.config.environment.EnvService;
 import fr.cea.organicity.manager.repositories.OCApiCallRepository;
+import fr.cea.organicity.manager.repositories.OCSiteRepository;
 import fr.cea.organicity.manager.services.experimentlister.ExperimentLister;
-import fr.cea.organicity.manager.services.rolemanager.ClaimsParser;
+import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;
+import fr.cea.organicity.manager.services.rolemanager.RemoteRoleManager;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
+import fr.cea.organicity.manager.services.rolemanager.SiteRoleManager;
 import fr.cea.organicity.manager.services.tagdomain.TagDomainService;
 import fr.cea.organicity.manager.services.tokenmanager.Credentials;
 import fr.cea.organicity.manager.services.tokenmanager.TokenManager;
@@ -40,10 +43,10 @@ public class BeansConfig {
 		X509Certificate certificate = (X509Certificate) f.generateCertificate(is);
 		return certificate.getPublicKey();
 	}
-	
+
 	@Bean
-	ClaimsParser claimsParser(PublicKey pk) throws FileNotFoundException, CertificateException {
-		return new ClaimsParser(pk);
+	ClaimsExtractor getClaimsExtractor(PublicKey pk) throws FileNotFoundException, CertificateException {
+		return new ClaimsExtractor(pk);
 	}
 
 	@Bean
@@ -63,7 +66,7 @@ public class BeansConfig {
 		return new RestTemplateInterceptor(tokenManager, callRepository);
 	}
 	
-	@Bean({"auth"})
+	@Bean
 	RestTemplate getRestTemplate(List<ClientHttpRequestInterceptor> interceptors) {
 		RestTemplate template = new RestTemplate();
 		template.setInterceptors(interceptors);
@@ -71,13 +74,23 @@ public class BeansConfig {
 	}
 	
 	@Bean
-	RoleManager getRoleManager(ClaimsParser claimsParser, RestTemplate restTemplate) {
-		return new RoleManager(claimsParser, restTemplate);
+	RemoteRoleManager getRemoteRoleManager(RestTemplate restTemplate) {
+		return new RemoteRoleManager(restTemplate);
 	}
-	
+
 	@Bean
 	UserLister getUserLister(RestTemplate restTemplate) {
 		return new UserLister(restTemplate);
+	}
+	
+	@Bean
+	SiteRoleManager getSiteRoleManager(OCSiteRepository siterepo, UserLister userlister) {
+		return new SiteRoleManager(siterepo, userlister);
+	}
+	
+	@Bean
+	RoleManager getRoleManager(RemoteRoleManager remotemanager, SiteRoleManager sitemanager) {
+		return new RoleManager(remotemanager, env, sitemanager);
 	}
 	
 	@Bean

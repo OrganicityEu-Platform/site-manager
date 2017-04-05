@@ -5,6 +5,7 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,6 @@ import fr.cea.organicity.manager.domain.OCAttributeType;
 import fr.cea.organicity.manager.domain.OCUnit;
 import fr.cea.organicity.manager.repositories.OCDataTypeRepository;
 import fr.cea.organicity.manager.repositories.OCUnitRepository;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConstants;
 
 @Controller
 @RequestMapping("/dictionaries/units")
@@ -30,11 +29,10 @@ public class DicoUnitControllerUI implements Dico {
 
 	
 	@RequestMapping
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public String unitsGET(HttpServletRequest request, Model model) {	
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public String unitsGET(Model model) {	
 		model.addAttribute("title", title);
 		model.addAttribute("message", null);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getUnitRepository());
 		model.addAttribute("dataTypes", dicoHelper.getDatatypeRepository());
 		
@@ -42,7 +40,7 @@ public class DicoUnitControllerUI implements Dico {
 	}
 	
 	@PostMapping
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
 	public String unitPOST(HttpServletRequest request, Model model) {	
 
 		OCUnit unit = new OCUnit();
@@ -61,7 +59,6 @@ public class DicoUnitControllerUI implements Dico {
 		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getUnitRepository());
 		model.addAttribute("dataTypes", dicoHelper.getDatatypeRepository());
 		
@@ -69,8 +66,8 @@ public class DicoUnitControllerUI implements Dico {
 	}
 	
 	@RequestMapping("{unitName}/delete")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
-	public String unitDELETE(HttpServletRequest request, @PathVariable("unitName") String unitName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
+	public String unitDELETE(@PathVariable("unitName") String unitName, Model model) {
 
 		OCUnit unit = unitRepository.findOne(OCUnit.computeUrn(unitName));
 		
@@ -85,7 +82,6 @@ public class DicoUnitControllerUI implements Dico {
 		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("elements", dicoHelper.getUnitRepository());
 		model.addAttribute("dataTypes", dicoHelper.getDatatypeRepository());
 		
@@ -93,12 +89,11 @@ public class DicoUnitControllerUI implements Dico {
 	}
 	
 	@GetMapping("{unitName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public String unitDetailsGET(HttpServletRequest request, @PathVariable("unitName") String unitName, Model model) {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public String unitDetailsGET(@PathVariable("unitName") String unitName, Model model) {
 		OCUnit unit = unitRepository.findOne(OCUnit.computeUrn(unitName));
 		
 		model.addAttribute("title", title);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", unit);
 		model.addAttribute("usedBy", unit.getAttributes());
 		
@@ -106,7 +101,7 @@ public class DicoUnitControllerUI implements Dico {
 	}	
 	
 	@PostMapping("{unitName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_ADMIN)
+	@PreAuthorize("hasRole('APP:dictionary-admin')")
 	public String unitDetailsPOST(HttpServletRequest request, @PathVariable("unitName") String unitName, Model model) {
 		OCUnit unit = unitRepository.findOne(OCUnit.computeUrn(unitName));
 
@@ -117,7 +112,6 @@ public class DicoUnitControllerUI implements Dico {
 		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
-		model.addAttribute("isDicoAdmin", dicoHelper.isDictionaryAdmin(request));
 		model.addAttribute("element", unit);
 		model.addAttribute("usedBy", unit.getAttributes());
 		

@@ -10,7 +10,7 @@
 
 		<p>[[${element.services.size()}]] service[[((${element.services.size()} != 1)? 's')]]</p>
 		<ul th:if="${element.services.size()}">
-			<li th:each="e : ${elements.services}">
+			<li th:each="e : ${element.services}">
 				<strong>[[${e.urn}]]</strong><br>
 				description: [[${e.description}]]<br>
 				user: [[${e.user}]]
@@ -19,7 +19,7 @@
 		
 		<p>[[${element.tags.size()}]] tag[[((${element.tags.size()} != 1)? 's')]]</p>
 		<ul th:if="${element.tags.size()}">
-			<li th:each="e : ${elements.tags}">
+			<li th:each="e : ${element.tags}">
 				<strong>[[${e.urn}]]</strong><br>
 				description: [[${e.name}]]<br>
 				user: [[${e.user}]]

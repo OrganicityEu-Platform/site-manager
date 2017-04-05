@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +20,6 @@ import fr.cea.organicity.manager.domain.OCRequest;
 import fr.cea.organicity.manager.repositories.OCApiCallRepository;
 import fr.cea.organicity.manager.repositories.OCErrorRepository;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConstants;
 import fr.cea.organicity.manager.services.ThirdPartyResult;
 import fr.cea.organicity.manager.services.experimentlister.ExperimentLister;
 import fr.cea.organicity.manager.services.userlister.User;
@@ -42,15 +39,15 @@ public class MetricsControllerUI {
 	private final String title = "Metrics";
 	
 	@GetMapping
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metrics(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metrics(Model model) {
 		model.addAttribute("title", title);
 		return "thmetrics";
 	}
 	
 	@GetMapping("access/today")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsAccessToday(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsAccessToday(Model model) {
 		List<OCRequest> accessList = getAccessList(accessRepository, 1);
 		model.addAttribute("title", title);
 		model.addAttribute("subtitle", "Today's access records");
@@ -60,8 +57,8 @@ public class MetricsControllerUI {
 	}
 	
 	@GetMapping("access/week")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsAccessWeek(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsAccessWeek(Model model) {
 		List<OCRequest> accessList = getAccessList(accessRepository, 7);
 		model.addAttribute("title", title);
 		model.addAttribute("subtitle", "Past week access records");
@@ -71,16 +68,16 @@ public class MetricsControllerUI {
 	}
 	
 	@GetMapping("access/log")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsAccessLog(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsAccessLog(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("logs", getLastLogs(100));		
 		return "thlogrecords";
 	}
 	
 	@GetMapping("api/status")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsApiStatus(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsApiStatus(Model model) {
 		model.addAttribute("title", title);
 
 		model.addAttribute("userLastSuccess", getLastSuccessString(userLister.getUsers()));
@@ -93,24 +90,24 @@ public class MetricsControllerUI {
 	}
 	
 	@GetMapping("api/longest")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsApiLongest(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsApiLongest(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("records", getApiLongestCalls(100, false));		
 		return "thapilongest";
 	}
 
 	@GetMapping("api/failed")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsAccessFailed(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsAccessFailed(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("records", getApiLongestCalls(100, true));		
 		return "thapifailed";
 	}
 	
 	@GetMapping("errors/today")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsErrorsToday(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsErrorsToday(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("subtitle", "Today's errors");
 		model.addAttribute("errors", getServerErrors(1));
@@ -119,8 +116,8 @@ public class MetricsControllerUI {
 	}
 
 	@GetMapping("errors/week")
-	@RoleGuard(roleName=SecurityConstants.METRICS_USER)
-	public String metricsErrorsWeek(HttpServletRequest request, Model model) {
+	@PreAuthorize("hasRole('APP:metrics')")
+	public String metricsErrorsWeek(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("subtitle", "Week's errors");
 		model.addAttribute("errors", getServerErrors(7));

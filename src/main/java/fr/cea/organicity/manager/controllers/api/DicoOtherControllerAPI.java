@@ -2,10 +2,10 @@ package fr.cea.organicity.manager.controllers.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,8 +16,6 @@ import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
 import fr.cea.organicity.manager.repositories.OCAppTypeRepository;
 import fr.cea.organicity.manager.repositories.OCToolRepository;
 import fr.cea.organicity.manager.repositories.OCUserInterestRepository;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConstants;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -29,26 +27,26 @@ public class DicoOtherControllerAPI {
 	@Autowired private OCUserInterestRepository userInterestRepository;
 	
 	@GetMapping("applicationtypes")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public Iterable<OCAppType> getAppTypes(@RequestHeader(value = "Authorization", required = false) String auth) {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public Iterable<OCAppType> getAppTypes() {
 		return apptyperepository.findAll();
 	}
 
 	@GetMapping("tools")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public Iterable<OCTool> getTools(@RequestHeader(value = "Authorization", required = false) String auth) {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public Iterable<OCTool> getTools() {
 		return toolrepository.findAll();		
 	}
 	
 	@GetMapping("userinterests")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public Iterable<OCUserInterest> getUserInterests(@RequestHeader(value = "Authorization", required = false) String auth) {	
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public Iterable<OCUserInterest> getUserInterests() {	
 		return userInterestRepository.findAll();	
 	}
 	
 	@GetMapping("userinterests/{unitName}")
-	@RoleGuard(roleName=SecurityConstants.DICTIONARY_USER)
-	public OCUserInterest getUserInterestByName(@RequestHeader(value = "Authorization", required = false) String auth, @PathVariable("unitName") String unitName) throws NotFoundLocalException {
+	@PreAuthorize("hasRole('APP:dictionary-user')")
+	public OCUserInterest getUserInterestByName(@PathVariable("unitName") String unitName) throws NotFoundLocalException {
 		String urn = OCUserInterest.computeUrn(unitName);
 		OCUserInterest userInterest = userInterestRepository.findOne(urn);
 		if (userInterest == null)

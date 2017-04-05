@@ -8,26 +8,26 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.base.Strings;
 
-import fr.cea.organicity.manager.security.CookieTokenExtractor;
+import fr.cea.organicity.manager.services.security.CookieTokenExtractorService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 
-public class ClaimsParser {
-	
+public class ClaimsExtractor {
+
 	private final PublicKey pk;
-	
-	public ClaimsParser(PublicKey pk) throws FileNotFoundException, CertificateException {
+
+	public ClaimsExtractor(PublicKey pk) throws FileNotFoundException, CertificateException {
 		this.pk = pk;
 	}
 
-	public OCClaims getClaimsFromIdToken(String idToken) throws RuntimeException {
+	public Claims getClaimsFromIdToken(String idToken) throws RuntimeException {
 		try {
 			Claims claims = Jwts.parser().setSigningKey(pk).parseClaimsJws(idToken).getBody();
 			if (claims == null)
 				throw new RuntimeException("claims is null");
-			return new OCClaims(claims);
+			return claims;
 		} catch (ExpiredJwtException e) {
 			throw new RuntimeException("Token expired. Please reconnect");
 		} catch (MalformedJwtException e) {
@@ -36,21 +36,40 @@ public class ClaimsParser {
 			throw new RuntimeException("Error: " + e.getMessage());
 		}
 	}
-	
-	public OCClaims getClaimsFromRequest(HttpServletRequest request) {		
-		String id_token = CookieTokenExtractor.getCookieID(request);
-		return getClaimsFromHeader(id_token);
+
+	public Claims getClaimsFromRequest(HttpServletRequest request) {
+		String token = getTokenFromRequest(request);
+		return getClaimsFromToken(token);
+	}
+
+	public String getSubFromRequest(HttpServletRequest request) {
+		return getClaimsFromRequest(request).getSubject();
 	}
 	
-	public OCClaims getClaimsFromHeader(String authHeader) {
+	private static String getTokenFromRequest(HttpServletRequest request) {
+		// Trying to get the token from the cookie
+		String accessToken = CookieTokenExtractorService.getCookieAccess(request);
+		if (accessToken != null)
+			return accessToken;
+
+		// Trying to get the token from the header
+		String idHeader = request.getHeader("Authorization");
+		if (idHeader != null)
+			return idHeader;
+
+		// no id available
+		return null;
+	}
+
+	public Claims getClaimsFromToken(String authHeader) {
 		if (Strings.isNullOrEmpty(authHeader))
 			throw new IllegalArgumentException("idtoken value is null or empty.");
-		
+
 		authHeader = authHeader.trim();
 		if (authHeader.startsWith("Bearer") || authHeader.startsWith("bearer"))
 			authHeader = authHeader.substring("Bearer".length());
 		authHeader = authHeader.trim();
-		
+
 		return getClaimsFromIdToken(authHeader);
 	}
 }

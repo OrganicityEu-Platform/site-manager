@@ -1,4 +1,4 @@
-package fr.cea.organicity.manager.security;
+package fr.cea.organicity.manager.services.security;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.base.Strings;
 
 @Service
-public class CookieTokenExtractor {
+public class CookieTokenExtractorService {
 
 	private final static String COOKIE_KEY = "octoken";
 	private final static String ID = "id_token";

@@ -14,9 +14,9 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 
 import fr.cea.organicity.manager.config.environment.ManifestSettings;
 import fr.cea.organicity.manager.repositories.OCErrorRepository;
-import fr.cea.organicity.manager.security.SecurityConfig;
-import fr.cea.organicity.manager.services.rolemanager.ClaimsParser;
-import fr.cea.organicity.manager.services.rolemanager.RoleManager;
+import fr.cea.organicity.manager.security.SecurityConstants;
+import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;
+import fr.cea.organicity.manager.services.security.CallbackUrlBuilderService;
 import fr.cea.organicity.manager.services.userlister.UserLister;
 
 
@@ -28,20 +28,18 @@ import fr.cea.organicity.manager.services.userlister.UserLister;
 @Configuration
 public class ThymeleafConfig extends WebMvcConfigurerAdapter {
     
-	@Autowired private RoleManager roleManager;
-	@Autowired private SecurityConfig secuConfig;
+	@Autowired private CallbackUrlBuilderService urlBuilder;
 	@Autowired private ManifestSettings manifestsettings;
 	@Autowired private OCErrorRepository errorRepository;
-	@Autowired private ClaimsParser claimsParser;
+	@Autowired private ClaimsExtractor claimsExtractor;
 	@Autowired private UserLister userLister;
 	
 	@Autowired private SpringTemplateEngine templateEngine;
 	@Autowired private ApplicationContext applicationContext;
 	
-	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ThymeleafInterceptor(roleManager, secuConfig, manifestsettings, errorRepository, claimsParser, userLister));
+        registry.addInterceptor(new ThymeleafInterceptor(urlBuilder, manifestsettings, errorRepository, claimsExtractor, userLister, new SecurityConstants()));
     }
 	
 	@PostConstruct

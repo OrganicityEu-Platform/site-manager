@@ -9,7 +9,7 @@
 		<strong>Site name</strong>: <span id="sitename">[[${site.name}]]</span><br/>
 		<strong>Urn</strong>: [[${element.urn}]]<br/>
 			
-		<form class="editmode" th:if="${isAdmin}">
+		<form class="editmode" th:if="${isManagerOrAdmin}">
 		  <div class="line">
 		    <label for="description">Description</label>
 		    <input id="description" th:value="${element.description}">
@@ -28,11 +28,11 @@
 		<strong>Created</strong>: [[${element.created}]]<br/>
 		<strong>Updated</strong>: [[${element.updated}]]<br/>
 		
-		<div class="btnbar editmode" th:if="${isAdmin}">
+		<div class="btnbar editmode" th:if="${isManagerOrAdmin}">
 			<a href="#" class="btn validate" onclick="updateService(document.getElementById('sitename').innerHTML, document.getElementById('elementname').innerHTML,document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] service</a>
 			<a th:href="'/sites/' + ${site.name} + '/' + ${element.name} + '/delete'" class='btn danger'>DELETE [[${element.name}]] service</a>
 		</div>
-		<p class="displaymode" th:if="${isAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
 	</div>
 </body>
 </html>

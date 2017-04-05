@@ -1,21 +1,25 @@
 package fr.cea.organicity.manager.config;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import fr.cea.organicity.manager.config.environment.ManifestSettings;
 import fr.cea.organicity.manager.domain.OCError;
 import fr.cea.organicity.manager.repositories.OCErrorRepository;
-import fr.cea.organicity.manager.security.SecurityConfig;
-import fr.cea.organicity.manager.services.rolemanager.ClaimsParser;
-import fr.cea.organicity.manager.services.rolemanager.OCClaims;
-import fr.cea.organicity.manager.services.rolemanager.RoleManager;
+import fr.cea.organicity.manager.security.Identity;
+import fr.cea.organicity.manager.security.SecurityConstants;
+import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;
+import fr.cea.organicity.manager.services.security.CallbackUrlBuilderService;
 import fr.cea.organicity.manager.services.userlister.UserLister;
 import lombok.extern.log4j.Log4j;
 
@@ -25,20 +29,20 @@ class ThymeleafInterceptor extends HandlerInterceptorAdapter {
     private static final String DEFAULT_LAYOUT = "layouts/default";
     private static final String DEFAULT_VIEW_ATTRIBUTE_NAME = "view";
 
-	private final RoleManager roleManager;
-	private final SecurityConfig secuConfig;
+	private final CallbackUrlBuilderService urlBuilder;
 	private final ManifestSettings manifestSettings;
 	private final OCErrorRepository errorRepository;
-	private final ClaimsParser claimsParser;
+	private final ClaimsExtractor claimsParser;
 	private final UserLister userLister;
+	private final SecurityConstants secuConstants;
 	
-	public ThymeleafInterceptor(RoleManager roleManager, SecurityConfig secuConfig, ManifestSettings manifestSettings, OCErrorRepository errorRepository, ClaimsParser claimsParser, UserLister userLister) {
-		this.roleManager = roleManager;
-		this.secuConfig = secuConfig;
+	public ThymeleafInterceptor(CallbackUrlBuilderService urlBuilder, ManifestSettings manifestSettings, OCErrorRepository errorRepository, ClaimsExtractor claimsParser, UserLister userLister, SecurityConstants secuConstants) {
+		this.urlBuilder = urlBuilder;
 		this.manifestSettings = manifestSettings;
 		this.errorRepository = errorRepository;
 		this.claimsParser = claimsParser;
 		this.userLister = userLister;
+		this.secuConstants = secuConstants;
 	}
 	
 	@Override
@@ -49,7 +53,9 @@ class ThymeleafInterceptor extends HandlerInterceptorAdapter {
 	
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        
+         
+    	Identity identity = getIdentity();
+    	
     	if (modelAndView == null || !modelAndView.hasView()) {
             return;
         }
@@ -76,16 +82,14 @@ class ThymeleafInterceptor extends HandlerInterceptorAdapter {
         } 
         
         // Variables injection
-        modelAndView.addObject("roles", roleManager.getRolesForRequest(request));
+        modelAndView.addObject("roles", identity != null ? identity.getRoles() : new ArrayList<>());
         modelAndView.addObject("userName", getAccountString(request));
-        modelAndView.addObject("secuConfig", secuConfig);
-        modelAndView.addObject("renewTokenUrl", secuConfig.getUrl(request));
+        modelAndView.addObject("secuConstants", secuConstants);
+        modelAndView.addObject("renewTokenUrl", urlBuilder.getUrl(request));
         modelAndView.addObject("buildtimestamp", manifestSettings.getBuildTimestamp());
+        modelAndView.addObject("isDicoAdmin", isDictionaryAdmin(identity));
         
-        modelAndView.addObject("sq", "'");
-        modelAndView.addObject("dq", "\"");
-        
-        // changing the vew name
+        // changing the view name
         modelAndView.setViewName(DEFAULT_LAYOUT);
         modelAndView.addObject(DEFAULT_VIEW_ATTRIBUTE_NAME, originalViewName);
     }
@@ -115,11 +119,27 @@ class ThymeleafInterceptor extends HandlerInterceptorAdapter {
 	
 	private String getAccountString(HttpServletRequest request) {
 		try {
-			OCClaims claims = claimsParser.getClaimsFromRequest(request);
-			String sub = claims.getSub();
+			String sub = claimsParser.getSubFromRequest(request);
 			return userLister.getUserNameOrSub(sub);
 		} catch (Exception e) {
 			return "My account";
 		}
+	}
+	
+	private Identity getIdentity() {
+		try {
+			SecurityContext context = SecurityContextHolder.getContext();
+			Authentication authentication = context.getAuthentication();
+			return (Identity) authentication.getPrincipal();
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public boolean isDictionaryAdmin(Identity identity) {
+		if (identity == null)
+			return false;
+		else
+			return identity.getRoles().contains(SecurityConstants.DICTIONARY_ADMIN_ROLE);
 	}
 }

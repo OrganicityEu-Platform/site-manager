@@ -2,6 +2,7 @@ package fr.cea.organicity.manager.services.tokenmanager;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.http.HttpEntity;
@@ -18,8 +19,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import fr.cea.organicity.manager.security.SecurityConstants;
-import fr.cea.organicity.manager.services.rolemanager.ClaimsParser;
-import fr.cea.organicity.manager.services.rolemanager.OCClaims;
+import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;
+import io.jsonwebtoken.Claims;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -65,18 +66,24 @@ public class TokenManager {
 			return false;
 		
 		// Extract claims
-		OCClaims claim = null;
+		Claims claim = null;
 		try {
-			claim = new ClaimsParser(pk).getClaimsFromIdToken(authToken);
+			claim = new ClaimsExtractor(pk).getClaimsFromIdToken(authToken);
 		} catch (Exception e) {
 			// token expired
 			return false;
 		}
 
-		if (claim.getExpiresAt() != null && claim.stillValidDuringInSeconds() < SECURITY_PERIOD)
+		if (claim.getExpiration() != null && stillValidDuringInSeconds(claim) < SECURITY_PERIOD)
 			return false;
 
 		return true;
+	}
+	
+	public long stillValidDuringInSeconds(Claims claim) {
+		long curentInSec = Calendar.getInstance().getTimeInMillis() / (long) 1000;
+		long expInsec = claim.getExpiration().getTime() / (long) 1000;
+		return expInsec - curentInSec;
 	}
 	
 	private String renewAuthToken(Credentials credentials) {

@@ -17,7 +17,7 @@
 		<h2>Roles</h2>
 		<p th:utext="${roles_global}"></p>
 		<p th:utext="${roles_local}"></p>
-		<p th:if="${roles.contains(secuConfig.ROLE_ADMIN_ROLE)}"><a th:href="'/roles/' + ${claims.sub}">Update your local roles</a></p>
+		<p th:if="${roles.contains(secuConstants.ROLE_ADMIN_ROLE)}"><a th:href="'/roles/' + ${claims.sub}">Update your local roles</a></p>
 	
 	
 		<h2>Experiments</h2>

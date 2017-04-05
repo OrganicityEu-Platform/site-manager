@@ -4,8 +4,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -48,6 +51,9 @@ public class OCSite {
     private String created;
     private String updated;
     
+    @ElementCollection(fetch=FetchType.EAGER)
+    protected Set<String> managers = new HashSet<>();
+
     @JsonManagedReference
     @OneToMany(mappedBy="site", cascade={CascadeType.PERSIST, CascadeType.REMOVE}, fetch=FetchType.EAGER)
     private Collection<OCService> services = new ArrayList<>();

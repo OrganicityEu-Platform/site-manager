@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,55 +20,55 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import fr.cea.organicity.manager.domain.OCService;
 import fr.cea.organicity.manager.domain.OCSite;
+import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
+import fr.cea.organicity.manager.exceptions.token.RoleComputationTokenException;
 import fr.cea.organicity.manager.repositories.OCServiceRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
-import fr.cea.organicity.manager.security.RoleGuard;
-import fr.cea.organicity.manager.security.SecurityConfig;
-import fr.cea.organicity.manager.security.SecurityConstants;
-import fr.cea.organicity.manager.services.rolemanager.Role;
+import fr.cea.organicity.manager.security.Identity;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
+import fr.cea.organicity.manager.services.rolemanager.SiteRoleManager;
 
 @Controller
 @RequestMapping("/sites")
 public class SitesControllerUI {
+	
+	@Autowired private RoleManager rolemanager;
+	@Autowired private SiteRoleManager sitemanager;
 
-	@Autowired private RoleManager roleManager;
 	@Autowired private OCSiteRepository siterepository;
 	@Autowired private OCServiceRepository serviceRepository;
-	@Autowired private SecurityConfig securityconfig;
 
 	private final String title = "Sites";
 	
 	@GetMapping
-	@RoleGuard
-	public String sites(HttpServletRequest request, Model model) {
+	public String sites(Model model) {
 		model.addAttribute("title", title);
 		model.addAttribute("elements", getSiterepository());
-		
 		return "thsites";
 	}
 
 	@GetMapping("{siteName}")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-user")
-	public String siteGET(HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) {
-		Role adminRole = new Role(securityconfig.getClientName() + ":site-" + siteName + "-admin");
+	public String siteGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
-		boolean isAdmin = hasRole(request, adminRole);
+		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
 
 		model.addAttribute("title", title);
 		model.addAttribute("element", site);
 		model.addAttribute("services", site.getServices());
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
 
 		return "thsitedetails";
 	}
 
 	@PostMapping("{siteName}")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
-	public String sitePOST(HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) {	
-		Role adminRole = new Role(securityconfig.getClientName() + ":site-" + siteName + "-admin");
+	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	public String sitePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException {	
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
-		boolean isAdmin = hasRole(request, adminRole);
+		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
 		
 		String message = null;
 		
@@ -105,34 +107,33 @@ public class SitesControllerUI {
 		model.addAttribute("message", message);
 		model.addAttribute("element", site);
 		model.addAttribute("services", site.getServices());
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
 
 		return "thsitedetails";
 	}
 	
 	@RequestMapping("{siteName}/{serviceName}")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-user")
-	public String serviceGET(HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) {
-		Role adminRole = new Role(securityconfig.getClientName() + ":site-" + siteName + "-admin");
+	public String serviceGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
+		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
 		OCService service = site.getService(serviceName);
-		boolean isAdmin = hasRole(request, adminRole);
 		
 		model.addAttribute("title", title);
 		model.addAttribute("element", service);
 		model.addAttribute("site", site);
-		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 
 		return "thsiteservicedetails";
 	}
 
 	@PostMapping("{siteName}/{serviceName}")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
-	public String servicePOST(HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) {	
-		Role adminRole = new Role(securityconfig.getClientName() + ":site-" + siteName + "-admin");
+	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	public String servicePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException {	
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
+		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
 		OCService service = site.getService(serviceName);
-		boolean isAdmin = hasRole(request, adminRole);
 
 		service.setDescription(request.getParameter("description"));
 		service.setRelated(request.getParameter("related"));
@@ -149,18 +150,17 @@ public class SitesControllerUI {
 		model.addAttribute("message", message);
 		model.addAttribute("element", service);
 		model.addAttribute("site", site);
-		model.addAttribute("isAdmin", isAdmin);
-
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
+				
 		return "thsiteservicedetails";
 	}
 		
 	@RequestMapping("{siteName}/{serviceName}/delete")
-	@RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
-	public String serviceDELETE(HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) {
-		Role adminRole = new Role(securityconfig.getClientName() + ":site-" + siteName + "-admin");
+	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	public String serviceDELETE(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
-		OCService service = site.getService(serviceName);
-		boolean isAdmin = hasRole(request, adminRole);
+		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
+		OCService service = site.getService(serviceName);		
 
 		site.getServices().remove(service);
 			
@@ -176,24 +176,16 @@ public class SitesControllerUI {
 		model.addAttribute("message", message);
 		model.addAttribute("element", site);
 		model.addAttribute("services", site.getServices());
-		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 
 		return "thsitedetails";
 	}
-	
+		
 	private List<OCSite> getSiterepository() {
 		return getRepositoryContent(siterepository, (o1, o2) -> o1.getUrn().compareTo(o2.getUrn())); 	
 	}
-	
-	
-	// ===================
 
 	private static <T extends Object> List<T> getRepositoryContent(CrudRepository<T, String> repository, Comparator<? super T> comparator) {
 		 return StreamSupport.stream(repository.findAll().spliterator(), false).sorted(comparator).collect(Collectors.toList());
-	}
-	
-	private boolean hasRole(HttpServletRequest request, Role role) {
-		List<Role> roles = roleManager.getRolesForRequest(request);
-		return (roles != null && roles.contains(role));
 	}
 }

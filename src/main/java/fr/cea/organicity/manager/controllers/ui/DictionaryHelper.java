@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
@@ -27,17 +25,10 @@ import fr.cea.organicity.manager.repositories.OCToolRepository;
 import fr.cea.organicity.manager.repositories.OCUnitRepository;
 import fr.cea.organicity.manager.repositories.OCUnregisteredAssetTypeRepository;
 import fr.cea.organicity.manager.repositories.OCUserInterestRepository;
-import fr.cea.organicity.manager.security.SecurityConfig;
-import fr.cea.organicity.manager.security.SecurityConstants;
-import fr.cea.organicity.manager.services.rolemanager.Role;
-import fr.cea.organicity.manager.services.rolemanager.RoleManager;
 
 @Component
 public class DictionaryHelper {
 
-	@Autowired private RoleManager roleManager;
-	@Autowired private SecurityConfig secuConfig;
-	
 	@Autowired private OCAssetTypeRepository assetTypeRepository;
 	@Autowired private OCUnregisteredAssetTypeRepository unregisteredassetTypeRepository;
 	@Autowired private OCAttributeTypeRepository attributeTypeRepository;
@@ -82,19 +73,8 @@ public class DictionaryHelper {
 	/* ================ */
 	/* HELPER FUNCTIONS */
 	/* ================ */
-	
-	public boolean isDictionaryAdmin(HttpServletRequest request) {
-		String roleName = SecurityConstants.DICTIONARY_ADMIN.replace(SecurityConstants.clientNameKey, secuConfig.clientName);
-		Role role = new Role(roleName);
-		return hasRole(request, role);
-	}
 
 	public static <T extends Object> List<T> getRepositoryContent(CrudRepository<T, String> repository, Comparator<? super T> comparator) {
 		 return StreamSupport.stream(repository.findAll().spliterator(), false).sorted(comparator).collect(Collectors.toList());
-	}
-	
-	public boolean hasRole(HttpServletRequest request, Role role) {
-		List<Role> roles = roleManager.getRolesForRequest(request);
-		return (roles != null && roles.contains(role));
 	}
 }
