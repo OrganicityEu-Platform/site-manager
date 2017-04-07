@@ -36,15 +36,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				// don't create session
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 
-				
 				.authorizeRequests()
-					.antMatchers(HttpMethod.GET, "/", "/callback", "/organicity_logo.png", "/favicon.ico", "/**/*.css", "/**/*.js")
+					.antMatchers(HttpMethod.GET, "/", "/callback", "/organicity_logo.png", "/favicon.ico", "/apple-touch-icon-precomposed.png", "/**/*.css", "/**/*.js", "/h2-console/**")
 					.permitAll()
 				
 				.anyRequest()
 					.authenticated();
 		// @formatter:on
 
+		// by default, frame option is activated everywhere. To use H2 console, we need to allow frame on same origin 
+		httpSecurity.headers().frameOptions().sameOrigin();
+		
 		// Custom JWT based security filter
 		httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
 
