@@ -91,4 +91,8 @@ public class OCSite {
     	urn = getUrn();
     	updated = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
     }
+
+	public String getClientId() {
+		return "site-" + name;
+	}
 }

@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import fr.cea.organicity.manager.config.environment.EnvService;
 import fr.cea.organicity.manager.repositories.OCApiCallRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
+import fr.cea.organicity.manager.services.clientmanager.ClientManager;
 import fr.cea.organicity.manager.services.experimentlister.ExperimentLister;
 import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;
 import fr.cea.organicity.manager.services.rolemanager.RemoteRoleManager;
@@ -71,6 +72,11 @@ public class BeansConfig {
 		RestTemplate template = new RestTemplate();
 		template.setInterceptors(interceptors);
 		return template;
+	}
+	
+	@Bean
+	ClientManager getClientManager(RestTemplate restTemplate) {
+		return new ClientManager(restTemplate);
 	}
 	
 	@Bean

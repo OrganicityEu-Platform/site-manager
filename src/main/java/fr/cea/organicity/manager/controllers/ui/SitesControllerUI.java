@@ -20,12 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import fr.cea.organicity.manager.domain.OCService;
 import fr.cea.organicity.manager.domain.OCSite;
-import fr.cea.organicity.manager.exceptions.local.MethodNotAllowedLocalException;
 import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
+import fr.cea.organicity.manager.exceptions.remote.BadRequestRemoteException;
 import fr.cea.organicity.manager.exceptions.token.RoleComputationTokenException;
 import fr.cea.organicity.manager.repositories.OCServiceRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
 import fr.cea.organicity.manager.security.Identity;
+import fr.cea.organicity.manager.services.clientmanager.ClientManager;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
 import fr.cea.organicity.manager.services.rolemanager.SiteRoleManager;
 
@@ -35,6 +36,7 @@ public class SitesControllerUI {
 	
 	@Autowired private RoleManager rolemanager;
 	@Autowired private SiteRoleManager sitemanager;
+	@Autowired private ClientManager clientmanager;
 
 	@Autowired private OCSiteRepository siterepository;
 	@Autowired private OCServiceRepository serviceRepository;
@@ -49,7 +51,7 @@ public class SitesControllerUI {
 	}
 
 	@GetMapping("{siteName}")
-	public String siteGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException {
+	public String siteGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
 		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
 		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
@@ -60,13 +62,14 @@ public class SitesControllerUI {
 		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 		model.addAttribute("isAdmin", isAdmin);
 		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
+		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
 
 		return "thsitedetails";
 	}
 
 	@PostMapping("{siteName}")
 	@PreAuthorize("hasPermission(#siteName, 'manager')")
-	public String sitePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException {	
+	public String sitePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
 		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
 		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
@@ -111,7 +114,8 @@ public class SitesControllerUI {
 		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 		model.addAttribute("isAdmin", isAdmin);
 		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
-
+		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
+		
 		return "thsitedetails";
 	}
 	

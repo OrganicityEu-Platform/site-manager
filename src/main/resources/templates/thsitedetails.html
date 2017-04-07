@@ -43,6 +43,13 @@
 		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
 		
 		
+		<h2>[[${element.name}]] services</h2>		
+		<p>[[${services.size()}]] service[[((${services.size()} != 1)? 's')]]</p>
+		<ul th:if="${services.size()}">
+			<li th:each="e : ${services}"><a th:href="'/sites/' + ${element.name} + '/' + ${e.name}">[[${e.name}]]</a></li>
+		</ul>
+
+		
 		<div th:if="${isManagerOrAdmin}">
 		<h2>[[${element.name}]] managers</h2>
 		<p>[[${managers.size()}]] manager[[((${managers.size()} != 1)? 's')]]</p>
@@ -53,14 +60,17 @@
 		</div>
 		<p th:if="${isAdmin}"><a href="/roles">Add managers</a></p>
 
-		
-		<h2>[[${element.name}]] services</h2>		
-		<p>[[${services.size()}]] service[[((${services.size()} != 1)? 's')]]</p>
-		<ul th:if="${services.size()}">
-			<li th:each="e : ${services}"><a th:href="'/sites/' + ${element.name} + '/' + ${e.name}">[[${e.name}]]</a></li>
+
+		<div th:if="${isManagerOrAdmin}">
+		<h2>[[${element.name}]] credentials</h2>
+		<ul>
+			<li>Client ID: [[${client.client_id}]]</li>
+			<li>Client sub: [[${client.sub}]]</li>
+			<li>Client secret: [[${client.secret}]]</li>
 		</ul>
+		</div>
 
-
+		
 		<div th:if="${isManagerOrAdmin}">
 		<h2>New Service</h2>
 		<p>To add a new entity, please fill the following form</p>
