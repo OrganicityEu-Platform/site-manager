@@ -38,10 +38,10 @@ class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 			Identity identity = getIdentity(request);
 			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(identity, null, identity.getAuthorities());
 			authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-			logger.info("ON DEMANDE : " + request.getServletPath() + " authenticated user " + identity.getName() + ", setting security context");
+			logger.debug("HTTP REQUEST " + request.getServletPath() + " with user " + identity.getName());
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		} catch (Exception e) {
-			logger.info("ON DEMANDE : " + request.getServletPath() + " anonymous request");
+			logger.debug("HTTP REQUEST " + request.getServletPath() + " with user anonymous");
 		}
 
 		filterChain.doFilter(request, response);
