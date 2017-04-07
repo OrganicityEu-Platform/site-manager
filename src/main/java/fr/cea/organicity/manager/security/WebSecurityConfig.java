@@ -15,10 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private JwtAuthenticationTokenFilter tokenFilter;
-	@Autowired
-	private JwtAuthenticationEntryPoint unauthorizedHandler;
+	@Autowired private JwtAuthenticationTokenFilter tokenfilter;
+	@Autowired private JwtAuthenticationEntryPoint unauthorizedHandler;
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -47,8 +45,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		// by default, frame option is activated everywhere. To use H2 console, we need to allow frame on same origin 
 		httpSecurity.headers().frameOptions().sameOrigin();
 		
-		// Custom JWT based security filter
-		httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
+		// HTTP filters
+		httpSecurity.addFilterBefore(tokenfilter, UsernamePasswordAuthenticationFilter.class);
 
 		// disable page caching
 		httpSecurity.headers().cacheControl();

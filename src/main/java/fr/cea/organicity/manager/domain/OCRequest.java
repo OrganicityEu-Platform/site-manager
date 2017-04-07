@@ -24,7 +24,7 @@ public class OCRequest {
 	@NotNull
 	private String status;
 	
-	@NotNull @Size(min=2)
+	@NotNull @Size(min=1)
 	private String method;
 	
 	private String sub;
