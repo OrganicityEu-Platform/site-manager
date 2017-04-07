@@ -22,10 +22,6 @@ public class Identity implements UserDetails {
 	private final List<String> roleNames;
 	private final Collection<? extends GrantedAuthority> authorities;
 	
-	public boolean check() {
-		System.out.println("test");
-		return true;
-	}
 	
 	@Override
 	public String getUsername() {
