@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import fr.cea.organicity.manager.domain.OCService;
 import fr.cea.organicity.manager.domain.OCSite;
+import fr.cea.organicity.manager.exceptions.local.MethodNotAllowedLocalException;
 import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
 import fr.cea.organicity.manager.exceptions.token.RoleComputationTokenException;
 import fr.cea.organicity.manager.repositories.OCServiceRepository;
@@ -180,7 +181,7 @@ public class SitesControllerUI {
 
 		return "thsitedetails";
 	}
-		
+	
 	private List<OCSite> getSiterepository() {
 		return getRepositoryContent(siterepository, (o1, o2) -> o1.getUrn().compareTo(o2.getUrn())); 	
 	}
