@@ -1,6 +1,7 @@
 package fr.cea.organicity.manager.controllers.ui;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ public class ExperimentsControllerUI {
 	@PreAuthorize("hasRole('APP:experiment-user')")
 	public String experiments(Model model) {
 		List<Experiment> experiments = experimentLister.getExperiments().getLastSuccessResult();
+		experiments.sort(Comparator.comparing(Experiment::getName, String::compareToIgnoreCase));
 		model.addAttribute("title", title);
 		model.addAttribute("experiments", experiments);
 		return "thexperiments";

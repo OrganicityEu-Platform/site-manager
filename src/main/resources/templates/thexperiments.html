@@ -6,7 +6,7 @@
 		<h2>Experiments list</h2>
 		<table>
 			<tr><th>name</th><th>status</th><th>remaining</th><th>initial quota</th></tr>
-			<tr th:each="exp : ${experiments}"><td><a th:href="'/experiments/' + ${exp.experimentId}">[[${exp.experimentId}]]</a>
+			<tr th:each="exp : ${experiments}"><td><a th:href="'/experiments/' + ${exp.experimentId}">[[${exp.name}]]</a>
 			</td><td>[[${exp.status}]]</td><td>[[${exp.remQuota}]]</td><td>[[${exp.quota}]]</td></tr>
 		</table>
 				
