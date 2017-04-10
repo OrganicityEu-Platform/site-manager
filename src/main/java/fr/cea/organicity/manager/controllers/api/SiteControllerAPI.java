@@ -1,5 +1,7 @@
 package fr.cea.organicity.manager.controllers.api;
 
+import java.util.Set;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +17,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.cea.organicity.manager.domain.OCSite;
+import fr.cea.organicity.manager.domain.OCSiteSecurity;
 import fr.cea.organicity.manager.exceptions.local.BadRequestLocalException;
 import fr.cea.organicity.manager.exceptions.local.LocalException;
 import fr.cea.organicity.manager.exceptions.local.MethodNotAllowedLocalException;
 import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
 import fr.cea.organicity.manager.exceptions.local.ServerErrorLocalException;
+import fr.cea.organicity.manager.exceptions.remote.BadRequestRemoteException;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
+import fr.cea.organicity.manager.services.clientmanager.ClientManager;
+import fr.cea.organicity.manager.services.clientmanager.OCClient;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -29,9 +35,9 @@ import lombok.extern.log4j.Log4j;
 @RequestMapping(value = "/v1/sites", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SiteControllerAPI {
 
-	@Autowired
-	private OCSiteRepository siterepository;
-
+	@Autowired private OCSiteRepository siterepository;
+	@Autowired private ClientManager clientManager;
+	
 	@GetMapping
 	public String getSites() {
 		
@@ -46,39 +52,7 @@ public class SiteControllerAPI {
 		return json.toString();
 	}
 
-	/* NOT AVAILABLE FOR NOW
-	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<OCSite> addSite(@RequestBody OCSite site) {
-		try {
-			site = siterepository.save(site);
-			return new ResponseEntity<OCSite>(site, HttpStatus.OK);
-		} catch (DataIntegrityViolationException e) {
-			return new ResponseEntity<OCSite>(HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			log.error("can't persist " + site + " : " + e.getMessage());
-			return new ResponseEntity<OCSite>(HttpStatus.METHOD_NOT_ALLOWED);
-		}
-	}
-	*/
-
-	/* NOT AVAILABLE FOR NOW
-	@RequestMapping(value = "{siteName}", method = RequestMethod.DELETE)
-	public ResponseEntity<String> deleteSite(@PathVariable("siteName") String siteName) {
-		try {
-			siterepository.delete(OCSite.computeUrn(siteName));
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (EmptyResultDataAccessException e) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		} catch (Exception e) {
-			String message = "Unexpected error in server. Recieved exception " + e.toString();
-			log.error(message);
-			return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-	*/
-
 	@GetMapping("{siteName}")
-	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-user")
 	public OCSite getSiteByName(@PathVariable("siteName") String siteName) throws LocalException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite site = siterepository.findOne(urn);
@@ -88,7 +62,7 @@ public class SiteControllerAPI {
 	}
 
 	@PutMapping(value = "{siteName}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
+	@PreAuthorize("hasPermission(#siteName, 'manager')")
 	public OCSite updateSite(@PathVariable("siteName") String siteName, @RequestBody OCSite site) throws LocalException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite repoSite = siterepository.findOne(urn);
@@ -107,6 +81,31 @@ public class SiteControllerAPI {
 			log.error(message);
 			throw new ServerErrorLocalException(urn, e);
 		}
+	}
+
+	@GetMapping("{siteName}/security")
+	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	public OCSiteSecurity getSecuritySiteInfo(@PathVariable("siteName") String siteName) throws LocalException, BadRequestRemoteException {
+		String urn = OCSite.computeUrn(siteName);
+		OCSite site = siterepository.findOne(urn);
+		if (site == null)
+			throw new NotFoundLocalException(urn, OCSite.class);
+		
+		Set<String> managers = site.getManagers();
+		OCClient client = clientManager.getOrCreateClient(site.getClientId());
+		
+		return new OCSiteSecurity(client, managers);
+	}
+	
+	@GetMapping("{siteName}/security/managers")
+	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	public Set<String> getSiteManagers(@PathVariable("siteName") String siteName) throws LocalException, BadRequestRemoteException {
+		String urn = OCSite.computeUrn(siteName);
+		OCSite site = siterepository.findOne(urn);
+		if (site == null)
+			throw new NotFoundLocalException(urn, OCSite.class);
+		
+		return site.getManagers();
 	}
 	
 	@GetMapping("{siteName}/quota/increment")

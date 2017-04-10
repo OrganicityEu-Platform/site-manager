@@ -20,6 +20,11 @@ class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Serializa
 	 */
 	@Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-		response.sendRedirect("/?path=" + request.getServletPath());
+		String path = request.getServletPath();
+		
+		if (path.startsWith("/v1"))
+			response.sendError(401, "Have you tried to refresh your token?");
+		else
+			response.sendRedirect("/?path=" + path);
     }
 }

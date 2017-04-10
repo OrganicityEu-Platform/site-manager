@@ -50,7 +50,7 @@ public class ThymeleafConfig extends WebMvcConfigurerAdapter {
 	
 	private ITemplateResolver getTextTemplateResolver(ApplicationContext applicationContext, String extension) {
 		SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setCacheable(true); // true = NO LIVE RELOAD (but quicker)
+        resolver.setCacheable(false); // true = NO LIVE RELOAD (but quicker)
 		resolver.setPrefix("classpath:/templates/");
         resolver.setSuffix("." + extension);
         resolver.setTemplateMode(TemplateMode.TEXT);

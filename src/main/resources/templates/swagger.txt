@@ -49,10 +49,6 @@
 				}
 			}
 		},
-		
-		
-		
-		
 		"/sites/{siteName}": {
 			"get": {
 				"tags": ["site"],
@@ -138,6 +134,85 @@
 				}
 			}
 		},
+		"/sites/{siteName}/security": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Finds site security information",
+				"operationId": "getSecuritySiteInfo",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns security site information",
+						"schema": {
+							"$ref": "#/definitions/sitesecuritydesc"
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			}
+		},
+		
+		
+		
+		"/sites/{siteName}/security/managers": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Finds site managers",
+				"operationId": "getSiteManagers",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns the site manager list",
+						"schema": {
+							"$ref": "#/definitions/sitemanagerslist"
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			}
+		},
 		"/sites/{siteName}/quota/increment": {
 			"get": {
 				"tags": ["site"],
@@ -170,11 +245,11 @@
 					"401": {
 						"description": "Authorization error"
 					},
-					"403": {
-						"description": "Remaining quota is already set to its maximum"
-					},
 					"404": {
 						"description": "Site not found"
+					},
+					"412": {
+						"description": "Remaining quota is already set to its maximum"
 					}
 				}
 			}
@@ -211,11 +286,11 @@
 					"401": {
 						"description": "Authorization error"
 					},
-					"403": {
-						"description": "Remaining quota is already zero"
-					},
 					"404": {
 						"description": "Site not found"
+					},
+					"412": {
+						"description": "Remaining quota is already zero"
 					}
 				}
 			}
@@ -956,6 +1031,16 @@
 				"urn",
 				"name",
 				"email",
+				"related",
+				"latitude",
+				"longitude",
+				"city",
+				"region",
+				"countryCode",
+				"country",
+				"wiki",
+				"quota",
+				"remQuota",
 				"created",
 				"updated"
 			],
@@ -977,6 +1062,34 @@
 					"type": "string",
 					"description": "extension point for storing structured or unstructured information"
 				},
+				"latitude": {
+					"type": "string",
+					"description": "city latitude"
+				},
+				"longitude": {
+					"type": "string",
+					"description": "city longitude"
+				},
+				"city": {
+					"type": "string",
+					"description": "main city name"
+				},
+				"region": {
+					"type": "string",
+					"description": "region around the city"
+				},
+				"countryCode": {
+					"type": "string",
+					"description": "two or three letters country code"
+				},
+				"country": {
+					"type": "string",
+					"description": "country name"
+				},
+				"wiki": {
+					"type": "string",
+					"description": "url describing the city"
+				},
 				"quota": {
 					"type": "integer",
 					"format": "int64",
@@ -996,6 +1109,53 @@
 					"type": "integer",
 					"format": "int64",
 					"description": "site last update date"
+				}
+			}
+		},		
+		"sitesecuritydesc": {
+			"type": "object",
+			"required": [
+				"client",
+				"managers"
+			],
+			"properties": {
+				"client": {
+					"type": "object",
+					"$ref": "#/definitions/clientdesc"
+				},
+				"managers": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"sitemanagerslist": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"clientdesc": {
+			"type": "object",
+			"required": [
+				"sub",
+				"secret",
+				"client_id"
+			],
+			"properties": {
+				"sub": {
+					"type": "string",
+					"description": "client sub"
+				},
+				"secret": {
+					"type": "string",
+					"description": "client secret"
+				},
+				"client_id": {
+					"type": "string",
+					"description": "client id"
 				}
 			}
 		},

@@ -19,6 +19,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.Data;
@@ -51,6 +52,7 @@ public class OCSite {
     private String created;
     private String updated;
     
+    @JsonIgnore
     @ElementCollection(fetch=FetchType.EAGER)
     protected Set<String> managers = new HashSet<>();
 
@@ -92,6 +94,7 @@ public class OCSite {
     	updated = ZonedDateTime.now().format(DateTimeFormatter.ISO_INSTANT);
     }
 
+    @JsonIgnore
 	public String getClientId() {
 		return "site-" + name;
 	}
