@@ -75,6 +75,17 @@ public class RoleManager {
 		return false;
 	}
 	
+	public boolean isServiceManagerOrAdmin(String userId, String sitename, String servicename) throws NotFoundLocalException, RoleComputationTokenException {
+		
+		// Site manager or admin
+		boolean sitemanageroradmin = isSiteManagerOrAdmin(userId, sitename);
+		if (sitemanageroradmin)
+			return true;
+		
+		// explicit service manager
+		return sitemanager.isServiceManager(userId, sitename, servicename);
+	}
+	
 	public void addRole(String userId, Role role) throws IOException {
 		switch (role.getScope()) {
 		case GLOBAL:

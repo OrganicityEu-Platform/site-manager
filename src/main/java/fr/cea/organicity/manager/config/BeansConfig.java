@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import fr.cea.organicity.manager.config.environment.EnvService;
 import fr.cea.organicity.manager.repositories.OCApiCallRepository;
+import fr.cea.organicity.manager.repositories.OCServiceRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
 import fr.cea.organicity.manager.services.clientmanager.ClientManager;
 import fr.cea.organicity.manager.services.experimentlister.ExperimentLister;
@@ -90,8 +91,8 @@ public class BeansConfig {
 	}
 	
 	@Bean
-	SiteRoleManager getSiteRoleManager(OCSiteRepository siterepo, UserLister userlister) {
-		return new SiteRoleManager(siterepo, userlister);
+	SiteRoleManager getSiteRoleManager(OCSiteRepository siterepo, OCServiceRepository servicerepo, UserLister userlister) {
+		return new SiteRoleManager(siterepo, servicerepo, userlister);
 	}
 	
 	@Bean

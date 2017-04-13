@@ -53,6 +53,57 @@ function newService(sitename, servicename, description, related) {
     form.submit();
 }
 
+function addSiteManager(sitename, sub) {
+	var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/sites/' + sitename + '/createmanager');
+      
+    form.appendChild(createHiddenFiled('sub', sub));
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function removeSiteManager(idx) {
+	var sitename = document.getElementById('elementname').innerHTML;
+	var sub = document.getElementById('managers').children[idx].children[0].innerHTML;
+	
+	var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/sites/' + sitename + '/deletemanager');
+      
+    form.appendChild(createHiddenFiled('sub', sub));
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function addServiceManager(sitename, servicename, sub) {
+	var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/sites/' + sitename + '/' + servicename + '/createmanager');
+      
+    form.appendChild(createHiddenFiled('sub', sub));
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function removeServiceManager(idx) {
+	var sitename = document.getElementById('sitename').innerHTML;
+	var servicename = document.getElementById('elementname').innerHTML; 
+	var sub = document.getElementById('managers').children[idx].children[0].innerHTML;
+	
+	var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/sites/' + sitename + '/' + servicename + '/deletemanager');
+      
+    form.appendChild(createHiddenFiled('sub', sub));
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
 function updateService(sitename, servicename, description, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");

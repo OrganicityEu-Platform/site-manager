@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.cea.organicity.manager.domain.OCSite;
-import fr.cea.organicity.manager.domain.OCSiteSecurity;
+import fr.cea.organicity.manager.domain.OCSecurityInfo;
 import fr.cea.organicity.manager.exceptions.local.BadRequestLocalException;
 import fr.cea.organicity.manager.exceptions.local.LocalException;
 import fr.cea.organicity.manager.exceptions.local.MethodNotAllowedLocalException;
@@ -62,7 +62,7 @@ public class SiteControllerAPI {
 	}
 
 	@PutMapping(value = "{siteName}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
 	public OCSite updateSite(@PathVariable("siteName") String siteName, @RequestBody OCSite site) throws LocalException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite repoSite = siterepository.findOne(urn);
@@ -84,8 +84,8 @@ public class SiteControllerAPI {
 	}
 
 	@GetMapping("{siteName}/security")
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
-	public OCSiteSecurity getSecuritySiteInfo(@PathVariable("siteName") String siteName) throws LocalException, BadRequestRemoteException {
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
+	public OCSecurityInfo getSecuritySiteInfo(@PathVariable("siteName") String siteName) throws LocalException, BadRequestRemoteException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite site = siterepository.findOne(urn);
 		if (site == null)
@@ -94,11 +94,11 @@ public class SiteControllerAPI {
 		Set<String> managers = site.getManagers();
 		OCClient client = clientManager.getOrCreateClient(site.getClientId());
 		
-		return new OCSiteSecurity(client, managers);
+		return new OCSecurityInfo(client, managers);
 	}
 	
 	@GetMapping("{siteName}/security/managers")
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
 	public Set<String> getSiteManagers(@PathVariable("siteName") String siteName) throws LocalException, BadRequestRemoteException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite site = siterepository.findOne(urn);
@@ -109,7 +109,7 @@ public class SiteControllerAPI {
 	}
 	
 	@GetMapping("{siteName}/quota/increment")
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
 	public OCSite incrementRemainingQuota(@PathVariable("siteName") String siteName) throws NotFoundLocalException, MethodNotAllowedLocalException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
 		if (site == null)
@@ -124,7 +124,7 @@ public class SiteControllerAPI {
 	}
 	
 	@GetMapping("{siteName}/quota/decrement")
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
 	public OCSite decrementRemainingQuota(@PathVariable("siteName") String siteName) throws NotFoundLocalException, MethodNotAllowedLocalException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
 		if (site == null)

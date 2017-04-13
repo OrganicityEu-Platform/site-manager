@@ -72,10 +72,14 @@ INSERT INTO PUBLIC.OCSITE(URN, NAME, EMAIL, RELATED, LATITUDE, LONGITUDE, CITY, 
 
 ('urn:oc:site:santander', 'santander', 'contact@santander.es', 'The port city of Santander is the capital of the autonomous community and historical region of Cantabria situated on the north coast of Spain. Located east of Gijón and west of Bilbao, the city has a population of 178,465.', '43.45487', '-3.81289', 'Santander', 'Cantabria', 'ES', 'Spain', 'https://en.wikipedia.org/wiki/Santander,_Spain', 1000, 1000, '2017-01-20T11:20:28.372Z', '2017-01-20T11:20:28.372Z'),
 ('urn:oc:site:london', 'london', 'contact@london.uk', 'London is the capital and most populous city of England and the United Kingdom.', '51.507222', '-0.1275', 'London', 'England', 'UK', 'United Kingdom', 'https://en.wikipedia.org/wiki/London', 1000, 1000, '2017-01-20T11:20:28.366Z', '2017-01-20T11:20:28.366Z'),
-('urn:oc:site:aarhus', 'aarhus', 'contact@aarhus.dk', 'Aarhus is the second-largest city in Denmark and the seat of Aarhus Municipality.', '56.1572', '10.2107', 'Aarhus', 'East Jutland', 'DK', 'Denmark', 'https://en.wikipedia.org/wiki/Aarhus', 1000, 1000, '2017-01-20T11:20:28.322Z', '2017-01-20T11:20:28.322Z'),
 ('urn:oc:site:patras', 'patras', 'amaxilat@cti.gr', 'Patras (or Patra) is the third largest city in Greece and the regional capital of Western Greece, in northern Peloponnese, 215 km (134 mi) west of Athens. The city is built at the foothills of Mount Panachaikon, overlooking the Gulf of Patras.', '38.25', '21.733333', 'Patras', 'Western Greece', 'GR', 'Greece', 'https://en.wikipedia.org/wiki/Patras', 1000, 1000, '2017-03-15T08:59:05.539Z', '2017-03-15T08:59:05.539Z'),
 ('urn:oc:site:provider', 'provider', 'contact@provider.com', '....', '', '', '', '', '', '', '', 1000, 1000, '2017-03-15T08:59:05.539Z', '2017-03-15T08:59:05.539Z'),
-('urn:oc:site:experimenters', 'experimenters', 'contact@experimenters.com', '....', '', '', '', '', '', '', '', 1000, 1000, '2017-03-15T08:59:05.539Z', '2017-03-15T08:59:05.539Z');
+('urn:oc:site:experimenters', 'experimenters', 'contact@experimenters.com', '....', '', '', '', '', '', '', '', 1000, 1000, '2017-03-15T08:59:05.539Z', '2017-03-15T08:59:05.539Z'),
+('urn:oc:site:test', 'test', 'dennis@test.com', '....', '', '', '', '', '', '', '', 1000, 1000, '2017-03-15T08:59:05.539Z', '2017-03-15T08:59:05.539Z'),
+('urn:oc:site:aarhus', 'aarhus', 'contact@aarhus.dksss', 'Aarhus is the second-largest city in Denmark and the seat of Aarhus Municipality.', '56.1572', '10.2107', 'Aarhus', 'East Jutland', 'DK', 'Denmark', 'https://en.wikipedia.org/wiki/Aarhus', 1000, 1000, '2017-01-20T11:20:28.322Z', '2017-04-07T14:15:11.591Z');
+
+
+--INSERT INTO PUBLIC.OCSITE_MANAGERS(OCSITE_URN, MANAGERS) VALUES
 
 
 INSERT INTO PUBLIC.OCSERVICE(URN, CREATED, DESCRIPTION, NAME, RELATED, UPDATED, SITE_URN) VALUES
@@ -85,6 +89,9 @@ INSERT INTO PUBLIC.OCSERVICE(URN, CREATED, DESCRIPTION, NAME, RELATED, UPDATED, 
 ('urn:oc:site:santander:santanderservice1', '2017-01-20T11:20:28.374Z', '', 'santanderservice1', '', '2017-01-20T11:20:28.374Z', 'urn:oc:site:santander'),
 ('urn:oc:site:provider:provider', '2017-01-20T11:20:28.378Z', '', 'provider', '', '2017-01-20T11:20:28.378Z', 'urn:oc:site:provider'),
 ('urn:oc:site:experimenters:experimenter', '2017-01-20T11:20:28.383Z', '', 'experimenter', '', '2017-01-20T11:20:28.383Z', 'urn:oc:site:experimenters');
+
+
+--INSERT INTO PUBLIC.OCSERVICE_MANAGERS(OCSERVICE_URN, MANAGERS) VALUES
 
 
 INSERT INTO PUBLIC.OCATTRIBUTE_TYPE(URN, DESCRIPTION, NAME, RELATED) VALUES

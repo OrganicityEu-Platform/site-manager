@@ -29,6 +29,7 @@ import fr.cea.organicity.manager.security.Identity;
 import fr.cea.organicity.manager.services.clientmanager.ClientManager;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
 import fr.cea.organicity.manager.services.rolemanager.SiteRoleManager;
+import fr.cea.organicity.manager.services.userlister.UserLister;
 
 @Controller
 @RequestMapping("/sites")
@@ -37,7 +38,8 @@ public class SitesControllerUI {
 	@Autowired private RoleManager rolemanager;
 	@Autowired private SiteRoleManager sitemanager;
 	@Autowired private ClientManager clientmanager;
-
+	@Autowired private UserLister userlister;
+	
 	@Autowired private OCSiteRepository siterepository;
 	@Autowired private OCServiceRepository serviceRepository;
 
@@ -54,21 +56,23 @@ public class SitesControllerUI {
 	public String siteGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
 		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
-		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
-
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());	
+		List<OCService> services = serviceRepository.findAll().stream().filter(s -> s.getSite().getName().equals(siteName)).collect(Collectors.toList());
+		
 		model.addAttribute("title", title);
 		model.addAttribute("element", site);
-		model.addAttribute("services", site.getServices());
+		model.addAttribute("services", services);
 		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 		model.addAttribute("isAdmin", isAdmin);
 		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
+		model.addAttribute("nonmanagers", sitemanager.getNonSiteManagers(siteName));
 		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
 
 		return "thsitedetails";
 	}
 
 	@PostMapping("{siteName}")
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
 	public String sitePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
 		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
@@ -107,39 +111,109 @@ public class SitesControllerUI {
 			}
 		}
 		
+		List<OCService> services = serviceRepository.findAll().stream().filter(s -> s.getSite().getName().equals(siteName)).collect(Collectors.toList());
+		
 		model.addAttribute("title", title);
 		model.addAttribute("message", message);
 		model.addAttribute("element", site);
-		model.addAttribute("services", site.getServices());
+		model.addAttribute("services", services);
 		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
 		model.addAttribute("isAdmin", isAdmin);
 		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
-		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
+		model.addAttribute("nonmanagers", sitemanager.getNonSiteManagers(siteName));
+		model.addAttribute("client", clientmanager.getOrCreateClient(site.getClientId()));
 		
 		return "thsitedetails";
 	}
 	
-	@RequestMapping("{siteName}/{serviceName}")
-	public String serviceGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException {
+	@PostMapping("{siteName}/createmanager")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
+	public String siteManagerPOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
 		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
-		OCService service = site.getService(serviceName);
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());	
+		List<OCService> services = serviceRepository.findAll().stream().filter(s -> s.getSite().getName().equals(siteName)).collect(Collectors.toList());
+		
+		String sub = request.getParameter("sub");
+		site.getManagers().add(sub);
+		
+		String message = null;
+		try {
+			site = siterepository.save(site);
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " added";	
+		} catch (Exception e) {
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " has NOT been added";
+		}
+		
+		model.addAttribute("title", title);
+		model.addAttribute("message", message);
+		model.addAttribute("element", site);
+		model.addAttribute("services", services);
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
+		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
+		model.addAttribute("nonmanagers", sitemanager.getNonSiteManagers(siteName));
+		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
+
+		return "thsitedetails";		
+	}
+	
+	@PostMapping("{siteName}/deletemanager")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
+	public String siteManagersDELETE(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
+		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
+		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());	
+		List<OCService> services = serviceRepository.findAll().stream().filter(s -> s.getSite().getName().equals(siteName)).collect(Collectors.toList());
+		
+		String sub = request.getParameter("sub");
+		site.getManagers().remove(sub);
+				
+		String message = null;
+		try {
+			site = siterepository.save(site);
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " removed";	
+		} catch (Exception e) {
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " has NOT been removed";
+		}
+
+		model.addAttribute("title", title);
+		model.addAttribute("message", message);
+		model.addAttribute("element", site);
+		model.addAttribute("services", services);
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
+		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
+		model.addAttribute("nonmanagers", sitemanager.getNonSiteManagers(siteName));
+		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
+
+		return "thsitedetails";
+	}
+	
+	@RequestMapping("{siteName}/{serviceName}")
+	public String serviceGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {
+		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
+		OCService service = serviceRepository.getOne(OCService.computeUrn(siteName, serviceName));
+		boolean isManagerOrAdmin = rolemanager.isServiceManagerOrAdmin(identity.getSub(), siteName, serviceName);
 		
 		model.addAttribute("title", title);
 		model.addAttribute("element", service);
 		model.addAttribute("site", site);
 		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
-
+		model.addAttribute("managers", sitemanager.getServiceManagers(siteName, serviceName));
+		model.addAttribute("nonmanagers", sitemanager.getNonServiceManagers(siteName, serviceName));
+		model.addAttribute("client", clientmanager.getOrCreateClient(service.getClientId()));
+		
 		return "thsiteservicedetails";
 	}
-
+	
 	@PostMapping("{siteName}/{serviceName}")
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
-	public String servicePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException {	
+	@PreAuthorize("hasPermission(#siteName + '/' + #serviceName, 'servicemanager')")
+	public String servicePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
-		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
-		OCService service = site.getService(serviceName);
-
+		OCService service = serviceRepository.getOne(OCService.computeUrn(siteName, serviceName));
+		boolean isManagerOrAdmin = rolemanager.isServiceManagerOrAdmin(identity.getSub(), siteName, serviceName);
+		
 		service.setDescription(request.getParameter("description"));
 		service.setRelated(request.getParameter("related"));
 
@@ -156,17 +230,81 @@ public class SitesControllerUI {
 		model.addAttribute("element", service);
 		model.addAttribute("site", site);
 		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
-				
+		model.addAttribute("managers", sitemanager.getServiceManagers(siteName, serviceName));
+		model.addAttribute("nonmanagers", sitemanager.getNonServiceManagers(siteName, serviceName));
+		model.addAttribute("client", clientmanager.getOrCreateClient(service.getClientId()));
+		
 		return "thsiteservicedetails";
 	}
 		
-	@RequestMapping("{siteName}/{serviceName}/delete")
-	@PreAuthorize("hasPermission(#siteName, 'manager')")
-	public String serviceDELETE(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException {
+	@PostMapping("{siteName}/{serviceName}/createmanager")
+	@PreAuthorize("hasPermission(#siteName + '/' + #serviceName, 'servicemanager')")
+	public String serviceManagersPOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
-		boolean isManagerOrAdmin = rolemanager.isSiteManagerOrAdmin(identity.getSub(), siteName);
-		OCService service = site.getService(serviceName);		
+		OCService service = serviceRepository.getOne(OCService.computeUrn(siteName, serviceName));
+		boolean isManagerOrAdmin = rolemanager.isServiceManagerOrAdmin(identity.getSub(), siteName, serviceName);
 
+		String sub = request.getParameter("sub");
+		service.getManagers().add(sub);
+		
+		String message = null;
+		try {
+			site = siterepository.save(site);
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " added";	
+		} catch (Exception e) {
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " has NOT been added";
+		}
+
+		model.addAttribute("title", title);
+		model.addAttribute("message", message);
+		model.addAttribute("element", service);
+		model.addAttribute("site", site);
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
+		model.addAttribute("managers", sitemanager.getServiceManagers(siteName, serviceName));
+		model.addAttribute("nonmanagers", sitemanager.getNonServiceManagers(siteName, serviceName));
+		model.addAttribute("client", clientmanager.getOrCreateClient(service.getClientId()));
+		
+		return "thsiteservicedetails";
+	}
+	
+	@PostMapping("{siteName}/{serviceName}/deletemanager")
+	@PreAuthorize("hasPermission(#siteName + '/' + #serviceName, 'servicemanager')")
+	public String serviceManagersDELETE(@AuthenticationPrincipal Identity identity, HttpServletRequest request, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
+		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
+		OCService service = serviceRepository.getOne(OCService.computeUrn(siteName, serviceName));
+		boolean isManagerOrAdmin = rolemanager.isServiceManagerOrAdmin(identity.getSub(), siteName, serviceName);
+
+		String sub = request.getParameter("sub");
+		service.getManagers().remove(sub);
+				
+		String message = null;
+		try {
+			site = siterepository.save(site);
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " removed";	
+		} catch (Exception e) {
+			message = "Manager " + userlister.getUserNameOrSub(sub) + " has NOT been removed";
+		}
+
+		model.addAttribute("title", title);
+		model.addAttribute("message", message);
+		model.addAttribute("element", service);
+		model.addAttribute("site", site);
+		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
+		model.addAttribute("managers", sitemanager.getServiceManagers(siteName, serviceName));
+		model.addAttribute("nonmanagers", sitemanager.getNonServiceManagers(siteName, serviceName));
+		model.addAttribute("client", clientmanager.getOrCreateClient(service.getClientId()));
+		
+		return "thsiteservicedetails";
+	}
+	
+	@RequestMapping("{siteName}/{serviceName}/delete")
+	@PreAuthorize("hasPermission(#siteName + '/' + #serviceName, 'servicemanager')")
+	public String serviceDELETE(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {
+		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
+		boolean isManagerOrAdmin = rolemanager.isServiceManagerOrAdmin(identity.getSub(), siteName, serviceName);
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
+		OCService service = serviceRepository.getOne(OCService.computeUrn(siteName, serviceName));
+		
 		site.getServices().remove(service);
 			
 		String message = null;
@@ -182,7 +320,11 @@ public class SitesControllerUI {
 		model.addAttribute("element", site);
 		model.addAttribute("services", site.getServices());
 		model.addAttribute("isManagerOrAdmin", isManagerOrAdmin);
-
+		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
+		model.addAttribute("nonmanagers", sitemanager.getNonSiteManagers(siteName));
+		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
+		
 		return "thsitedetails";
 	}
 	

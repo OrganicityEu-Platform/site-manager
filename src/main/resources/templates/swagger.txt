@@ -157,7 +157,7 @@
 					"200": {
 						"description": "Returns security site information",
 						"schema": {
-							"$ref": "#/definitions/sitesecuritydesc"
+							"$ref": "#/definitions/securitydesc"
 						}
 					},
 					"400": {
@@ -172,9 +172,6 @@
 				}
 			}
 		},
-		
-		
-		
 		"/sites/{siteName}/security/managers": {
 			"get": {
 				"tags": ["site"],
@@ -512,6 +509,94 @@
 					},
 					"400": {
 						"description": "Malformed or invalid json content (i.e. missing fields), or invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site or service not found"
+					}
+				}
+			}
+		},
+		"/sites/{siteName}/services/{serviceName}/security": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Finds service security information",
+				"operationId": "getSecurityServiceInfo",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "serviceName",
+					"in": "path",
+					"description": "Name of service",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns security service information",
+						"schema": {
+							"$ref": "#/definitions/securitydesc"
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site or service not found"
+					}
+				}
+			}
+		},
+		"/sites/{siteName}/services/{serviceName}/security/managers": {
+			"get": {
+				"tags": ["site"],
+				"summary": "Finds service managers",
+				"operationId": "getServiceManagers",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "serviceName",
+					"in": "path",
+					"description": "Name of service",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns the service manager list",
+						"schema": {
+							"$ref": "#/definitions/sitemanagerslist"
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
 					},
 					"401": {
 						"description": "Authorization error"
@@ -1112,7 +1197,7 @@
 				}
 			}
 		},		
-		"sitesecuritydesc": {
+		"securitydesc": {
 			"type": "object",
 			"required": [
 				"client",

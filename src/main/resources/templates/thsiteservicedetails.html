@@ -5,7 +5,7 @@
 		<a th:href="'/sites/' + ${site.name}">&lt;Back to [[${site.name}]] site</a>
 		<div th:if="${message}" class="message">[[${message}]]</div>
 
-		<h2><span id="elementname">[[${element.name}]]</span> service</h2>
+		<h2 id="serviceinfo"><span id="elementname">[[${element.name}]]</span> service</h2>
 		<strong>Site name</strong>: <span id="sitename">[[${site.name}]]</span><br/>
 		<strong>Urn</strong>: [[${element.urn}]]<br/>
 			
@@ -29,10 +29,50 @@
 		<strong>Updated</strong>: [[${element.updated}]]<br/>
 		
 		<div class="btnbar editmode" th:if="${isManagerOrAdmin}">
-			<a href="#" class="btn validate" onclick="updateService(document.getElementById('sitename').innerHTML, document.getElementById('elementname').innerHTML,document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] service</a>
+			<a href="#serviceinfo" class="btn validate" onclick="updateService(document.getElementById('sitename').innerHTML, document.getElementById('elementname').innerHTML,document.getElementById('description').value,document.getElementById('related').value);">UPDATE [[${element.name}]] service</a>
 			<a th:href="'/sites/' + ${site.name} + '/' + ${element.name} + '/delete'" class='btn danger'>DELETE [[${element.name}]] service</a>
 		</div>
-		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#serviceinfo" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		
+		
+		<div th:if="${isManagerOrAdmin}">
+		<h2 id="managerslist">[[${element.name}]] service managers</h2>
+		<p>[[${managers.size()}]] manager[[((${managers.size()} != 1)? 's')]]</p>
+		<ul th:if="${managers.size()}" id="managers">
+			<li th:each="manager,iterStat : ${managers}">[[${manager.value1}]]
+				<p style="display:none;">[[${manager.value0}]]</p>
+				<span class="inlineeditmode" style="font-size:small;">
+					<a href="#managerslist" th:onclick="'removeServiceManager(' + ${iterStat.index} + ');'">[REMOVE]</a>
+				</span>
+			</li>
+		</ul>
+		<p class="editmode">
+			<select name="select" id="nonmanager">
+ 					<option th:each="nonmanager : ${nonmanagers}" th:value="${nonmanager.value0}">[[${nonmanager.value1}]]</option> 
+			</select>
+			<a href="#managerslist" onclick="addServiceManager(document.getElementById('sitename').innerHTML, document.getElementById('elementname').innerHTML, document.getElementById('nonmanager').value);">ADD this user as service manager</a>				
+		</p>
+		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#managerslist" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		</div>
+
+
+		<div th:if="${isManagerOrAdmin}">
+		<h2>[[${element.name}]] service credentials</h2>
+		<ul>
+			<li>Client ID: [[${client.client_id}]]</li>
+			<li>Client sub: [[${client.sub}]]</li>
+			<li>Client secret: [[${client.secret}]]</li>
+		</ul>
+		</div>
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	</div>
 </body>
 </html>

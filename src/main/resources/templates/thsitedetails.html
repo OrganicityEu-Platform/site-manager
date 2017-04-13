@@ -6,7 +6,7 @@
 		<div th:if="${message}" class="message">[[${message}]]</div>
 
 		
-		<h2><span id="elementname">[[${element.name}]]</span> site</h2>
+		<h2 id="siteinfos"><span id="elementname">[[${element.name}]]</span> site</h2>
 		<strong>Urn</strong>: [[${element.urn}]]<br/>
 			
 		<form class="editmode" th:if="${isManagerOrAdmin}">
@@ -38,9 +38,9 @@
 		<strong>Quota</strong>: [[${element.remQuota}]]/[[${element.quota}]]<br/>
 		
 		<div class="btnbar editmode" th:if="${isManagerOrAdmin}">
-			<a href="#" class="btn validate" onclick="updateSite(document.getElementById('elementname').innerHTML,document.getElementById('email').value,document.getElementById('related').value);">UPDATE [[${element.name}]] site</a>						
+			<a href="#siteinfos" class="btn validate" onclick="updateSite(document.getElementById('elementname').innerHTML,document.getElementById('email').value,document.getElementById('related').value);">UPDATE [[${element.name}]] site</a>						
 		</div>	
-		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#siteinfos" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
 		
 		
 		<h2>[[${element.name}]] services</h2>		
@@ -51,18 +51,32 @@
 
 		
 		<div th:if="${isManagerOrAdmin}">
-		<h2>[[${element.name}]] managers</h2>
+		<h2 id="managerslist">[[${element.name}]] site managers</h2>
 		<p>[[${managers.size()}]] manager[[((${managers.size()} != 1)? 's')]]</p>
-		<ul th:if="${managers.size()}">
-			<li th:if="${isAdmin}" th:each="manager : ${managers}"><a th:href="'/roles/' + ${manager.value0}">[[${manager.value1}]]</a></li>
-			<li th:if="not ${isAdmin}" th:each="manager : ${managers}">[[${manager.value1}]]</li>
+
+		<ul th:if="${managers.size()}" id="managers">
+			<li th:each="manager,iterStat : ${managers}">[[${manager.value1}]]
+				<p style="display:none;">[[${manager.value0}]]</p>
+				<span class="inlineeditmode" style="font-size:small;">
+					<a href="#managerslist" th:onclick="'removeSiteManager(' + ${iterStat.index} + ');'">[REMOVE]</a>
+				</span>
+			</li>
 		</ul>
 		</div>
-		<p th:if="${isAdmin}"><a href="/roles">Add managers</a></p>
+
+		<div th:if="${isAdmin}">
+		<p class="editmode">
+			<select name="select" id="nonmanager">
+ 					<option th:each="nonmanager : ${nonmanagers}" th:value="${nonmanager.value0}">[[${nonmanager.value1}]]</option> 
+			</select>
+			<a href="#managerslist" onclick="addSiteManager(document.getElementById('elementname').innerHTML, document.getElementById('nonmanager').value);">ADD this user as site manager</a>				
+		</p>
+		<p class="displaymode" th:if="${isManagerOrAdmin}"><a href="#managerslist" class="btn validate" onclick="activateEditMode();">activate edit mode</a></p>
+		</div>
 
 
 		<div th:if="${isManagerOrAdmin}">
-		<h2>[[${element.name}]] credentials</h2>
+		<h2>[[${element.name}]] site credentials</h2>
 		<ul>
 			<li>Client ID: [[${client.client_id}]]</li>
 			<li>Client sub: [[${client.sub}]]</li>
@@ -72,7 +86,7 @@
 
 		
 		<div th:if="${isManagerOrAdmin}">
-		<h2>New Service</h2>
+		<h2 id="newserviceinfos">New Service</h2>
 		<p>To add a new entity, please fill the following form</p>
 		<form>
 		  <div class="line">
@@ -88,7 +102,7 @@
 		    <input id="srvrelated" value="">
 		  </div>
 		<div class="btnbar">
-		  <a href="#" class="btn validate" onclick="newService(document.getElementById('elementname').innerHTML, document.getElementById('srvname').value,document.getElementById('srvdescription').value,document.getElementById('srvrelated').value);">CREATE service</a>
+		  <a href="#newserviceinfos" class="btn validate" onclick="newService(document.getElementById('elementname').innerHTML, document.getElementById('srvname').value,document.getElementById('srvdescription').value,document.getElementById('srvrelated').value);">CREATE service</a>
 		</div>
 		</form>
 		</div>

@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -37,12 +39,26 @@ public class DataLoader {
 
 	@PostConstruct
 	void loadData() throws SQLException {
+
+		Connection conn = datasource.getConnection(user, pass);
+		logUrl(conn);
+			
 		if (loadSampleData) {
-			Connection conn = datasource.getConnection(user, pass);
 			InputStream in = ManagerApplication.class.getClassLoader().getResourceAsStream(FILE_NAME);
 			BufferedReader input = new BufferedReader(new InputStreamReader(in));
 			RunScript.execute(conn, input);
 			log.info("Sample data loaded into database from file " + FILE_NAME);
+		}
+		
+		conn.close();
+	}
+	
+	private void logUrl(Connection conn) {
+		try {
+			String url = conn.getMetaData().getURL();
+			log.info("Database url: " + url);
+		} catch (Exception e) {
+			// do nothing
 		}
 	}
 }

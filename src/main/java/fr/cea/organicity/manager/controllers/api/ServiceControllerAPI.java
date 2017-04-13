@@ -1,11 +1,13 @@
 package fr.cea.organicity.manager.controllers.api;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import fr.cea.organicity.manager.domain.OCSecurityInfo;
 import fr.cea.organicity.manager.domain.OCService;
 import fr.cea.organicity.manager.domain.OCSite;
 import fr.cea.organicity.manager.exceptions.local.BadRequestLocalException;
@@ -25,8 +28,11 @@ import fr.cea.organicity.manager.exceptions.local.LocalException;
 import fr.cea.organicity.manager.exceptions.local.MethodNotAllowedLocalException;
 import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
 import fr.cea.organicity.manager.exceptions.local.ServerErrorLocalException;
+import fr.cea.organicity.manager.exceptions.remote.BadRequestRemoteException;
 import fr.cea.organicity.manager.repositories.OCServiceRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
+import fr.cea.organicity.manager.services.clientmanager.ClientManager;
+import fr.cea.organicity.manager.services.clientmanager.OCClient;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -37,9 +43,9 @@ public class ServiceControllerAPI {
 
 	@Autowired private OCServiceRepository servicerepository;
 	@Autowired private OCSiteRepository siterepository;
+	@Autowired private ClientManager clientManager;
 	
 	@GetMapping
-	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-user")
 	public Collection<OCService> getServices(@PathVariable("siteName") String siteName) throws NotFoundLocalException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite site = siterepository.findOne(urn);
@@ -50,7 +56,7 @@ public class ServiceControllerAPI {
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
-	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
 	public OCService createService(@PathVariable("siteName") String siteName, @RequestBody OCService service) throws NotFoundLocalException, MethodNotAllowedLocalException {
 		String urn = OCSite.computeUrn(siteName);
 		OCSite site = siterepository.findOne(urn);
@@ -67,7 +73,7 @@ public class ServiceControllerAPI {
 	}
 
 	@DeleteMapping("{serviceName}")
-	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
+	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
 	public String deleteService(@PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName) throws NotFoundLocalException, ServerErrorLocalException {
 		String urn = OCService.computeUrn(siteName, serviceName);
 		OCService service = servicerepository.findOne(urn);
@@ -89,7 +95,6 @@ public class ServiceControllerAPI {
 	}
 	
 	@GetMapping("{serviceName}")
-	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-user")
 	public OCService getServiceByName(@PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName) throws NotFoundLocalException {
 		String urn = OCService.computeUrn(siteName, serviceName);
 		OCService service = servicerepository.findOne(urn);
@@ -98,8 +103,33 @@ public class ServiceControllerAPI {
 		return service;
 	}
 	
+	@GetMapping("{serviceName}/security")
+	@PreAuthorize("hasPermission(#siteName + '/' + #serviceName, 'servicemanager')")
+	public OCSecurityInfo getSecuritySiteInfo(@PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName) throws LocalException, BadRequestRemoteException {
+		String urn = OCService.computeUrn(siteName, serviceName);
+		OCService service = servicerepository.findOne(urn);
+		if (service == null)
+			throw new NotFoundLocalException(urn, OCService.class);
+		
+		Set<String> managers = service.getManagers();
+		OCClient client = clientManager.getOrCreateClient(service.getClientId());
+		
+		return new OCSecurityInfo(client, managers);
+	}
+	
+	@GetMapping("{serviceName}/security/managers")
+	@PreAuthorize("hasPermission(#siteName + '/' + #serviceName, 'servicemanager')")
+	public Set<String> getSiteManagers(@PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName) throws LocalException, BadRequestRemoteException {
+		String urn = OCService.computeUrn(siteName, serviceName);
+		OCService service = servicerepository.findOne(urn);
+		if (service == null)
+			throw new NotFoundLocalException(urn, OCService.class);
+		
+		return service.getManagers();
+	}
+	
 	@PutMapping(value = "{serviceName}", consumes = MediaType.APPLICATION_JSON_VALUE)
-	// TODO @RoleGuard(roleName=SecurityConstants.clientNameKey + ":site-{siteName}-admin")
+	@PreAuthorize("hasPermission(#siteName + '/' + #serviceName, 'servicemanager')")
 	public OCService updateService(@PathVariable("siteName") String siteName, @PathVariable("serviceName") String serviceName, @RequestBody OCService service) throws LocalException {
 		String urn = OCService.computeUrn(siteName, serviceName);
 		OCService repoService = servicerepository.findOne(urn);

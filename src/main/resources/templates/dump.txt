@@ -28,9 +28,19 @@
 ('[(${item.urn})]', '[(${item.name})]', '[(${item.email})]', '[(${item.related})]', '[(${item.latitude})]', '[(${item.longitude})]', '[(${item.city})]', '[(${item.region})]', '[(${item.countryCode})]', '[(${item.country})]', '[(${item.wiki})]', [(${item.quota})], [(${item.remQuota})], '[(${item.created})]', '[(${item.updated})]')[(${iterStat.last} ? ';' : ',')]
 [/]
 
+[# th:if="${sitemanagers.size() == 0}"]--[/]INSERT INTO PUBLIC.OCSITE_MANAGERS(OCSITE_URN, MANAGERS) VALUES
+[# th:each="item,iterStat : ${sitemanagers}"]
+('[(${item.value0})]', '[(${item.value1})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
 [# th:if="${services.size() == 0}"]--[/]INSERT INTO PUBLIC.OCSERVICE(URN, CREATED, DESCRIPTION, NAME, RELATED, UPDATED, SITE_URN) VALUES
 [# th:each="item,iterStat : ${services}"]
 ('[(${item.urn})]', '[(${item.created})]', '[(${item.description})]', '[(${item.name})]', '[(${item.related})]', '[(${item.updated})]', '[(${item.site.urn})]')[(${iterStat.last} ? ';' : ',')]
+[/]
+
+[# th:if="${servicemanagers.size() == 0}"]--[/]INSERT INTO PUBLIC.OCSERVICE_MANAGERS(OCSERVICE_URN, MANAGERS) VALUES
+[# th:each="item,iterStat : ${servicemanagers}"]
+('[(${item.value0})]', '[(${item.value1})]')[(${iterStat.last} ? ';' : ',')]
 [/]
 
 [# th:if="${attrtypes.size() == 0}"]--[/]INSERT INTO PUBLIC.OCATTRIBUTE_TYPE(URN, DESCRIPTION, NAME, RELATED) VALUES

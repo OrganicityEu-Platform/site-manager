@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import fr.cea.organicity.manager.domain.OCAssetType;
 import fr.cea.organicity.manager.domain.OCAttributeType;
+import fr.cea.organicity.manager.domain.OCService;
+import fr.cea.organicity.manager.domain.OCSite;
 import fr.cea.organicity.manager.domain.OCUnit;
 import fr.cea.organicity.manager.repositories.OCAppTypeRepository;
 import fr.cea.organicity.manager.repositories.OCAssetTypeRepository;
@@ -48,7 +50,9 @@ public class SqlControllerAPI {
 		model.addAttribute("units", units.findAll());
 		model.addAttribute("tools", tools.findAll());
 		model.addAttribute("sites", sites.findAll());
+		model.addAttribute("sitemanagers", getSiteManagers());
 		model.addAttribute("services", services.findAll());
+		model.addAttribute("servicemanagers", getServiceManagers());
 		model.addAttribute("attrtypes", attrtypes.findAll());
 		model.addAttribute("attrtypesunits", getAttrtypeUnit());
 		model.addAttribute("assettypes", assettypes.findAll());
@@ -57,6 +61,28 @@ public class SqlControllerAPI {
 		return "dump";
 	}
 
+	private List<Pair<String, String>> getSiteManagers() {
+		List<Pair<String, String>> list = new ArrayList<>();
+		for (OCSite site : sites.findAll()) {
+			for (String manager : site.getManagers()) {
+				list.add(new Pair<String, String>(site.getUrn(), manager));
+			}
+		}
+		return list;
+	}	
+
+	private List<Pair<String, String>> getServiceManagers() {
+		List<Pair<String, String>> list = new ArrayList<>();
+		for (OCSite site : sites.findAll()) {
+			for (OCService service : site.getServices()) {
+				for (String manager : service.getManagers()) {
+					list.add(new Pair<String, String>(service.getUrn(), manager));	
+				}
+			}
+		}
+		return list;
+	}	
+	
 	private List<Pair<String, String>> getAttrtypeUnit() {
 		List<Pair<String, String>> list = new ArrayList<>();
 		for (OCAttributeType attrtype : attrtypes.findAll()) {
