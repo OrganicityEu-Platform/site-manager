@@ -76,6 +76,7 @@ public class RolesControllerUI {
 	
 	private void addAttributes(Model model, String userId, String message) throws RoleComputationTokenException {
 		model.addAttribute("title", title);
+		model.addAttribute("sub", userId);
 		model.addAttribute("user", userLister.getUser(userId).getLastSuccessResult());
 		model.addAttribute("message", message);
 		model.addAttribute("allGlobalRoles", roleManager.getGlobalRoles());
