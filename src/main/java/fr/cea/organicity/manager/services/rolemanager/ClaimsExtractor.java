@@ -13,7 +13,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import lombok.extern.log4j.Log4j;
 
+@Log4j
 public class ClaimsExtractor {
 
 	private final PublicKey pk;
@@ -37,26 +39,37 @@ public class ClaimsExtractor {
 		}
 	}
 
+	public String getSubFromRequest(HttpServletRequest request) {
+		return getClaimsFromRequest(request).getSubject();
+	}
+
 	public Claims getClaimsFromRequest(HttpServletRequest request) {
 		String token = getTokenFromRequest(request);
 		return getClaimsFromToken(token);
 	}
-
-	public String getSubFromRequest(HttpServletRequest request) {
-		return getClaimsFromRequest(request).getSubject();
-	}
 	
 	private static String getTokenFromRequest(HttpServletRequest request) {
+
 		// Trying to get the token from the cookie
-		String accessToken = CookieTokenExtractorService.getCookieAccess(request);
-		if (accessToken != null)
-			return accessToken;
+		try {
+			String accessToken = CookieTokenExtractorService.getCookieAccess(request);
+			if (accessToken != null) {
+				log.trace("Request recieved with cookie access token " + accessToken);
+				return accessToken;
+			}
+		} catch (Exception e) {
+			// no cookie ; do nothing
+		}
 
 		// Trying to get the token from the header
 		String idHeader = request.getHeader("Authorization");
-		if (idHeader != null)
+		if (idHeader != null) {
+			log.trace("Request recieved with authorisation header " + idHeader);
 			return idHeader;
+		}
 
+		log.debug("No valid header in request");
+		
 		// no id available
 		return null;
 	}

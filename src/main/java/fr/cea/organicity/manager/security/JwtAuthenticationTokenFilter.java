@@ -27,6 +27,7 @@ import fr.cea.organicity.manager.services.rolemanager.Role;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
 import fr.cea.organicity.manager.services.security.CookieTokenExtractorService;
 import fr.cea.organicity.manager.services.userlister.UserLister;
+import io.jsonwebtoken.Claims;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -76,10 +77,24 @@ class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
 	private Identity getIdentity(HttpServletRequest request) throws Exception {
 
-		String sub = claimsextractor.getSubFromRequest(request);
+		Claims claims = claimsextractor.getClaimsFromRequest(request);
+		String sub = claims.getSubject();
 		String name = userLister.getUserNameOrSub(sub);
-		String idToken = CookieTokenExtractorService.getCookieID(request);
-		String accessToken = CookieTokenExtractorService.getCookieAccess(request);
+		
+		String idToken = null;
+		try {
+			idToken = CookieTokenExtractorService.getCookieID(request);	
+		} catch (Exception e) {
+			// do nothing
+		}
+		
+		String accessToken = null;
+		try {
+			accessToken = CookieTokenExtractorService.getCookieAccess(request);
+		} catch (Exception e) {
+			// do nothing
+		}
+		
 		List<Role> roles = rolemanager.getRolesForSub(sub);
 		List<String> roleNames = roles.stream().map(Role::getQualifiedName).map(r -> "ROLE_" + r).collect(Collectors.toList());
 		Collection<? extends GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(roleNames.toArray(new String[0]));
