@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import fr.cea.organicity.manager.controllers.api.QuotaControllerAPI;
 import fr.cea.organicity.manager.domain.OCService;
 import fr.cea.organicity.manager.domain.OCSite;
 import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
@@ -30,7 +31,9 @@ import fr.cea.organicity.manager.services.clientmanager.ClientManager;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
 import fr.cea.organicity.manager.services.rolemanager.SiteRoleManager;
 import fr.cea.organicity.manager.services.userlister.UserLister;
+import lombok.extern.log4j.Log4j;
 
+@Log4j
 @Controller
 @RequestMapping("/sites")
 public class SitesControllerUI {
@@ -46,12 +49,73 @@ public class SitesControllerUI {
 	private final String title = "Sites";
 	
 	@GetMapping
-	public String sites(Model model) {
+	public String sites(@AuthenticationPrincipal Identity identity, Model model) throws RoleComputationTokenException {
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
 		model.addAttribute("title", title);
 		model.addAttribute("elements", getSiterepository());
+		model.addAttribute("isAdmin", isAdmin);
 		return "thsites";
 	}
 
+	@PostMapping
+	@PreAuthorize("hasRole('APP:role-admin')")
+	public String newSitePOST(@AuthenticationPrincipal Identity identity, HttpServletRequest request, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {	
+		String message = null;
+		
+		String name = request.getParameter("name");
+		String email = request.getParameter("email");
+		String related = request.getParameter("related");
+		String latitude = request.getParameter("latitude");
+		String longitude = request.getParameter("longitude");
+		String city = request.getParameter("city");
+		String region = request.getParameter("region");
+		String countryCode = request.getParameter("countryCode");
+		String country = request.getParameter("country");
+		String wiki = request.getParameter("wiki");
+
+		OCSite site = new OCSite();
+		site.setName(name);
+		site.setEmail(email);
+		site.setRelated(related);
+		site.setLatitude(latitude);
+		site.setLongitude(longitude);
+		site.setCity(city);
+		site.setRegion(region);
+		site.setCountryCode(countryCode);
+		site.setCountry(country);
+		site.setWiki(wiki);
+		
+		site.setQuota(QuotaControllerAPI.DEFAULT_QUOTA);
+		site.setRemQuota(QuotaControllerAPI.DEFAULT_QUOTA);
+
+		if (siterepository.findOne(OCSite.computeUrn(name)) != null) {
+			message = "ERROR Site with name " + name + " already exists";
+		} else {
+			try {
+				// Credentials creation
+				clientmanager.getOrCreateClient(site.getClientId());
+
+				// site registration in db
+				site = siterepository.saveAndFlush(site);
+
+				message = "Site " + site.getName() + " created";	
+			} catch (Exception e) {
+				message = "Site " + site.getName() + " NOT created: " + e.getMessage();
+				log.error("Site not created : " + site, e);
+			}
+		}
+
+		boolean isAdmin = rolemanager.isAdmin(identity.getSub());
+		model.addAttribute("title", title);
+		model.addAttribute("elements", getSiterepository());
+		model.addAttribute("isAdmin", isAdmin);
+		model.addAttribute("message", message);
+				
+		return "thsites";
+	}
+	
+	
+	
 	@GetMapping("{siteName}")
 	public String siteGET(@AuthenticationPrincipal Identity identity, @PathVariable("siteName") String siteName, Model model) throws NotFoundLocalException, RoleComputationTokenException, BadRequestRemoteException {
 		OCSite site = siterepository.findOne(OCSite.computeUrn(siteName));
@@ -66,7 +130,7 @@ public class SitesControllerUI {
 		model.addAttribute("isAdmin", isAdmin);
 		model.addAttribute("managers", sitemanager.getSiteManagers(siteName));
 		model.addAttribute("nonmanagers", sitemanager.getNonSiteManagers(siteName));
-		model.addAttribute("client", clientmanager.getOrCreateClient((site.getClientId())));
+		model.addAttribute("client", clientmanager.getOrCreateClient(site.getClientId()));
 
 		return "thsitedetails";
 	}

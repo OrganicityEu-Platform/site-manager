@@ -4,6 +4,7 @@
 	<div class="content" th:fragment="content">
 		
 		<h2>Sites list</h2>
+		<div th:if="${message}" class="message">[[${message}]]</div>
 		
 		<p>Federated city sites</p>
 		<ul>
@@ -14,6 +15,60 @@
 		<ul>
 			<li th:each="e : ${elements}"  th:if="not ${e.isCity()}"><a th:href="'/sites/' + ${e.name}">[[${e.name}]]</a></li>
 		</ul>
+
+
+		<div th:if="${isAdmin}">
+		<a href="#newsite" class="btn validate displaymode" onclick="activateEditMode();">Show form for creating a new site</a>
+		<h2 id="newsite" class="editmode">New site</h2>
+
+		<form class="editmode">
+		  <div class="line">
+		    <label for="name">Name</label>
+		    <input id="name" value="">
+		  </div>
+		  <div class="line">
+		    <label for="email">Email</label>
+		    <input id="email" value="">
+		  </div>
+		  <div class="line">
+		    <label for="related">Related</label>
+		    <input id="related" value="">
+		  </div>
+		  
+		  <div class="line">
+		    <label for="latitude">Latitude</label>
+		    <input id="latitude" value="">
+		  </div>
+		  <div class="line">
+		    <label for="longitude">Longitude</label>
+		    <input id="longitude" value="">
+		  </div>
+		  <div class="line">
+		    <label for="city">City</label>
+		    <input id="city" value="">
+		  </div>
+		  <div class="line">
+		    <label for="region">Region</label>
+		    <input id="region" value="">
+		  </div>
+		  <div class="line">
+		    <label for="countryCode">Country Code</label>
+		    <input id="countryCode" value="">
+		  </div>
+		  <div class="line">
+		    <label for="country">Country</label>
+		    <input id="country" value="">
+		  </div>
+		  <div class="line">
+		    <label for="wiki">Wiki</label>
+		    <input id="wiki" value="">
+		  </div>
+		  <div class="btnbar">
+		    <a id="createsitebtn" href="#newsite" class="btn validate" onclick="newSite(document.getElementById('name').value,document.getElementById('email').value,document.getElementById('related').value,document.getElementById('latitude').value,document.getElementById('longitude').value,document.getElementById('city').value,document.getElementById('region').value,document.getElementById('countryCode').value,document.getElementById('country').value,document.getElementById('wiki').value);">CREATE Site</a>
+		  </div>
+		</form>
+				
+		</div>
 
 	</div>
 </body>

@@ -12,10 +12,12 @@ import lombok.Data;
 @RestController
 public class QuotaControllerAPI {
 
+	public static final long DEFAULT_QUOTA = 1000;
+	
 	@PreAuthorize("hasRole('APP:experiment-user')")
 	@GetMapping(value = "/v1/quota", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Quota getQuota() {
-		return new Quota(1000);
+		return new Quota(DEFAULT_QUOTA);
 	}
 	
 	@Data

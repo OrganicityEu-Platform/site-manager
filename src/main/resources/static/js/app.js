@@ -28,6 +28,43 @@ function logout() {
 	window.location=window.location.href;
 }
 
+function newSite(name, email, related, latitude, longitude, city, region, countryCode, country, wiki) {
+	
+	var namevalid = /^[a-zA-Z0-9]+$/;
+	if(! name.match(namevalid))
+	{
+		alert("Invalid name: only letters and numbers are allowed");
+		return;
+	}
+	
+	var emailvalid = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	if(! email.match(emailvalid))
+	{
+		alert("Invalid email address");
+		return;
+	}
+	
+	document.getElementById('createsitebtn').innerHTML = 'Please wait...'
+	
+	var form = document.createElement("form");
+    form.setAttribute("method", "post");
+    form.setAttribute("action", '/sites/');
+      
+    form.appendChild(createHiddenFiled('name', name));
+    form.appendChild(createHiddenFiled('email', email));
+    form.appendChild(createHiddenFiled('related', related));
+    form.appendChild(createHiddenFiled('latitude', latitude));
+    form.appendChild(createHiddenFiled('longitude', longitude));
+    form.appendChild(createHiddenFiled('city', city));
+    form.appendChild(createHiddenFiled('region', region));
+    form.appendChild(createHiddenFiled('countryCode', countryCode));
+    form.appendChild(createHiddenFiled('country', country));
+    form.appendChild(createHiddenFiled('wiki', wiki));
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
 function updateSite(sitename, email, related) {
 	var form = document.createElement("form");
     form.setAttribute("method", "post");
