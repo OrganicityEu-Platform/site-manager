@@ -19,13 +19,13 @@
 		<p th:utext="${roles_local}"></p>
 		<p th:if="${roles.contains(secuConstants.ROLE_ADMIN_ROLE)}"><a th:href="'/roles/' + ${claims.sub}">Update your local roles</a></p>
 	
-	
+		<div th:if="${experiments}">
 		<h2>Experiments</h2>
 		<p>User has [[${experiments.size()}]] experiment[[((${experiments.size()} != 1)? 's')]]</p>
 		<ul th:if="${experiments.size()}">
 			<li th:each="exp : ${experiments}"><a th:href="'/experiments/' + ${exp.experimentId}">[[${exp.name}]]</a></li>
 		</ul>
-		
+		</div>
 		
 		<h2>Token information</h2>
 		<p>
