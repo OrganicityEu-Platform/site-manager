@@ -45,13 +45,21 @@ public class RestTemplateInterceptor implements ClientHttpRequestInterceptor {
 
 		if (!result.isSuccess()) {
 			String url = result.getUri().toString();
-			switch (HttpStatus.valueOf(result.getHttpCode())) {
-			case BAD_REQUEST: throw new BadRequestRemoteException(url);
-			case METHOD_NOT_ALLOWED: throw new MethodNotAllowedRemoteException(url);
-			case NOT_FOUND: throw new NotFoundRemoteException(url, null, null);
-			case UNAUTHORIZED: throw new UserNotAuthorizedRemoteException(url);
-			default: throw new ServerErrorRemoteException(url);
-			}	
+			int code = result.getHttpCode();
+			
+			if (code != 0) {
+				switch (HttpStatus.valueOf(code)) {
+				case BAD_REQUEST: throw new BadRequestRemoteException(url);
+				case METHOD_NOT_ALLOWED: throw new MethodNotAllowedRemoteException(url);
+				case NOT_FOUND: throw new NotFoundRemoteException(url, null, null);
+				case UNAUTHORIZED: throw new UserNotAuthorizedRemoteException(url);
+				default: throw new ServerErrorRemoteException(url);
+				}
+			}
+			else {
+				log.error("call to " + url + " returned 0. It may be a timeout.");
+				throw new ServerErrorRemoteException(url);
+			}
 		}
 		
         return result.getResponse();
