@@ -11,11 +11,9 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import fr.cea.organicity.manager.config.environment.EnvService;
@@ -71,15 +69,8 @@ public class BeansConfig {
 	}
 	
 	@Bean
-    @ConfigurationProperties(prefix = "organicity.services")
-    public HttpComponentsClientHttpRequestFactory getHttpComponentsClientHttpRequestFactory() 
-    {
-        return new HttpComponentsClientHttpRequestFactory();
-    }
-	
-	@Bean
-	RestTemplate getRestTemplate(HttpComponentsClientHttpRequestFactory rf, List<ClientHttpRequestInterceptor> interceptors) {
-		RestTemplate template = new RestTemplate(rf);
+	RestTemplate getRestTemplate(List<ClientHttpRequestInterceptor> interceptors) {
+		RestTemplate template = new RestTemplate();
 		template.setInterceptors(interceptors);
 		return template;
 	}
