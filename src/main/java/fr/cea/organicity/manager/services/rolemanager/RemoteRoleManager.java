@@ -99,8 +99,8 @@ public class RemoteRoleManager {
 			return body;
 		} catch (Exception e) {
 			String message = "Can't get roles for user " + userId + " using url " + url;
-			log.error(message);
-			throw new RuntimeException(message);
+			log.error(message, e);
+			throw new RuntimeException(message, e);
 		}
 	}
 }
