@@ -1,7 +1,5 @@
 package fr.cea.organicity.manager.controllers.api;
 
-import java.util.Set;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.cea.organicity.manager.domain.OCSite;
-import fr.cea.organicity.manager.domain.OCSecurityInfo;
 import fr.cea.organicity.manager.exceptions.local.BadRequestLocalException;
 import fr.cea.organicity.manager.exceptions.local.LocalException;
 import fr.cea.organicity.manager.exceptions.local.MethodNotAllowedLocalException;
 import fr.cea.organicity.manager.exceptions.local.NotFoundLocalException;
 import fr.cea.organicity.manager.exceptions.local.ServerErrorLocalException;
-import fr.cea.organicity.manager.exceptions.remote.BadRequestRemoteException;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
-import fr.cea.organicity.manager.services.clientmanager.ClientManager;
-import fr.cea.organicity.manager.services.clientmanager.OCClient;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -36,7 +30,6 @@ import lombok.extern.log4j.Log4j;
 public class SiteControllerAPI {
 
 	@Autowired private OCSiteRepository siterepository;
-	@Autowired private ClientManager clientManager;
 	
 	@GetMapping
 	public String getSites() {
@@ -81,31 +74,6 @@ public class SiteControllerAPI {
 			log.error(message);
 			throw new ServerErrorLocalException(urn, e);
 		}
-	}
-
-	@GetMapping("{siteName}/security")
-	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
-	public OCSecurityInfo getSecuritySiteInfo(@PathVariable("siteName") String siteName) throws LocalException, BadRequestRemoteException {
-		String urn = OCSite.computeUrn(siteName);
-		OCSite site = siterepository.findOne(urn);
-		if (site == null)
-			throw new NotFoundLocalException(urn, OCSite.class);
-		
-		Set<String> managers = site.getManagers();
-		OCClient client = clientManager.getOrCreateClient(site.getClientId());
-		
-		return new OCSecurityInfo(client, managers);
-	}
-	
-	@GetMapping("{siteName}/security/managers")
-	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
-	public Set<String> getSiteManagers(@PathVariable("siteName") String siteName) throws LocalException, BadRequestRemoteException {
-		String urn = OCSite.computeUrn(siteName);
-		OCSite site = siterepository.findOne(urn);
-		if (site == null)
-			throw new NotFoundLocalException(urn, OCSite.class);
-		
-		return site.getManagers();
 	}
 	
 	@GetMapping("{siteName}/quota/increment")

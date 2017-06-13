@@ -12,6 +12,9 @@
 		"name": "site",
 		"description": "site management"
 	}, {
+		"name": "security",
+		"description": "sites and services security information"
+	}, {
 		"name": "quota",
 		"description": "experiment quota management"
 	}, {
@@ -124,82 +127,6 @@
 					},
 					"400": {
 						"description": "Malformed or invalid json content (i.e. missing fields), or invalid name supplied"
-					},
-					"401": {
-						"description": "Authorization error"
-					},
-					"404": {
-						"description": "Site not found"
-					}
-				}
-			}
-		},
-		"/sites/{siteName}/security": {
-			"get": {
-				"tags": ["site"],
-				"summary": "Finds site security information",
-				"operationId": "getSecuritySiteInfo",
-				"produces": ["application/json"],
-				"parameters": [{
-					"name": "siteName",
-					"in": "path",
-					"description": "Name of site",
-					"required": true,
-					"type": "string"
-				}, {
-					"name": "Authorization",
-					"in": "header",
-					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
-					"required": true,
-					"type": "string"
-				}],
-				"responses": {
-					"200": {
-						"description": "Returns security site information",
-						"schema": {
-							"$ref": "#/definitions/securitydesc"
-						}
-					},
-					"400": {
-						"description": "Invalid name supplied"
-					},
-					"401": {
-						"description": "Authorization error"
-					},
-					"404": {
-						"description": "Site not found"
-					}
-				}
-			}
-		},
-		"/sites/{siteName}/security/managers": {
-			"get": {
-				"tags": ["site"],
-				"summary": "Finds site managers",
-				"operationId": "getSiteManagers",
-				"produces": ["application/json"],
-				"parameters": [{
-					"name": "siteName",
-					"in": "path",
-					"description": "Name of site",
-					"required": true,
-					"type": "string"
-				}, {
-					"name": "Authorization",
-					"in": "header",
-					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
-					"required": true,
-					"type": "string"
-				}],
-				"responses": {
-					"200": {
-						"description": "Returns the site manager list",
-						"schema": {
-							"$ref": "#/definitions/sitemanagerslist"
-						}
-					},
-					"400": {
-						"description": "Invalid name supplied"
 					},
 					"401": {
 						"description": "Authorization error"
@@ -519,9 +446,85 @@
 				}
 			}
 		},
-		"/sites/{siteName}/services/{serviceName}/security": {
+		"/security/sites/{siteName}": {
 			"get": {
-				"tags": ["site"],
+				"tags": ["security"],
+				"summary": "Finds site security information",
+				"operationId": "getSecuritySiteInfo",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns security site information",
+						"schema": {
+							"$ref": "#/definitions/securitydesc"
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			}
+		},
+		"/security/sites/{siteName}/managers": {
+			"get": {
+				"tags": ["security"],
+				"summary": "Finds site managers",
+				"operationId": "getSiteManagers",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "siteName",
+					"in": "path",
+					"description": "Name of site",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with role [[${clientId}]]:site-{siteName}-user",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns the site manager list",
+						"schema": {
+							"$ref": "#/definitions/sitemanagerslist"
+						}
+					},
+					"400": {
+						"description": "Invalid name supplied"
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "Site not found"
+					}
+				}
+			}
+		},
+		"/security/sites/{siteName}/services/{serviceName}": {
+			"get": {
+				"tags": ["security"],
 				"summary": "Finds service security information",
 				"operationId": "getSecurityServiceInfo",
 				"produces": ["application/json"],
@@ -563,9 +566,9 @@
 				}
 			}
 		},
-		"/sites/{siteName}/services/{serviceName}/security/managers": {
+		"/security/sites/{siteName}/services/{serviceName}/managers": {
 			"get": {
-				"tags": ["site"],
+				"tags": ["security"],
 				"summary": "Finds service managers",
 				"operationId": "getServiceManagers",
 				"produces": ["application/json"],
@@ -607,6 +610,61 @@
 				}
 			}
 		},
+		
+		"/security/users/{userSub}": {
+			"get": {
+				"tags": ["security"],
+				"summary": "Gets the sites access rights for a given user",
+				"operationId": "getSiteManagers",
+				"produces": ["application/json"],
+				"parameters": [{
+					"name": "userSub",
+					"in": "path",
+					"description": "User identifier",
+					"required": true,
+					"type": "string"
+				}, {
+					"name": "Authorization",
+					"in": "header",
+					"description": "Authorization token with global role administrator",
+					"required": true,
+					"type": "string"
+				}],
+				"responses": {
+					"200": {
+						"description": "Returns the sites access rights",
+						"schema": {
+							"$ref": "#/definitions/siterightslist"
+						}
+					},
+					"401": {
+						"description": "Authorization error"
+					},
+					"404": {
+						"description": "User not found"
+					}
+				}
+			}
+		},
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		"/quota": {
 			"get": {
 				"tags": ["quota"],
@@ -1312,6 +1370,25 @@
 					"format": "int64",
 					"description": "service last update date"
 				}
+			}
+		},
+		"siterightslist": {
+			"type": "array",
+			"items": {
+				"type": "object",
+			    "required": [
+				    "site",
+				    "isallowed"
+			    ],
+			    "properties": {
+				    "site": {
+					    "type": "string",
+					    "description": "OC Site name"
+				    },
+				    "isallowed": {
+					    "type": "boolean"
+				    }
+			    }
 			}
 		},
 		"quotadesc": {
