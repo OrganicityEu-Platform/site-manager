@@ -25,7 +25,6 @@ import fr.cea.organicity.manager.repositories.OCSiteRepository;
 import fr.cea.organicity.manager.services.clientmanager.ClientManager;
 import fr.cea.organicity.manager.services.clientmanager.OCClient;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
-import fr.cea.organicity.manager.services.rolemanager.SiteRoleManager;
 import fr.cea.organicity.manager.services.userlister.User;
 import fr.cea.organicity.manager.services.userlister.UserLister;
 import lombok.Data;
