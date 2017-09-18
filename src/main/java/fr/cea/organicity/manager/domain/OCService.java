@@ -74,8 +74,8 @@ public class OCService {
     @JsonIgnore
 	public String getClientId() {
     	if (site != null)
-    		return "service-" + site.getName() + "-" + name; 
+    		return "ocservice-" + site.getName() + "-" + name; 
     	else
-    		return "service-defaultsite-" + name;
+    		return "ocservice-defaultsite-" + name;
 	}
 }

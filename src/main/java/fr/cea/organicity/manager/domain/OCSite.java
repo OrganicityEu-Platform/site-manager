@@ -96,6 +96,6 @@ public class OCSite {
 
     @JsonIgnore
 	public String getClientId() {
-		return "site-" + name;
+		return "ocsite-" + name;
 	}
 }
