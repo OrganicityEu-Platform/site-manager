@@ -20,6 +20,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.google.common.collect.Lists;
+
 import fr.cea.organicity.manager.domain.OCRequest;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
 import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;
@@ -98,6 +100,8 @@ class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 		List<Role> roles = rolemanager.getRolesForSub(sub);
 		List<String> roleNames = roles.stream().map(Role::getQualifiedName).map(r -> "ROLE_" + r).collect(Collectors.toList());
 		Collection<? extends GrantedAuthority> authorities = AuthorityUtils.createAuthorityList(roleNames.toArray(new String[0]));
+				
+		log.trace("User " + name + " (" + sub + ") has roles " + roles.stream().map(Role::getQualifiedName).reduce("", (a,b) -> a+", "+b));
 		
 		return new Identity(sub, name, idToken, accessToken, roles, roleNames, authorities);
 	}
