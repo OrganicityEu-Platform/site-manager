@@ -20,8 +20,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.google.common.collect.Lists;
-
 import fr.cea.organicity.manager.domain.OCRequest;
 import fr.cea.organicity.manager.repositories.OCRequestRepository;
 import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;

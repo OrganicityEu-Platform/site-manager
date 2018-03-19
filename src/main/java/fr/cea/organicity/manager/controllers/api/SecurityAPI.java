@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,13 +23,17 @@ import fr.cea.organicity.manager.exceptions.remote.BadRequestRemoteException;
 import fr.cea.organicity.manager.exceptions.token.RoleComputationTokenException;
 import fr.cea.organicity.manager.repositories.OCServiceRepository;
 import fr.cea.organicity.manager.repositories.OCSiteRepository;
+import fr.cea.organicity.manager.security.Identity;
 import fr.cea.organicity.manager.services.clientmanager.ClientManager;
 import fr.cea.organicity.manager.services.clientmanager.OCClient;
+import fr.cea.organicity.manager.services.rolemanager.ClaimsExtractor;
 import fr.cea.organicity.manager.services.rolemanager.RoleManager;
 import fr.cea.organicity.manager.services.userlister.User;
 import fr.cea.organicity.manager.services.userlister.UserLister;
 import lombok.Data;
+import lombok.extern.log4j.Log4j;
 
+@Log4j
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/v1/security", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,6 +44,7 @@ public class SecurityAPI {
 	@Autowired private ClientManager clientManager;
 	@Autowired private UserLister userLister;
 	@Autowired private RoleManager roleManager;
+	@Autowired private ClaimsExtractor claimsExtractor;
 	
 	@GetMapping("sites/{siteName}")
 	@PreAuthorize("hasPermission(#siteName, 'sitemanager')")
@@ -109,6 +115,19 @@ public class SecurityAPI {
 		}
 		
 		return result;
+	}
+	
+	@GetMapping("users/")
+	public List<SiteRight> getPermissions(@AuthenticationPrincipal Identity identity) throws LocalException, RoleComputationTokenException {
+
+		String sub=""; 
+		try {
+			sub = claimsExtractor.getClaimsFromToken(identity.getIdToken()).getSubject();
+		} catch (Exception e) {
+			log.error("Sub not found !");
+		}
+		
+		return getPermissions(sub);
 	}
 	
 	@Data
