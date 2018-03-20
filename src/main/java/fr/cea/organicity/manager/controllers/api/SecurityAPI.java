@@ -119,14 +119,8 @@ public class SecurityAPI {
 	
 	@GetMapping("users/")
 	public List<SiteRight> getPermissions(@AuthenticationPrincipal Identity identity) throws LocalException, RoleComputationTokenException {
-
-		String sub=""; 
-		try {
-			sub = claimsExtractor.getClaimsFromToken(identity.getIdToken()).getSubject();
-		} catch (Exception e) {
-			log.error("Sub not found !");
-		}
-		
+		String sub = identity.getUsername();
+		log.trace("Roles requested for current user (sub=" + sub + ")");
 		return getPermissions(sub);
 	}
 	
